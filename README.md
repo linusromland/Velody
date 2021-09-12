@@ -21,7 +21,7 @@ If you have any comments like feature requests or feedback on theses snippets ad
 
 ## Publisher
 
-Linus Romland & Svante Jonsson
+Linus Romland
 
 ## License
 
