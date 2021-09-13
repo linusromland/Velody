@@ -17,6 +17,7 @@ const client = new DiscordJS.Client({
 
 //When DiscordBot started, init of WOKCommands
 client.on("ready", () => {
+
   console.info(`Logged in as ${client.user.tag}!`);
   new WOKCommands(client, {
     commandsDir: "commands",
