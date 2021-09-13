@@ -1,7 +1,19 @@
+//init of dotenv
+require("dotenv").config();
+
 let voiceChannel;
+let voiceConnection;
+
+const ytdl = require('ytdl-core');
+const ytsearch = require('youtube-search');
+const validUrl = require('valid-url');
+
+var opts = {
+    maxResults: 10,
+    key: process.env.YOUTUBE_KEY,
+};
 
 exports.join = async (embed, client, interaction) => {
-
     //Checks if bot is in any voice channel
     if (voiceChannel) {
         embed.setTitle(`I'm already in a voice channel!`)
@@ -16,6 +28,7 @@ exports.join = async (embed, client, interaction) => {
         voiceChannel = await Member.voice.channel
         //Joins voice channel
         await voiceChannel.join().then(connection => {
+            voiceConnection = connection;
             embed.setTitle(`Joined voice channel *${voiceChannel.name}*`)
             embed.setDescription(`Use command "/help" to get a list of commands`)
         }).catch(error => {
@@ -43,4 +56,34 @@ exports.leave = async (embed) => {
         embed.setDescription(`Use command "/join" to connect me to a voice channel!`)
     }
     return embed;
+}
+
+exports.play = async (embed, client, interaction, search) => {
+    if (!voiceChannel) await this.join(embed, client, interaction)
+    let URL;
+
+    if (validUrl.isUri(search)) {
+        URL = search
+    } else {
+        URL = await new Promise((resolve, reject) => {
+            ytsearch(search, opts, function (err, results) {
+                if (err) reject(err)
+                resolve(results[0].link)
+            });
+        })
+    }
+
+    const stream = ytdl(URL, {
+        filter: "audioonly",
+        type: 'opus'
+    })
+    const songInfo = await ytdl.getInfo(URL);
+    const song = {
+        title: songInfo.videoDetails.title,
+        url: songInfo.videoDetails.video_url,
+    };
+    embed.setTitle(`Playing video *${song.title}*`)
+    embed.setDescription(`URL to video: ${song.url}`)
+    const dispatcher = voiceConnection.play(stream)
+    return embed
 }
