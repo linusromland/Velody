@@ -24,10 +24,12 @@ exports.join = async (embed, client, interaction) => {
     const Guild = await client.guilds.cache.get(interaction.guild_id);
     const Member = await Guild.members.cache.get(interaction.member.user.id);
 
+
     if (await Member && await Member.voice.channel) {
         voiceChannel = await Member.voice.channel
         //Joins voice channel
         await voiceChannel.join().then(connection => {
+            connection.voice.setSelfDeaf(true);
             voiceConnection = connection;
             embed.setTitle(`Joined voice channel *${voiceChannel.name}*`)
             embed.setDescription(`Use command "/help" to get a list of commands`)
