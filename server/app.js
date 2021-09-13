@@ -8,9 +8,6 @@ require("better-logging")(console);
 const DiscordJS = require("discord.js");
 const WOKCommands = require("wokcommands");
 
-//Local Dependencies import
-const database = require("./database");
-const { runEveryFullHours } = require("./sendMessages");
 
 //Local Variables
 const guildId = "554977304665784325";
@@ -26,11 +23,8 @@ client.on("ready", () => {
     testServers: [guildId],
     showWarns: false,
   });
-  runEveryFullHours(client);
 });
 
-//Connects to MongoDB
-database.cnctDB("discord-weather");
 
 //Login with Discord Bot Token
 client.login(process.env.TOKEN);

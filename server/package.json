@@ -1,7 +1,7 @@
 {
-  "name": "discord-weather",
+  "name": "velody",
   "version": "0.0.1",
-  "description": "Checks wheather on sends you a message if it will rain",
+  "description": "velody is cool. google is dum dum",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -12,12 +12,12 @@
     "type": "git",
     "url": "git+https://github.com/Markussim/discord-weather.git"
   },
-  "author": "Markus Simonsen, Linus Romland",
-  "license": "GPL-3.0-or-later",
+  "author": "Linus Romland",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Markussim/discord-weather/issues"
+    "url": "https://github.com/linusromland/velody/issues"
   },
-  "homepage": "https://github.com/Markussim/discord-weather#readme",
+  "homepage": "https://github.com/linusromland/velody#readme",
   "dependencies": {
     "@qc/date-round": "^0.0.0",
     "better-logging": "^4.5.0",
