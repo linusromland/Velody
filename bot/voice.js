@@ -27,3 +27,20 @@ exports.join = async (embed, client, interaction) => {
     }
     return embed;
 }
+
+exports.leave = async (embed) => {
+    embed.setTitle("Something went wrong!");
+    embed.setDescription("Please add issue to GitHub repo if this continues!")
+    let name = voiceChannel ? voiceChannel.name : null;
+    if (voiceChannel) {
+        //Leaves voice channel
+        await voiceChannel.leave()
+        embed.setTitle(`Disconnected from *${name}*`);
+        embed.setDescription(`Use command "/join" to connect me to a voice channel again!`)
+        voiceChannel = null;
+    } else {
+        embed.setTitle(`I'm not connected to a voice channel!`);
+        embed.setDescription(`Use command "/join" to connect me to a voice channel!`)
+    }
+    return embed;
+}
