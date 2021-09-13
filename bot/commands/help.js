@@ -11,7 +11,8 @@ module.exports = {
 
     embed.setTitle("Available Commands - Velody"); //Sets the title for the Embed
     embed.setDescription(
-      `Coming soon!`
+      `"/join" - Joins to voice channel\n
+      "/leave" - Leaves voice channel`
     );
 
     return embed;
