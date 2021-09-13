@@ -1,0 +1,36 @@
+{
+  "name": "velody",
+  "version": "0.0.1",
+  "description": "velody is cool. google is dum dum",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon",
+    "start": "forever app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Markussim/discord-weather.git"
+  },
+  "author": "Linus Romland",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/linusromland/velody/issues"
+  },
+  "homepage": "https://github.com/linusromland/velody#readme",
+  "dependencies": {
+    "@qc/date-round": "^0.0.0",
+    "better-logging": "^4.5.0",
+    "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0",
+    "forever": "^4.0.1",
+    "mongoose": "^5.13.2",
+    "node-fetch": "^2.6.1",
+    "redis": "^3.1.2",
+    "sessionstore": "^1.3.7",
+    "wokcommands": "^1.3.6"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.9"
+  }
+}
