@@ -8,6 +8,7 @@ require("better-logging")(console);
 const DiscordJS = require("discord.js");
 const WOKCommands = require("wokcommands");
 
+
 //Local Variables
 const guildId = "554977304665784325";
 const client = new DiscordJS.Client({
@@ -16,13 +17,13 @@ const client = new DiscordJS.Client({
 
 //When DiscordBot started, init of WOKCommands
 client.on("ready", () => {
+
   console.info(`Logged in as ${client.user.tag}!`);
   new WOKCommands(client, {
     commandsDir: "commands",
     testServers: [guildId],
     showWarns: false,
   });
-  runEveryFullHours(client);
 });
 
 
