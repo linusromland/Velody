@@ -1,9 +1,10 @@
 //Dependencies Import
 const { MessageEmbed } = require("discord.js");
 
+
 module.exports = {
   slash: "both",
-  testOnly: true,
+  testOnly: false,
   description: "Shows available commands on Velody",
   callback: async ({ interaction, args }) => {
     //Creates a messageEmbed for reply
