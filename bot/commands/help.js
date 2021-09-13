@@ -1,7 +1,6 @@
 //Dependencies Import
 const { MessageEmbed } = require("discord.js");
 
-
 module.exports = {
   slash: "both",
   testOnly: true,
