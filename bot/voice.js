@@ -81,9 +81,11 @@ exports.play = async (embed, client, interaction, search) => {
     const song = {
         title: songInfo.videoDetails.title,
         url: songInfo.videoDetails.video_url,
+        thumbnail: songInfo.player_response.videoDetails.thumbnail.thumbnails[0].url
     };
     embed.setTitle(`Playing video *${song.title}*`)
     embed.setDescription(`URL to video: ${song.url}`)
+    embed.setImage(song.thumbnail)
     const dispatcher = voiceConnection.play(stream)
     return embed
 }
