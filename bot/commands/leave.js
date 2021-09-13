@@ -13,6 +13,7 @@ module.exports = {
         client
     }) => {
         let embed = new MessageEmbed();
+        embed.setAuthor('Velody', 'https://raw.githubusercontent.com/linusromland/Velody/master/Velody-logos.jpeg', 'https://github.com/linusromland/Velody')
         embed.setTitle("Something went wrong!");
 
         embed = voice.leave(embed);
