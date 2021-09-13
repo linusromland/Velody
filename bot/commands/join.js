@@ -12,14 +12,18 @@ module.exports = {
     client
   }) => {
     const embed = new MessageEmbed();
-
-    console.log(client.voice)
+    
+    if(client.voice.connections.size > 0){
+      embed.setTitle(`I'm already in a voice channel!`)
+      return embed;
+    }
 
     const Guild = await client.guilds.cache.get(interaction.guild_id);
     const Member = await Guild.members.cache.get(interaction.member.user.id);
     if(await Member.voice.channel){
       await Member.voice.channel.join().then(connection => {
-        embed.setTitle("Joined voice channel 👍🏻")
+        console.log(Member.voice.channel)
+        embed.setTitle(`Joined voice channel *${Member.voice.channel.name}*`)
         embed.setDescription(`Use command "/help" to get a list of commands`)
       }).catch(error => {
         embed.setTitle("Something went wrong!");
@@ -28,6 +32,7 @@ module.exports = {
     }else{
       embed.setTitle("Please join a voice channel first!");
     }
+    
     return embed;
     
 
