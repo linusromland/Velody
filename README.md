@@ -18,7 +18,6 @@ Velody will be a music bot for discord to play tunes from youtube etc. It will b
 To test the bot, you need to setup your `.env` file.
 Create a file named `.env` and copy the information below:
 ```
-CHANNEL=INSERT_YOUR_TEXT_CHANNEL_ID_HERE
 TOKEN=INSERT_YOUR_DISCORD_TOKEN_HERE
 ```
 
