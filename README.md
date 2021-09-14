@@ -19,6 +19,7 @@ To test the bot, you need to setup your `.env` file.
 Create a file named `.env` and copy the information below:
 ```
 TOKEN=INSERT_YOUR_DISCORD_TOKEN_HERE
+YOUTUBE_KEY=INSERT_YOUR_YOUTUBE_KEY_HERE
 ```
 
 ## Contact
