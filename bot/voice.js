@@ -8,7 +8,7 @@ let queue = [];
 let playingMusic = false;
 
 const ytdl = require('ytdl-core');
-const ytsearch = require('youtube-search');
+const ytsr = require('ytsr');
 const validUrl = require('valid-url');
 const progressbar = require('string-progressbar');
 
@@ -63,18 +63,10 @@ exports.leave = async (embed) => {
 
 exports.play = async (embed, client, interaction, search) => {
     try {
-        let URL;
-        if (validUrl.isUri(search)) {
-            URL = search
-        } else {
-            let searchResults = await new Promise((resolve, reject) => {
-                ytsearch(search, opts, function (err, results) {
-                    if (err) reject(err)
-                    resolve(results)
-                });
-            })
-            URL = searchResults[0].link
-        }
+        let searchResults = await ytsr(search)
+        let URL = searchResults.items[0].url
+
+        console.log(searchResults.items)
 
         const songInfo = await ytdl.getInfo(URL);
         const song = {
@@ -156,8 +148,8 @@ exports.queue = (embed) => {
 
 exports.clearAll = async () => {
     //Leaves voice channel
-    await voiceChannel.leave()
-    await dispatcher.destroy();
+    if(voiceChannel) await voiceChannel.leave()
+    if(dispatcher) await dispatcher.destroy();
     dispatcher = null;
     voiceChannel = null;
     queue = [];
@@ -177,7 +169,7 @@ playMusic = async (embed, client, interaction) => {
     return new Promise(async (resolve, reject) => {
         const stream = ytdl(queue[0].url, {
             filter: "audioonly",
-            type: 'opus'
+            type: 'opus',
         })
         const streamOptions = {
             seek: queue[0].seek / 1000
@@ -190,6 +182,7 @@ playMusic = async (embed, client, interaction) => {
             })
             .on("error", error => {
                 queue[0].seek = dispatcher.streamTime
+                console.log("Crash")
                 resolve()
             });
         playingMusic = true;
