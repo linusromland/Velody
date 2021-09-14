@@ -3,6 +3,7 @@ require("dotenv").config();
 
 let voiceChannel;
 let voiceConnection;
+let dispatcher;
 let queue = [];
 let playingMusic = false;
 
@@ -16,11 +17,6 @@ let opts = {
 };
 
 exports.join = async (embed, client, interaction) => {
-    //Checks if bot is in any voice channel
-    if (voiceChannel) {
-        embed.setTitle(`I'm already in a voice channel!`)
-        return embed;
-    }
 
     //Gets Member varaible from ID. 
     const Guild = await client.guilds.cache.get(interaction.guild_id);
@@ -80,11 +76,11 @@ exports.play = async (embed, client, interaction, search) => {
         }
 
         const songInfo = await ytdl.getInfo(URL);
-
         const song = {
             title: songInfo.videoDetails.title,
             url: songInfo.videoDetails.video_url,
-            thumbnail: songInfo.player_response.videoDetails.thumbnail.thumbnails[0].url
+            thumbnail: songInfo.player_response.videoDetails.thumbnail.thumbnails[0].url,
+            length: songInfo.videoDetails.lengthSeconds
         };
         queue.push(song);
         if (playingMusic) {
@@ -94,12 +90,11 @@ exports.play = async (embed, client, interaction, search) => {
             embed.setImage(song.thumbnail)
 
         } else {
-            if (!voiceChannel) await this.join(embed, client, interaction)
             embed.setTitle(`Playing *${song.title}*`)
             embed.setDescription("")
             embed.setURL(song.url)
             embed.setImage(song.thumbnail)
-            startPlay()
+            startPlay(embed, client, interaction)
         }
         return embed
     } catch (error) {
@@ -110,19 +105,48 @@ exports.play = async (embed, client, interaction, search) => {
 
 }
 
-startPlay = async () => {
-    do {
-        await playMusic()
-    } while (queue.length > 0);
+exports.skip = async (embed) => {
+    if (queue.length > 0) {
+        embed.setTitle(`Skipped song *${queue[0].title}*`);
+        if (queue[1]) embed.setDescription(`Song coming up: *${queue[1].title}*`);
+        dispatcher.end();
+    } else {
+        embed.setTitle(`No song is currently playing!`);
+        embed.setDescription(`Use command "/play <song>" to play a song`)
+    }
+
+    return embed;
 }
 
-playMusic = () => {
+exports.nowplaying = (embed) => {
+    if (queue.length > 0) {
+        embed.setTitle(`Playing *${queue[0].title}*`)
+        embed.setDescription(`${dispatcher.streamTime / 1000}s / ${queue[0].length}s`)
+        embed.setURL(queue[0].url)
+        embed.setImage(queue[0].thumbnail)
+    } else {
+        embed.setTitle(`No song is currently playing!`);
+        embed.setDescription(`Use command "/play <song>" to play a song`)
+    }
+
+    return embed;
+}
+
+startPlay = async (embed, client, interaction) => {
+    do {
+        await playMusic(embed, client, interaction)
+    } while (queue.length > 0);
+    voiceChannel.leave();
+}
+
+playMusic = async (embed, client, interaction) => {
+    if (!voiceChannel || client.voice.connections.size <= 0) await this.join(embed, client, interaction)
     return new Promise((resolve, reject) => {
         const stream = ytdl(queue[0].url, {
             filter: "audioonly",
             type: 'opus'
         })
-        const dispatcher = voiceConnection.play(stream)
+        dispatcher = voiceConnection.play(stream)
             .on("finish", () => {
                 queue.shift()
                 playingMusic = false;
