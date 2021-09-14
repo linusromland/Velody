@@ -61,6 +61,7 @@ exports.leave = async (embed) => {
 
 exports.play = async (embed, client, interaction, search) => {
     try {
+        console.log(interaction.member);
         let URL;
 
         if (validUrl.isUri(search)) {
@@ -80,7 +81,9 @@ exports.play = async (embed, client, interaction, search) => {
             title: songInfo.videoDetails.title,
             url: songInfo.videoDetails.video_url,
             thumbnail: songInfo.player_response.videoDetails.thumbnail.thumbnails[0].url,
-            length: songInfo.videoDetails.lengthSeconds
+            length: songInfo.videoDetails.lengthSeconds,
+            nick: interaction.member.nick,
+            username: `${interaction.member.user.username}#${interaction.member.user.discriminator}`,
         };
         queue.push(song);
         if (playingMusic) {
@@ -121,9 +124,10 @@ exports.skip = async (embed) => {
 exports.nowplaying = (embed) => {
     if (queue.length > 0) {
         embed.setTitle(`Playing *${queue[0].title}*`)
-        embed.setDescription(`${dispatcher.streamTime / 1000}s / ${queue[0].length}s`)
+        embed.setDescription(`${new Date(dispatcher.streamTime).toISOString().substr(14, 5)} / ${new Date(queue[0].length * 1000).toISOString().substr(14, 5)}`)
         embed.setURL(queue[0].url)
-        embed.setImage(queue[0].thumbnail)
+        embed.setThumbnail(queue[0].thumbnail)
+        embed.setFooter(`**Request by:** ${queue[0].nick} (${queue[0].username})`)
     } else {
         embed.setTitle(`No song is currently playing!`);
         embed.setDescription(`Use command "/play <song>" to play a song`)
