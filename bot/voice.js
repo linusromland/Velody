@@ -10,6 +10,7 @@ let playingMusic = false;
 const ytdl = require('ytdl-core');
 const ytsearch = require('youtube-search');
 const validUrl = require('valid-url');
+const progressbar = require('string-progressbar');
 
 let opts = {
     maxResults: 10,
@@ -31,6 +32,9 @@ exports.join = async (embed, client, interaction) => {
             voiceConnection = connection;
             embed.setTitle(`Joined voice channel *${voiceChannel.name}*`)
             embed.setDescription(`Use command "/help" to get a list of commands`)
+            connection.on("disconnect", () => {
+                this.clearAll();
+            });
         }).catch(error => {
             embed.setTitle("Something went wrong!");
             embed.setDescription("Please add issue to GitHub repo if this continues!")
@@ -47,11 +51,9 @@ exports.leave = async (embed) => {
     embed.setDescription("Please add issue to GitHub repo if this continues!")
     let name = voiceChannel ? voiceChannel.name : null;
     if (voiceChannel) {
-        //Leaves voice channel
-        await voiceChannel.leave()
+        this.clearAll();
         embed.setTitle(`Disconnected from *${name}*`);
         embed.setDescription(`Use command "/join" to connect me to a voice channel again!`)
-        voiceChannel = null;
     } else {
         embed.setTitle(`I'm not connected to a voice channel!`);
         embed.setDescription(`Use command "/join" to connect me to a voice channel!`)
@@ -61,9 +63,7 @@ exports.leave = async (embed) => {
 
 exports.play = async (embed, client, interaction, search) => {
     try {
-        console.log(interaction.member);
         let URL;
-
         if (validUrl.isUri(search)) {
             URL = search
         } else {
@@ -84,16 +84,17 @@ exports.play = async (embed, client, interaction, search) => {
             length: songInfo.videoDetails.lengthSeconds,
             nick: interaction.member.nick,
             username: `${interaction.member.user.username}#${interaction.member.user.discriminator}`,
+            seek: 0
         };
         queue.push(song);
         if (playingMusic) {
-            embed.setTitle(`Added *${song.title}* to queue!`)
+            embed.setTitle(`Added **${song.title}** to queue!`)
             embed.setDescription("")
             embed.setURL(song.url)
             embed.setImage(song.thumbnail)
 
         } else {
-            embed.setTitle(`Playing *${song.title}*`)
+            embed.setTitle(`Playing **${song.title}**`)
             embed.setDescription("")
             embed.setURL(song.url)
             embed.setImage(song.thumbnail)
@@ -110,8 +111,8 @@ exports.play = async (embed, client, interaction, search) => {
 
 exports.skip = async (embed) => {
     if (queue.length > 0) {
-        embed.setTitle(`Skipped song *${queue[0].title}*`);
-        if (queue[1]) embed.setDescription(`Song coming up: *${queue[1].title}*`);
+        embed.setTitle(`Skipped song **${queue[0].title}**`);
+        if (queue[1]) embed.setDescription(`Song coming up: **${queue[1].title}**`);
         dispatcher.end();
     } else {
         embed.setTitle(`No song is currently playing!`);
@@ -123,17 +124,45 @@ exports.skip = async (embed) => {
 
 exports.nowplaying = (embed) => {
     if (queue.length > 0) {
-        embed.setTitle(`Playing *${queue[0].title}*`)
-        embed.setDescription(`${new Date(dispatcher.streamTime).toISOString().substr(14, 5)} / ${new Date(queue[0].length * 1000).toISOString().substr(14, 5)}`)
+        embed.setTitle(`Playing **${queue[0].title}**`)
+        let duration = progressbar.splitBar(queue[0].length * 1000, dispatcher.streamTime, 20);
+        embed.setDescription(`${duration[0]}\n
+        ${new Date(dispatcher.streamTime).toISOString().substr(14, 5)} / ${new Date(queue[0].length * 1000).toISOString().substr(14, 5)}
+        \n` + "``Requested by:`` " + `${queue[0].nick} (${queue[0].username})`)
         embed.setURL(queue[0].url)
         embed.setThumbnail(queue[0].thumbnail)
-        embed.setFooter(`**Request by:** ${queue[0].nick} (${queue[0].username})`)
     } else {
         embed.setTitle(`No song is currently playing!`);
         embed.setDescription(`Use command "/play <song>" to play a song`)
     }
 
     return embed;
+}
+
+exports.queue = (embed) => {
+    embed.setTitle("Queue")
+    let description = `__Now Playing:__
+    [${queue[0].title}](${queue[0].url}) - ${new Date(queue[0].length * 1000).toISOString().substr(14, 5)}
+    \n`
+    if (queue.length > 1) description += "__Up next:__\n"
+    for (let i = 1; i < queue.length; i++) {
+        const element = queue[i];
+        description += "``" + i + ".``" + ` [${element.title}](${element.url}) - ${new Date(element.length * 1000).toISOString().substr(14, 5)}\n
+        `
+    }
+    embed.setDescription(description)
+    return embed;
+}
+
+exports.clearAll = async () => {
+    //Leaves voice channel
+    await voiceChannel.leave()
+    await dispatcher.destroy();
+    dispatcher = null;
+    voiceChannel = null;
+    queue = [];
+    playingMusic = false;
+    console.log(queue);
 }
 
 startPlay = async (embed, client, interaction) => {
@@ -145,18 +174,24 @@ startPlay = async (embed, client, interaction) => {
 
 playMusic = async (embed, client, interaction) => {
     if (!voiceChannel || client.voice.connections.size <= 0) await this.join(embed, client, interaction)
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         const stream = ytdl(queue[0].url, {
             filter: "audioonly",
             type: 'opus'
         })
-        dispatcher = voiceConnection.play(stream)
+        const streamOptions = {
+            seek: queue[0].seek / 1000
+        };
+        dispatcher = voiceConnection.play(stream, streamOptions)
             .on("finish", () => {
                 queue.shift()
                 playingMusic = false;
                 resolve()
             })
-            .on("error", error => reject(error));
+            .on("error", error => {
+                queue[0].seek = dispatcher.streamTime
+                resolve()
+            });
         playingMusic = true;
     })
 }
