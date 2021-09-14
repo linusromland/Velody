@@ -13,9 +13,8 @@ module.exports = {
     embed.setDescription(
       `"/join" - Joins to voice channel\n
       "/leave" - Leaves voice channel\n
-      "/play <song>" - Plays song from URL or search`
+      "/play <song>" - Plays song from URL or search\n`
     );
-
     return embed;
   },
 };

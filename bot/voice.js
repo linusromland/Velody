@@ -3,12 +3,14 @@ require("dotenv").config();
 
 let voiceChannel;
 let voiceConnection;
+let queue = [];
+let playingMusic = false;
 
 const ytdl = require('ytdl-core');
 const ytsearch = require('youtube-search');
 const validUrl = require('valid-url');
 
-var opts = {
+let opts = {
     maxResults: 10,
     key: process.env.YOUTUBE_KEY,
 };
@@ -36,6 +38,7 @@ exports.join = async (embed, client, interaction) => {
         }).catch(error => {
             embed.setTitle("Something went wrong!");
             embed.setDescription("Please add issue to GitHub repo if this continues!")
+            embed.setURL("https://github.com/linusromland/Velody/issues/new")
         })
     } else {
         embed.setTitle("Please join a voice channel first!");
@@ -61,33 +64,71 @@ exports.leave = async (embed) => {
 }
 
 exports.play = async (embed, client, interaction, search) => {
-    if (!voiceChannel) await this.join(embed, client, interaction)
-    let URL;
+    try {
+        let URL;
 
-    if (validUrl.isUri(search)) {
-        URL = search
-    } else {
-        URL = await new Promise((resolve, reject) => {
-            ytsearch(search, opts, function (err, results) {
-                if (err) reject(err)
-                resolve(results[0].link)
-            });
-        })
+        if (validUrl.isUri(search)) {
+            URL = search
+        } else {
+            let searchResults = await new Promise((resolve, reject) => {
+                ytsearch(search, opts, function (err, results) {
+                    if (err) reject(err)
+                    resolve(results)
+                });
+            })
+            URL = searchResults[0].link
+        }
+
+        const songInfo = await ytdl.getInfo(URL);
+
+        const song = {
+            title: songInfo.videoDetails.title,
+            url: songInfo.videoDetails.video_url,
+            thumbnail: songInfo.player_response.videoDetails.thumbnail.thumbnails[0].url
+        };
+        queue.push(song);
+        if (playingMusic) {
+            embed.setTitle(`Added *${song.title}* to queue!`)
+            embed.setDescription("")
+            embed.setURL(song.url)
+            embed.setImage(song.thumbnail)
+
+        } else {
+            if (!voiceChannel) await this.join(embed, client, interaction)
+            embed.setTitle(`Playing *${song.title}*`)
+            embed.setDescription("")
+            embed.setURL(song.url)
+            embed.setImage(song.thumbnail)
+            startPlay()
+        }
+        return embed
+    } catch (error) {
+        embed.setTitle("Didn't find a video with that name/URL!");
+        embed.setDescription("Try searching for something else")
+        return embed
     }
 
-    const stream = ytdl(URL, {
-        filter: "audioonly",
-        type: 'opus'
+}
+
+startPlay = async () => {
+    do {
+        await playMusic()
+    } while (queue.length > 0);
+}
+
+playMusic = () => {
+    return new Promise((resolve, reject) => {
+        const stream = ytdl(queue[0].url, {
+            filter: "audioonly",
+            type: 'opus'
+        })
+        const dispatcher = voiceConnection.play(stream)
+            .on("finish", () => {
+                queue.shift()
+                playingMusic = false;
+                resolve()
+            })
+            .on("error", error => reject(error));
+        playingMusic = true;
     })
-    const songInfo = await ytdl.getInfo(URL);
-    const song = {
-        title: songInfo.videoDetails.title,
-        url: songInfo.videoDetails.video_url,
-        thumbnail: songInfo.player_response.videoDetails.thumbnail.thumbnails[0].url
-    };
-    embed.setTitle(`Playing video *${song.title}*`)
-    embed.setDescription(`URL to video: ${song.url}`)
-    embed.setImage(song.thumbnail)
-    const dispatcher = voiceConnection.play(stream)
-    return embed
 }

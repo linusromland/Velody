@@ -17,9 +17,7 @@ module.exports = {
     }) => {
         let embed = new MessageEmbed();
         embed.setAuthor('Velody', 'https://raw.githubusercontent.com/linusromland/Velody/master/Velody-logos.jpeg', 'https://github.com/linusromland/Velody')
-
         embed = voice.play(embed, client, interaction, args[0]);
-
         return embed;
     },
 };
