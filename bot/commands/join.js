@@ -6,7 +6,7 @@ const voice = require("../voice.js");
 
 module.exports = {
   slash: "both",
-  testOnly: false,
+  testOnly: true,
   description: "Velody joins your voice channel!",
   callback: async ({
     interaction,
