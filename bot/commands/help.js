@@ -5,7 +5,7 @@ const {
 
 module.exports = {
   slash: "both",
-  testOnly: false,
+  testOnly: true,
   description: "Shows available commands on Velody",
   callback: async ({
     interaction,
