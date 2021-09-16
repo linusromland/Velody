@@ -12,7 +12,7 @@
 | Command | Description                                             |
 | ------ | -------------------------------------------------------- |
 | `/play <song>`| Plays a song with the given name or URL. |
-| `/playskip <song></song>`| Adds a song to the top of the queue then skips to it. |
+| `/playskip <song>`| Adds a song to the top of the queue then skips to it. |
 | `/join`| Summons the bot to your voice channel.. |
 | `/leave`| Disconnect the bot from the voice channel it is in. |
 | `/nowplaying`| Shows what song the bot is currently playing. |
