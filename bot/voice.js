@@ -66,7 +66,7 @@ exports.play = async (embed, client, interaction, search) => {
         let searchResults = await ytsr(search)
         let URL = searchResults.items[0].url
 
-        console.log(searchResults.items)
+        console.log(searchResults.items[0])
 
         const songInfo = await ytdl.getInfo(URL);
         const song = {
