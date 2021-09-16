@@ -183,7 +183,7 @@ playMusic = async (embed, client, interaction) => {
             })
             .on("error", error => {
                 queue[0].seek = dispatcher.streamTime
-                console.log("Crash")
+                console.log("Lost Connection to discord. Reconnecting...")
                 resolve()
             });
         playingMusic = true;
