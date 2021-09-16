@@ -16,12 +16,14 @@ module.exports = {
     embed.setAuthor('Velody', 'https://raw.githubusercontent.com/linusromland/Velody/master/Velody-logos.jpeg', 'https://github.com/linusromland/Velody')
     embed.setTitle("Available Commands"); //Sets the title for the Embed
     embed.setDescription(
-      `"/join" - Joins to voice channel\u200b
-      "/leave" - Leaves voice channel\u200b
-      "/play <song>" - Plays song from URL or search\u200b
-      "/nowplaying" - Shows what is currently playing\u200b
-      "/queue" - Shows queue\u200b
-      "/skip" - Skips current song`
+      `"/play <song>" - Plays a song with the given name or URL.\u200b
+      "/playskip <song>" - Adds a song to the top of the queue then skips to it.\u200b
+      "/join" - Summons the bot to your voice channel.\u200b
+      "/leave" - Disconnect the bot from the voice channel it is in.\u200b
+      "/nowplaying" - Shows what song the bot is currently playing.\u200b
+      "/skip" - Skips the currently playing song.\u200b
+      "/loop" - Loop the currently playing song.\u200b
+      "/queue" - View the queue`
     );
     return embed;
   },
