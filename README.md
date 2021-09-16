@@ -7,18 +7,73 @@
 <p align="center"><a href="https://github.com/linusromland/velody/releases" target="_blank"><img src="https://img.shields.io/badge/version-v0.0.1-blue?style=for-the-badge&logo=none" alt="cli version" /></a>&nbsp;<a href="https://nodejs.org/en/" target="_blank"><img src="https://img.shields.io/badge/Node.JS-14.17+-0?style=for-the-badge&logo=nodedotjs" alt="go version" /></a>&nbsp;
 <a href="https://github.com/linusromland/Velody/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge&logo=none" alt="license" /></a></p>
 
-## ⚡️ Setup
-
-> For help **setting up the bot**, follow the guide [here](https://github.com/linusromland/Velody/wiki/%E2%9A%A1%EF%B8%8F-Setup).
-
-## 📖 Project Wiki
-
-The best way to better explore all the features of the **Velody** is to read the project [Wiki](https://github.com/linusromland/Velody/wiki).
-
 ## ⚙️ Commands
 
-> For information about  **commands**, check the wiki [here](https://github.com/linusromland/Velody/wiki/%E2%9A%99%EF%B8%8F-Commands).
+| Command | Description                                             |
+| ------ | -------------------------------------------------------- |
+| `/play <song>`| Plays a song with the given name or URL. |
+| `/playskip`| Adds a song to the top of the queue then skips to it. |
+| `/leave`| Disconnect the bot from the voice channel it is in. |
+| `/join`| Summons the bot to your voice channel.. |
+| `/nowplaying`| Shows what song the bot is currently playing. |
+| `/skip`| Skips the currently playing song. |
+| `/loop`| Loop the currently playing song. |
+| `/queue`| View the queue.  |
 
+## ⚡️ Setup
+
+
+First of all, [download](https://nodejs.org/en/) and install **Node.JS**. Version `14` or higher is required.
+
+> If need help to **install Node.JS on Linux**, you can find a guide [here](https://www.digitalocean.com/community/tutorial_collections/how-to-install-node-js).
+
+To confirm your installation of Node.JS run the following in the terminal or CMD:
+
+```bash
+node -v
+```
+
+### Setup:
+
+```bash
+# Clone the repo:
+git clone https://github.com/linusromland/Velody.git
+
+# Navigate to folder:
+cd Velody/
+
+#Navigate to folder (for Windows):
+dir Velody/
+
+#Install necessary dependencies:
+npm install
+
+#Create .env file
+touch .env
+
+#Create .env file (for Windows):
+type nul > .env
+```
+
+Now you need to setup your .env file. To do this you need to create a Discord Bot and invite it to your server.
+
+> If need help to **creating a discord bot**, you can find a guide [here](https://dsharpplus.github.io/articles/basics/bot_account.html).
+
+Also enable slash commands for the bot!
+
+Setup your .env as following:
+
+```bash
+TOKEN=YOUR_DISCORD_BOT_TOKEN
+```
+
+Next, you can start the bot using the following command:
+
+```bash
+npm run start
+```
+
+That's all you need to know to start! 🎉
 ## 📝 Contact
 
 If you find issues please report them on the [issue](https://github.com/linusromland/Velody/issues) section of the repository.
