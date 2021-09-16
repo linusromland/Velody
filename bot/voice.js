@@ -5,6 +5,7 @@ let voiceChannel;
 let voiceConnection;
 let dispatcher;
 let queue = [];
+let loop = false;
 let playingMusic = false;
 
 const ytdl = require('ytdl-core');
@@ -96,7 +97,7 @@ exports.playskip = async (embed, client, interaction, search) => {
         embed.setDescription("")
         embed.setURL(song.url)
         embed.setImage(song.thumbnail)
-    }else{
+    } else {
         embed = await this.play(embed, client, interaction, search)
     }
     return embed
@@ -110,6 +111,20 @@ exports.skip = async (embed) => {
     } else if (embed) {
         embed.setTitle(`No song is currently playing!`);
         embed.setDescription(`Use command "/play <song>" to play a song`)
+    }
+
+    return embed;
+}
+
+exports.loop = async (embed) => {
+    if (loop) {
+        embed.setTitle(`Disabled loop`);
+        embed.setDescription(`To renable run "/loop"`);
+        loop = false
+    } else {
+        embed.setTitle(`Enabled loop`);
+        embed.setDescription(`To disable run "/loop"`);
+        loop = true
     }
 
     return embed;
@@ -177,7 +192,7 @@ playMusic = async (embed, client, interaction) => {
         };
         dispatcher = voiceConnection.play(stream, streamOptions)
             .on("finish", () => {
-                queue.shift()
+                if (!loop) queue.shift()
                 playingMusic = false;
                 resolve()
             })

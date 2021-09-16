@@ -7,17 +7,11 @@ const voice = require("../voice.js");
 module.exports = {
     slash: "both",
     testOnly: true,
-    description: "Play audio from youtube URL and skip currently playing song - Velody",
-    minArgs: 1,
-    expectedArgs: "<song>",
-    callback: async ({
-        interaction,
-        client,
-        args
-    }) => {
+    description: "Loop currently playing song - Velody",
+    callback: async () => {
         let embed = new MessageEmbed();
         embed.setAuthor('Velody', 'https://raw.githubusercontent.com/linusromland/Velody/master/Velody-logos.jpeg', 'https://github.com/linusromland/Velody')
-        embed = voice.playskip(embed, client, interaction, args[0]);
+        embed = voice.loop(embed);
         return embed;
     },
 };
