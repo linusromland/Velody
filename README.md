@@ -1,37 +1,38 @@
+<h1 align="center">
+  <img src="assets/logo.jpeg" width="224px"/><br/>
+  Velody
+</h1>
+<p align="center">Create a new production-ready project with <b>backend</b> (Golang), <b>frontend</b> (JavaScript, TypeScript)<br/>and <b>deploy automation</b> (Ansible, Docker) by running one CLI command.<br/><br/>Focus on <b>writing</b> code and <b>thinking</b> of business-logic! The CLI will take care of the rest.</p>
 
-<p align="center">
-  <a href="https://github.com/linusromland/Velody">
-    <img alt="Velody" title="RomlandTube" src="Velody-logos.jpeg" width="450">
-  </a>
-</p>
+<p align="center"><a href="https://github.com/linusromland/velody/releases" target="_blank"><img src="https://img.shields.io/badge/version-v0.0.1-blue?style=for-the-badge&logo=none" alt="cli version" /></a>&nbsp;<a href="https://nodejs.org/en/" target="_blank"><img src="https://img.shields.io/badge/Node.JS-14.17+-0?style=for-the-badge&logo=nodedotjs" alt="go version" /></a>&nbsp;
+<a href="https://github.com/linusromland/Velody/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge&logo=none" alt="license" /></a></p>
 
-<p align="center">
-  Since Google is being a dum dum and shutting down rythm..
-</p>
+## ⚡️ Setup
 
-## What is it?
+> For help **setting up the bot**, follow the guide [here](https://github.com/linusromland/Velody/wiki/%E2%9A%A1%EF%B8%8F-Setup).
 
-Velody will be a music bot for discord to play tunes from youtube etc. It will be self-hosted so google cant be a dum dum again
+## 📖 Project Wiki
 
-## Setup
+The best way to better explore all the features of the **Velody** is to read the project [Wiki](https://github.com/linusromland/Velody/wiki).
 
-To test the bot, you need to setup your `.env` file.
-Create a file named `.env` and copy the information below:
-```
-TOKEN=INSERT_YOUR_DISCORD_TOKEN_HERE
-YOUTUBE_KEY=INSERT_YOUR_YOUTUBE_KEY_HERE
-```
+## ⚙️ Commands
 
-## Contact
+> For information about  **commands**, check the wiki [here](https://github.com/linusromland/Velody/wiki/%E2%9A%99%EF%B8%8F-Commands).
 
-If you find issues please report them on the GitHub repo.
+## 📝 Contact
 
-If you have any comments like feature requests or feedback on theses snippets add a feature issue on the GitHub repo.
+If you find issues please report them on the [issue](https://github.com/linusromland/Velody/issues) section of the repository.
 
-## Publisher
+If you have any features requests or other improvements to the project they are more then welcome. Add a [issue](https://github.com/linusromland/Velody/issues) on the repository and i will check them out!
 
-Linus Romland
+## ⭐️ Project assistance
 
-## License
+If you want to say **thank you** or/and support active development of `Velody`:
 
-Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information.
+- Add a [GitHub Star](https://github.com/linusromland/velody) to the project.
+
+Together, we can make this project **better** every day! 
+
+## ⚠️ License
+
+`Velody` is free and open-source software licensed under the [MIT License](https://github.com/linusromland/Velody/blob/master/LICENSE).
