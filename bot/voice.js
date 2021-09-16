@@ -63,21 +63,7 @@ exports.leave = async (embed) => {
 
 exports.play = async (embed, client, interaction, search) => {
     try {
-        let searchResults = await ytsr(search)
-        let URL = searchResults.items[0].url
-
-        console.log(searchResults.items[0])
-
-        const songInfo = await ytdl.getInfo(URL);
-        const song = {
-            title: songInfo.videoDetails.title,
-            url: songInfo.videoDetails.video_url,
-            thumbnail: songInfo.player_response.videoDetails.thumbnail.thumbnails[0].url,
-            length: songInfo.videoDetails.lengthSeconds,
-            nick: interaction.member.nick,
-            username: `${interaction.member.user.username}#${interaction.member.user.discriminator}`,
-            seek: 0
-        };
+        let song = await getSong(search, interaction)
         queue.push(song);
         if (playingMusic) {
             embed.setTitle(`Added **${song.title}** to queue!`)
@@ -94,19 +80,34 @@ exports.play = async (embed, client, interaction, search) => {
         }
         return embed
     } catch (error) {
+        console.log(error)
         embed.setTitle("Didn't find a video with that name/URL!");
         embed.setDescription("Try searching for something else")
         return embed
     }
+}
 
+exports.playskip = async (embed, client, interaction, search) => {
+    if (queue.length > 0) {
+        let song = await getSong(search, interaction)
+        queue.splice(1, 0, song)
+        this.skip()
+        embed.setTitle(`Skipping and playing **${song.title}**`)
+        embed.setDescription("")
+        embed.setURL(song.url)
+        embed.setImage(song.thumbnail)
+    }else{
+        embed = await this.play(embed, client, interaction, search)
+    }
+    return embed
 }
 
 exports.skip = async (embed) => {
     if (queue.length > 0) {
-        embed.setTitle(`Skipped song **${queue[0].title}**`);
-        if (queue[1]) embed.setDescription(`Song coming up: **${queue[1].title}**`);
+        if (embed) embed.setTitle(`Skipped song **${queue[0].title}**`);
+        if (queue[1] && embed) embed.setDescription(`Song coming up: **${queue[1].title}**`);
         dispatcher.end();
-    } else {
+    } else if (embed) {
         embed.setTitle(`No song is currently playing!`);
         embed.setDescription(`Use command "/play <song>" to play a song`)
     }
@@ -148,8 +149,8 @@ exports.queue = (embed) => {
 
 exports.clearAll = async () => {
     //Leaves voice channel
-    if(voiceChannel) await voiceChannel.leave()
-    if(dispatcher) await dispatcher.destroy();
+    if (voiceChannel) await voiceChannel.leave()
+    if (dispatcher) await dispatcher.destroy();
     dispatcher = null;
     voiceChannel = null;
     queue = [];
@@ -187,4 +188,24 @@ playMusic = async (embed, client, interaction) => {
             });
         playingMusic = true;
     })
+}
+
+getSong = async (search, interaction) => {
+    let searchResults = await ytsr(search, {
+        limit: 1
+    })
+    let URL = searchResults.items[0].url
+
+    const songInfo = await ytdl.getInfo(URL);
+    const song = {
+        title: songInfo.videoDetails.title,
+        url: searchResults.items[0].url,
+        thumbnail: songInfo.player_response.videoDetails.thumbnail.thumbnails[0].url,
+        length: songInfo.videoDetails.lengthSeconds,
+        nick: interaction.member.nick,
+        username: `${interaction.member.user.username}#${interaction.member.user.discriminator}`,
+        seek: 0
+    };
+    console.log(song)
+    return song
 }
