@@ -116,18 +116,14 @@ exports.skip = async (embed) => {
     return embed;
 }
 
-exports.loop = async (embed) => {
+exports.loop = async () => {
     if (loop) {
-        embed.setTitle(`Disabled loop`);
-        embed.setDescription(`To renable run "/loop"`);
         loop = false
+        return 200
     } else {
-        embed.setTitle(`Enabled loop`);
-        embed.setDescription(`To disable run "/loop"`);
         loop = true
+        return 201
     }
-
-    return embed;
 }
 
 exports.nowplaying = (embed) => {
