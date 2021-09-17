@@ -28,9 +28,7 @@ module.exports = {
                 msgEmbed.setDescription(`Use command "/join" to connect me to a voice channel!`)
                 break;
             default:
-                msgEmbed.setTitle("Something went wrong!");
-                msgEmbed.setDescription("Please add issue to GitHub repo if this continues!")
-                msgEmbed.setURL("https://github.com/linusromland/Velody/issues/new")
+                embed.setError(msgEmbed)
                 break;
         }
         if (message) message.reply(msgEmbed)

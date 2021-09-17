@@ -41,8 +41,7 @@ module.exports = {
                 msgEmbed.setDescription("Try searching for something else")
                 break;
             default:
-                msgEmbed.setTitle("Unknown error!")
-                msgEmbed.setDescription("If the error persists please add an issue on GitHub!")
+                embed.setError(msgEmbed)
                 break;
         }
 

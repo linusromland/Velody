@@ -25,9 +25,7 @@ module.exports = {
                 msgEmbed.setTitle(`Queue is empty!`);
                 break;
             default:
-                msgEmbed.setTitle("Something went wrong!");
-                msgEmbed.setDescription("Please add issue to GitHub repo if this continues!")
-                msgEmbed.setURL("https://github.com/linusromland/Velody/issues/new")
+                embed.setError(msgEmbed)
                 break;
         }
         if (message) message.reply(msgEmbed)
