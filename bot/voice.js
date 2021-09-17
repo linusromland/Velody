@@ -63,7 +63,7 @@ exports.leave = async (embed) => {
 
 exports.play = async (client, interaction, search, message) => {
     try {
-        let song = await getSong(search, interaction, client, message)
+        let song = await getSong(search, interaction, message, client)
         queue.push(song);
         let object = {
             song: song,
@@ -203,18 +203,16 @@ playMusic = async () => {
     })
 }
 
-getSong = async (search, interaction, client, message) => {
+getSong = async (search, interaction, message, client) => {
     let searchResults = await ytsr(search, {
         limit: 1
     })
     let URL = searchResults.items[0].url
 
-    if(message){
-        console.log(search, message)
-    }
-
     const songInfo = await ytdl.getInfo(URL);
 
+    let nickname = message ? message.member.nickname : interaction.member.nick
+    let username = message ? message.author.tag : `${interaction.member.user.username}#${interaction.member.user.discriminator}`
 
     const song = {
         title: songInfo.videoDetails.title,
@@ -223,6 +221,8 @@ getSong = async (search, interaction, client, message) => {
         length: songInfo.videoDetails.lengthSeconds,
         nick: interaction.member.nick,
         username: `${interaction.member.user.username}#${interaction.member.user.discriminator}`,
+        nick: nickname,
+        username: username,
         seek: 0
     };
     return song

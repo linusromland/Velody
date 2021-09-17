@@ -22,6 +22,7 @@ module.exports = {
         let msgEmbed = new discordJS.MessageEmbed();
         embed.setDefaults(msgEmbed)
         let search = args[0]
+        if(message) search = args.join(" ");
         let play = await voice.play(client, interaction, search, message);
 
         switch (play.statusCode) {
