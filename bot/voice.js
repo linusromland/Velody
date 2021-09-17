@@ -47,18 +47,18 @@ exports.join = async (message, client, interaction) => {
 }
 
 exports.leave = async (embed) => {
-    embed.setTitle("Something went wrong!");
-    embed.setDescription("Please add issue to GitHub repo if this continues!")
     let name = voiceChannel ? voiceChannel.name : null;
+    let object = {
+        statusCode: 401,
+        name : name
+    }
     if (voiceChannel) {
         this.clearAll();
-        embed.setTitle(`Disconnected from *${name}*`);
-        embed.setDescription(`Use command "/join" to connect me to a voice channel again!`)
+        object.statusCode = 200
     } else {
-        embed.setTitle(`I'm not connected to a voice channel!`);
-        embed.setDescription(`Use command "/join" to connect me to a voice channel!`)
+        object.statusCode = 201
     }
-    return embed;
+    return object;
 }
 
 exports.play = async (client, interaction, search, message) => {
@@ -219,8 +219,6 @@ getSong = async (search, interaction, message, client) => {
         url: searchResults.items[0].url,
         thumbnail: songInfo.player_response.videoDetails.thumbnail.thumbnails[0].url,
         length: songInfo.videoDetails.lengthSeconds,
-        nick: interaction.member.nick,
-        username: `${interaction.member.user.username}#${interaction.member.user.discriminator}`,
         nick: nickname,
         username: username,
         seek: 0
