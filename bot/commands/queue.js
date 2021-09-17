@@ -4,10 +4,11 @@ const voice = require("../voice.js");
 const embed = require("../embed.js");
 
 module.exports = {
+    name: 'queue',
+    aliases: ['q'],
     slash: "both",
     testOnly: false,
     description: "View the queue.",
-    aliases: ['q'],
     callback: async ({
         message
     }) => {

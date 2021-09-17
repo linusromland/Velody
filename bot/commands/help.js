@@ -4,6 +4,8 @@ const embed = require("../embed.js");
 
 
 module.exports = {
+  name: 'help',
+  aliases: ['h'],
   slash: "both",
   testOnly: true,
   description: "Shows available commands on Velody",

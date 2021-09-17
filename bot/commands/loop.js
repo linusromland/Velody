@@ -5,6 +5,8 @@ const embed = require("../embed.js");
 
 
 module.exports = {
+    name: 'loop',
+    aliases: ['l'],
     slash: "both",
     testOnly: true,
     description: "Loop the currently playing song.",

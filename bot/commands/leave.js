@@ -4,6 +4,8 @@ const voice = require("../voice.js");
 const embed = require("../embed.js");
 
 module.exports = {
+    name: 'leave',
+    aliases: ['l', 'dc', 'disconnect'],
     slash: "both",
     testOnly: true,
     description: "Disconnect the bot from the voice channel it is in.",

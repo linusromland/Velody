@@ -4,6 +4,8 @@ const voice = require("../voice.js");
 const embed = require("../embed.js");
 
 module.exports = {
+  name: 'join',
+  aliases: ['connect', 'j'],
   slash: "both",
   testOnly: true,
   description: "Summons the bot to your voice channel.",

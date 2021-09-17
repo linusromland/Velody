@@ -4,10 +4,11 @@ const voice = require("../voice.js");
 const embed = require("../embed.js");
 
 module.exports = {
+  name: 'skip',
+  aliases: ['s'],
   slash: "both",
   testOnly: false,
   description: "Skips the currently playing song.",
-  aliases: ['s'],
   callback: async ({
     message
   }) => {
