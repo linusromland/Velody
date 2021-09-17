@@ -147,19 +147,26 @@ exports.nowplaying = () => {
     return object;
 }
 
-exports.queue = (embed) => {
-    embed.setTitle("Queue")
-    let description = `__Now Playing:__
-    [${queue[0].title}](${queue[0].url}) - ${new Date(queue[0].length * 1000).toISOString().substr(14, 5)}
-    \n`
-    if (queue.length > 1) description += "__Up next:__\n"
-    for (let i = 1; i < queue.length; i++) {
-        const element = queue[i];
-        description += "``" + i + ".``" + ` [${element.title}](${element.url}) - ${new Date(element.length * 1000).toISOString().substr(14, 5)}\n
-        `
+exports.queue = () => {
+    let object = {
+        statusCode: 401,
+    };
+    if(queue.length > 1 && nowplaying){
+        let description = `__Now Playing:__
+        [${queue[0].title}](${queue[0].url}) - ${new Date(queue[0].length * 1000).toISOString().substr(14, 5)}
+        \n`
+        if (queue.length > 1) description += "__Up next:__\n"
+        for (let i = 1; i < queue.length; i++) {
+            const element = queue[i];
+            description += "``" + i + ".``" + ` [${element.title}](${element.url}) - ${new Date(element.length * 1000).toISOString().substr(14, 5)}\n
+            `
+        }
+        object.statusCode = 200;
+        object.description = description;
+    }else{
+        object.statusCode = 201;
     }
-    embed.setDescription(description)
-    return embed;
+    return object;
 }
 
 exports.clearAll = async () => {
