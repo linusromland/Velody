@@ -1,8 +1,7 @@
 //Dependencies Import
-const {
-  MessageEmbed
-} = require("discord.js");
+const discordJS = require("discord.js");
 const voice = require("../voice.js");
+const embed = require("../embed.js");
 
 module.exports = {
   slash: "both",
@@ -10,15 +9,15 @@ module.exports = {
   description: "Skips the currently playing song.",
   aliases: ['s'],
   callback: async ({
-    interaction,
-    client
+    message
   }) => {
-    let embed = new MessageEmbed();
-    embed.setAuthor('Velody', 'https://raw.githubusercontent.com/linusromland/Velody/master/Velody-logos.jpeg', 'https://github.com/linusromland/Velody')
-    embed.setTitle("Something went wrong!");
+    let msgEmbed = new discordJS.MessageEmbed();
+    embed.setDefaults(msgEmbed)
 
-    embed = voice.skip(embed);
+    msgEmbed = await voice.skip(msgEmbed);
 
-    return embed;
+    if(message) message.reply(msgEmbed)
+
+    return msgEmbed;
   },
 };
