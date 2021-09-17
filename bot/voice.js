@@ -62,29 +62,25 @@ exports.leave = async (embed) => {
     return embed;
 }
 
-exports.play = async (embed, client, interaction, search) => {
+exports.play = async (client, interaction, search) => {
     try {
         let song = await getSong(search, interaction)
         queue.push(song);
+        let object = {song: song}
+        if(!song){
+            object.statusCode = 404;
+            return object;
+        }
         if (playingMusic) {
-            embed.setTitle(`Added **${song.title}** to queue!`)
-            embed.setDescription("")
-            embed.setURL(song.url)
-            embed.setImage(song.thumbnail)
-
+            object.statusCode = 201;
         } else {
-            embed.setTitle(`Playing **${song.title}**`)
-            embed.setDescription("")
-            embed.setURL(song.url)
-            embed.setImage(song.thumbnail)
+            object.statusCode = 200;
             startPlay(embed, client, interaction)
         }
-        return embed
+        return object;
     } catch (error) {
         console.log(error)
-        embed.setTitle("Didn't find a video with that name/URL!");
-        embed.setDescription("Try searching for something else")
-        return embed
+        return;
     }
 }
 
