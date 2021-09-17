@@ -18,33 +18,32 @@ let opts = {
     key: process.env.YOUTUBE_KEY,
 };
 
-exports.join = async (embed, client, interaction) => {
-
-    //Gets Member varaible from ID. 
-    const Guild = await client.guilds.cache.get(interaction.guild_id);
-    const Member = await Guild.members.cache.get(interaction.member.user.id);
-
-
-    if (await Member && await Member.voice.channel) {
-        voiceChannel = await Member.voice.channel
+exports.join = async (message, client, interaction) => {
+    let object = {statusCode: 401};
+    if (message) {
+        voiceChannel = await message.member.voice.channel
+    } else {
+        const Guild = await client.guilds.cache.get(interaction.guild_id);
+        const Member = await Guild.members.cache.get(interaction.member.user.id);
+        if (await Member && await Member.voice.channel) voiceChannel = await Member.voice.channel
+    }
+    if (voiceChannel) {
         //Joins voice channel
         await voiceChannel.join().then(connection => {
             connection.voice.setSelfDeaf(true);
             voiceConnection = connection;
-            embed.setTitle(`Joined voice channel *${voiceChannel.name}*`)
-            embed.setDescription(`Use command "/help" to get a list of commands`)
+            object.voiceChannel = voiceChannel;
             connection.on("disconnect", () => {
                 this.clearAll();
             });
+            object.statusCode = 200
         }).catch(error => {
-            embed.setTitle("Something went wrong!");
-            embed.setDescription("Please add issue to GitHub repo if this continues!")
-            embed.setURL("https://github.com/linusromland/Velody/issues/new")
+            statusCode = 111
         })
     } else {
-        embed.setTitle("Please join a voice channel first!");
+        object.statusCode = 201
     }
-    return embed;
+    return object;
 }
 
 exports.leave = async (embed) => {
@@ -62,9 +61,9 @@ exports.leave = async (embed) => {
     return embed;
 }
 
-exports.play = async (client, interaction, search) => {
+exports.play = async (client, interaction, search, message) => {
     try {
-        let song = await getSong(search, interaction)
+        let song = await getSong(search, interaction, client, message)
         queue.push(song);
         let object = {
             song: song,
@@ -173,15 +172,14 @@ exports.clearAll = async () => {
     playingMusic = false;
 }
 
-startPlay = async (client, interaction) => {
+startPlay = async () => {
     do {
-        await playMusic(client, interaction)
+        await playMusic()
     } while (queue.length > 0);
     voiceChannel.leave();
 }
 
-playMusic = async (client, interaction) => {
-    //if (!voiceChannel || client.voice.connections.size <= 0) await this.join(embed, client, interaction)
+playMusic = async () => {
     return new Promise(async (resolve, reject) => {
         const stream = ytdl(queue[0].url, {
             filter: "audioonly",
@@ -205,13 +203,19 @@ playMusic = async (client, interaction) => {
     })
 }
 
-getSong = async (search, interaction) => {
+getSong = async (search, interaction, client, message) => {
     let searchResults = await ytsr(search, {
         limit: 1
     })
     let URL = searchResults.items[0].url
 
+    if(message){
+        console.log(search, message)
+    }
+
     const songInfo = await ytdl.getInfo(URL);
+
+
     const song = {
         title: songInfo.videoDetails.title,
         url: searchResults.items[0].url,

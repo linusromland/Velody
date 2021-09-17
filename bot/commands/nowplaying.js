@@ -5,6 +5,8 @@ const {
 const voice = require("../voice.js");
 
 module.exports = {
+    name: 'nowplaying', 
+    aliases: ['np'],
     slash: "both",
     testOnly: true,
     description: "Shows currently playing song - Velody",
