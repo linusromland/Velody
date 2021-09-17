@@ -87,24 +87,30 @@ exports.play = async (client, interaction, search, message) => {
     }
 }
 
-exports.playskip = async (embed, client, interaction, message, search) => {
+exports.playskip = async (client, interaction, search, message) => {
+    let object = {
+        statusCode: 401,
+    }
     if (queue.length > 0) {
         let song = await getSong(search, interaction, message, client)
+        if(!song){
+            object.statusCode = 404;
+            return object
+        }
         queue.splice(1, 0, song)
         this.skip()
-        embed.setTitle(`Skipping and playing **${song.title}**`)
-        embed.setDescription("")
-        embed.setURL(song.url)
-        embed.setImage(song.thumbnail)
+        object.song = song
+        object.statusCode = 200
     } else {
-        embed = await this.play(embed, client, interaction, search)
+        object = await this.play(client, interaction, search, message)
     }
-    return embed
+    return object
 }
 
 exports.skip = async () => {
     let object = {
         statusCode: 401,
+        info: {}
     }
     if (queue.length > 0) {
         object.statusCode = 200

@@ -2,6 +2,7 @@
 const discordJS = require("discord.js");
 const embed = require("../embed.js");
 const voice = require("../voice.js");
+let messageObject;
 
 module.exports = {
     name: 'play',
@@ -17,12 +18,14 @@ module.exports = {
         client,
         args
     }) => {
+        if (message) messageObject = await message.channel.send(embed.loading())
+
         await voice.join(message, client, interaction)
 
         let msgEmbed = new discordJS.MessageEmbed();
         embed.setDefaults(msgEmbed)
         let search = args[0]
-        if(message) search = args.join(" ");
+        if (message) search = args.join(" ");
         let play = await voice.play(client, interaction, search, message);
 
         switch (play.statusCode) {
@@ -45,7 +48,7 @@ module.exports = {
                 break;
         }
 
-        if (message) message.reply(msgEmbed)
+        if (message) messageObject.edit(msgEmbed)
 
         return msgEmbed;
     },

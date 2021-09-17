@@ -19,8 +19,8 @@ module.exports = {
 
     switch (skip.statusCode) {
       case 200:
-        msgEmbed.setTitle(`Skipped song **${queue[0].title}**`);
-        if (skip.info.upcoming) msgEmbed.setDescription(`Song coming up: **${object.info.upcoming}**`);
+        msgEmbed.setTitle(`Skipped song **${skip.info.skipped}**`);
+        if (skip.info.upcoming) msgEmbed.setDescription(`Song coming up: **${skip.info.upcoming}**`);
 
         break;
       case 201:

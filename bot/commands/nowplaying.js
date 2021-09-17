@@ -3,6 +3,7 @@ const discordJS = require("discord.js");
 const voice = require("../voice.js");
 const embed = require("../embed.js");
 const progressbar = require('string-progressbar');
+let messageObject;
 
 module.exports = {
     name: 'nowplaying',
@@ -13,6 +14,8 @@ module.exports = {
     callback: async ({
         message
     }) => {
+        if (message) messageObject = await message.channel.send(embed.loading())
+
         let msgEmbed = new discordJS.MessageEmbed();
         embed.setDefaults(msgEmbed)
 
@@ -24,7 +27,7 @@ module.exports = {
                 msgEmbed.setDescription(`${duration[0]}\n
         ${new Date(object.info.dispatcherStreamTime).toISOString().substr(14, 5)} / ${new Date(object.info.length * 1000).toISOString().substr(14, 5)}
         \n` + "``Requested by:`` " + `${object.info.nick} (${object.info.username})`)
-        msgEmbed.setURL(object.info.url)
+                msgEmbed.setURL(object.info.url)
                 msgEmbed.setThumbnail(object.info.thumbnail)
                 break;
             case 201:
@@ -35,7 +38,7 @@ module.exports = {
                 embed.setError(msgEmbed)
                 break;
         }
-        if (message) message.reply(msgEmbed)
+        if (message) messageObject.edit(msgEmbed)
 
         return msgEmbed;
     },

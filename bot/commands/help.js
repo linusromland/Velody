@@ -1,7 +1,7 @@
 //Dependencies Import
 const discordJS = require("discord.js");
 const embed = require("../embed.js");
-
+let messageObject;
 
 module.exports = {
   name: 'help',
@@ -10,8 +10,11 @@ module.exports = {
   testOnly: true,
   description: "Shows available commands on Velody",
   callback: async ({
-    message
+    message,
+    client
   }) => {
+    if (message) messageObject = await message.channel.send(embed.loading())
+
     let msgEmbed = new discordJS.MessageEmbed();
     embed.setDefaults(msgEmbed)
 
@@ -27,7 +30,7 @@ module.exports = {
       "/loop" - Loop the currently playing song.\u200b
       "/queue" - View the queue`
     );
-    if(message) message.reply(msgEmbed)
+    if (message) messageObject.edit(msgEmbed)
     return msgEmbed;
   },
 };

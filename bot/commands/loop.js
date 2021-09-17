@@ -2,6 +2,7 @@
 const discordJS = require("discord.js");
 const voice = require("../voice.js");
 const embed = require("../embed.js");
+let messageObject;
 
 
 module.exports = {
@@ -13,6 +14,8 @@ module.exports = {
     callback: async ({
         message
     }) => {
+        if (message) messageObject = await message.channel.send(embed.loading())
+
         let msgEmbed = new discordJS.MessageEmbed();
         embed.setDefaults(msgEmbed)
 
@@ -30,7 +33,7 @@ module.exports = {
                 embed.setError(msgEmbed)
                 break;
         }
-        if (message) message.reply(msgEmbed)
+        if (message) messageObject.edit(msgEmbed)
 
         return msgEmbed;
     },
