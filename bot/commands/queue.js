@@ -7,7 +7,7 @@ const voice = require("../voice.js");
 module.exports = {
     slash: "both",
     testOnly: false,
-    description: "Shows queue - Velody",
+    description: "View the queue.",
     aliases: ['q'],
     callback: async ({
         interaction,

@@ -5,7 +5,7 @@ const voice = require("../voice.js");
 module.exports = {
     slash: "both",
     testOnly: true,
-    description: "Play audio from youtube URL - Velody",
+    description: "Plays a song with the given name or URL.",
     minArgs: 1,
     expectedArgs: "<song>",
     callback: async ({

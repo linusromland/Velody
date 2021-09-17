@@ -7,7 +7,7 @@ const voice = require("../voice.js");
 module.exports = {
   slash: "both",
   testOnly: false,
-  description: "Skips current song!",
+  description: "Skips the currently playing song.",
   aliases: ['s'],
   callback: async ({
     interaction,

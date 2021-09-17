@@ -7,7 +7,7 @@ const voice = require("../voice.js");
 module.exports = {
     slash: "both",
     testOnly: true,
-    description: "Play audio from youtube URL and skip currently playing song - Velody",
+    description: "Adds a song to the top of the queue then skips to it.",
     minArgs: 1,
     expectedArgs: "<song>",
     callback: async ({

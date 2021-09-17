@@ -7,7 +7,7 @@ const voice = require("../voice.js");
 module.exports = {
     slash: "both",
     testOnly: true,
-    description: "Velody leaves your voice channel!",
+    description: "Disconnect the bot from the voice channel it is in.",
     callback: async ({
         interaction,
         client
