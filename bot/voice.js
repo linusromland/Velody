@@ -66,8 +66,13 @@ exports.play = async (client, interaction, search) => {
     try {
         let song = await getSong(search, interaction)
         queue.push(song);
-        let object = {song: song}
-        if(!song){
+        console.log(song)
+        let object = {
+            song: song,
+            statusCode: 404
+        }
+        console.log(object)
+        if (!song) {
             object.statusCode = 404;
             return object;
         }
@@ -75,12 +80,14 @@ exports.play = async (client, interaction, search) => {
             object.statusCode = 201;
         } else {
             object.statusCode = 200;
-            startPlay(embed, client, interaction)
+            startPlay(client, interaction)
         }
         return object;
     } catch (error) {
-        console.log(error)
-        return;
+        return {
+            statusCode: 400,
+            error: error
+        };
     }
 }
 
@@ -166,18 +173,17 @@ exports.clearAll = async () => {
     voiceChannel = null;
     queue = [];
     playingMusic = false;
-    console.log(queue);
 }
 
-startPlay = async (embed, client, interaction) => {
+startPlay = async (client, interaction) => {
     do {
-        await playMusic(embed, client, interaction)
+        await playMusic(client, interaction)
     } while (queue.length > 0);
     voiceChannel.leave();
 }
 
-playMusic = async (embed, client, interaction) => {
-    if (!voiceChannel || client.voice.connections.size <= 0) await this.join(embed, client, interaction)
+playMusic = async (client, interaction) => {
+    //if (!voiceChannel || client.voice.connections.size <= 0) await this.join(embed, client, interaction)
     return new Promise(async (resolve, reject) => {
         const stream = ytdl(queue[0].url, {
             filter: "audioonly",
@@ -217,6 +223,5 @@ getSong = async (search, interaction) => {
         username: `${interaction.member.user.username}#${interaction.member.user.discriminator}`,
         seek: 0
     };
-    console.log(song)
     return song
 }

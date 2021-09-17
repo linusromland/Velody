@@ -14,10 +14,10 @@ module.exports = {
         client,
         args
     }) => {
-        let embed = new Message();
+        let embed = Message;
         let search = message ? message : args[0]
-
         let play = await voice.play(client, interaction, search);
+        console.log(play);
         switch (play.statusCode) {
             case 200:
                 embed.setTitle(`Playing **${play.song.title}**`)
