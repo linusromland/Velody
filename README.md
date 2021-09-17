@@ -9,8 +9,8 @@
 
 ## ⚙️ Commands
 
-| Command | Description                                             |
-| ------ | -------------------------------------------------------- |
+| Command | Description |
+| ------ | ---- |
 | `/play <song>`| Plays a song with the given name or URL. |
 | `/playskip <song>`| Adds a song to the top of the queue then skips to it. |
 | `/join`| Summons the bot to your voice channel.. |
