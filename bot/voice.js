@@ -102,17 +102,20 @@ exports.playskip = async (embed, client, interaction, message, search) => {
     return embed
 }
 
-exports.skip = async (embed) => {
+exports.skip = async () => {
+    let object = {
+        statusCode: 401,
+    }
     if (queue.length > 0) {
-        if (embed) embed.setTitle(`Skipped song **${queue[0].title}**`);
-        if (queue[1] && embed) embed.setDescription(`Song coming up: **${queue[1].title}**`);
+        object.statusCode = 200
+        object.info.skipped = queue[0].title
+        if (queue[1]) object.info.upcoming = queue[1].title;
         dispatcher.end();
-    } else if (embed) {
-        embed.setTitle(`No song is currently playing!`);
-        embed.setDescription(`Use command "/play <song>" to play a song`)
+    } else  {
+        object.statusCode = 201
     }
 
-    return embed;
+    return object;
 }
 
 exports.loop = async () => {

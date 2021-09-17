@@ -15,9 +15,24 @@ module.exports = {
     let msgEmbed = new discordJS.MessageEmbed();
     embed.setDefaults(msgEmbed)
 
-    msgEmbed = await voice.skip(msgEmbed);
+    let skip = await voice.skip();
 
-    if(message) message.reply(msgEmbed)
+    switch (skip.statusCode) {
+      case 200:
+        msgEmbed.setTitle(`Skipped song **${queue[0].title}**`);
+        if (skip.info.upcoming) msgEmbed.setDescription(`Song coming up: **${object.info.upcoming}**`);
+
+        break;
+      case 201:
+        msgEmbed.setTitle(`No song is currently playing!`);
+        msgEmbed.setDescription(`Use command "/play <song>" to play a song`)
+        break;
+      default:
+        embed.setError(msgEmbed)
+        break;
+    }
+
+    if (message) message.reply(msgEmbed)
 
     return msgEmbed;
   },
