@@ -46,7 +46,7 @@ exports.join = async (message, client, interaction) => {
     return object;
 }
 
-exports.leave = async (embed) => {
+exports.leave = async () => {
     let name = voiceChannel ? voiceChannel.name : null;
     let object = {
         statusCode: 401,
