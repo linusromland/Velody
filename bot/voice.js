@@ -87,9 +87,9 @@ exports.play = async (client, interaction, search, message) => {
     }
 }
 
-exports.playskip = async (embed, client, interaction, search) => {
+exports.playskip = async (embed, client, interaction, message, search) => {
     if (queue.length > 0) {
-        let song = await getSong(search, interaction)
+        let song = await getSong(search, interaction, message, client)
         queue.splice(1, 0, song)
         this.skip()
         embed.setTitle(`Skipping and playing **${song.title}**`)

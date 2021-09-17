@@ -19,7 +19,7 @@ module.exports = {
     }) => {
         let msgEmbed = new discordJS.MessageEmbed();
         embed.setDefaults(msgEmbed)
-        msgEmbed = await voice.playskip(msgEmbed, client, interaction, args[0]);
+        msgEmbed = await voice.playskip(msgEmbed, client, interaction, message, args[0]);
 
         if(message) message.reply(msgEmbed)
 
