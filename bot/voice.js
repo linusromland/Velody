@@ -11,7 +11,6 @@ let playingMusic = false;
 const ytdl = require('ytdl-core');
 const ytsr = require('ytsr');
 const validUrl = require('valid-url');
-const progressbar = require('string-progressbar');
 
 let opts = {
     maxResults: 10,
@@ -126,21 +125,26 @@ exports.loop = async () => {
     }
 }
 
-exports.nowplaying = (embed) => {
+exports.nowplaying = () => {
+    let object = {
+        statusCode: 401
+    }
     if (queue.length > 0) {
-        embed.setTitle(`Playing **${queue[0].title}**`)
-        let duration = progressbar.splitBar(queue[0].length * 1000, dispatcher.streamTime, 20);
-        embed.setDescription(`${duration[0]}\n
-        ${new Date(dispatcher.streamTime).toISOString().substr(14, 5)} / ${new Date(queue[0].length * 1000).toISOString().substr(14, 5)}
-        \n` + "``Requested by:`` " + `${queue[0].nick} (${queue[0].username})`)
-        embed.setURL(queue[0].url)
-        embed.setThumbnail(queue[0].thumbnail)
+        object.statusCode = 200
+        object.info = {
+            title: queue[0].title,
+            length: queue[0].length,
+            dispatcherStreamTime: dispatcher.streamTime, 
+            nick: queue[0].nick,
+            username: queue[0].username,
+            url: queue[0].url,
+            thumbnail: queue[0].thumbnail
+        }
     } else {
-        embed.setTitle(`No song is currently playing!`);
-        embed.setDescription(`Use command "/play <song>" to play a song`)
+        object.statusCode = 201
     }
 
-    return embed;
+    return object;
 }
 
 exports.queue = (embed) => {
