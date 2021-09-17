@@ -66,12 +66,10 @@ exports.play = async (client, interaction, search) => {
     try {
         let song = await getSong(search, interaction)
         queue.push(song);
-        console.log(song)
         let object = {
             song: song,
             statusCode: 404
         }
-        console.log(object)
         if (!song) {
             object.statusCode = 404;
             return object;
