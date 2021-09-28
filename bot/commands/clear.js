@@ -19,7 +19,7 @@ module.exports = {
         embed.setDefaults(msgEmbed)
 
         let clear = await voice.clear();
-        switch (clear.statusCode) {
+        switch (clear) {
             case 200:
                 msgEmbed.setTitle(`Queue cleared`);
                 break;
