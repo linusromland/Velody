@@ -10,7 +10,9 @@ let playingMusic = false;
 
 const ytdl = require('ytdl-core');
 const ytsr = require('ytsr');
+const ytpl = require('ytpl');
 const validUrl = require('valid-url');
+const fs = require('fs');
 
 let opts = {
     maxResults: 10,
@@ -18,7 +20,9 @@ let opts = {
 };
 
 exports.join = async (message, client, interaction) => {
-    let object = {statusCode: 401};
+    let object = {
+        statusCode: 401
+    };
     if (message) {
         voiceChannel = await message.member.voice.channel
     } else {
@@ -49,7 +53,7 @@ exports.leave = async () => {
     let name = voiceChannel ? voiceChannel.name : null;
     let object = {
         statusCode: 401,
-        name : name
+        name: name
     }
     if (voiceChannel) {
         this.clearAll();
@@ -93,7 +97,7 @@ exports.playskip = async (client, interaction, search, message) => {
     }
     if (queue.length > 0) {
         let song = await getSong(search, interaction, message, client)
-        if(!song){
+        if (!song) {
             object.statusCode = 404;
             return object
         }
@@ -117,7 +121,7 @@ exports.skip = async () => {
         object.info.skipped = queue[0].title
         if (queue[1]) object.info.upcoming = queue[1].title;
         dispatcher.end();
-    } else  {
+    } else {
         object.statusCode = 201
     }
 
@@ -143,7 +147,7 @@ exports.nowplaying = () => {
         object.info = {
             title: queue[0].title,
             length: queue[0].length,
-            dispatcherStreamTime: dispatcher.streamTime, 
+            dispatcherStreamTime: dispatcher.streamTime,
             nick: queue[0].nick,
             username: queue[0].username,
             url: queue[0].url,
@@ -160,7 +164,7 @@ exports.queue = () => {
     let object = {
         statusCode: 401,
     };
-    if(queue.length > 1 && nowplaying){
+    if (queue.length > 1 && nowplaying) {
         let description = `__Now Playing:__
         [${queue[0].title}](${queue[0].url}) - ${new Date(queue[0].length * 1000).toISOString().substr(14, 5)}
         \n`
@@ -172,7 +176,7 @@ exports.queue = () => {
         }
         object.statusCode = 200;
         object.description = description;
-    }else{
+    } else {
         object.statusCode = 201;
     }
     return object;
@@ -220,9 +224,19 @@ playMusic = async () => {
 }
 
 getSong = async (search, interaction, message, client) => {
-    let searchResults = await ytsr(search, {
-        limit: 1
-    })
+    if (!validURL(search)) {
+        let searchResults = await ytsr(search, {
+            limit: 1
+        })
+    } else if (ytPlaylist(search)) {
+        const playlist = await ytpl('PLAYLIST_URL');
+        console.log(playlist)
+    } else {
+
+    }
+
+    let data = await ytdl.getInfo(searchResults.correctedQuery)
+
     let URL = searchResults.items[0].url
 
     const songInfo = await ytdl.getInfo(URL);
@@ -240,4 +254,27 @@ getSong = async (search, interaction, message, client) => {
         seek: 0
     };
     return song
+}
+validURL = (url) => {
+    let pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+        '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+    if(!!pattern.test(url)){
+        let domain = new URL(url);
+        if(domain.hostname == "www.youtube.com"){
+            return true;
+        }
+    }
+    return false;
+}
+
+ytPlaylist = (url) => {
+    if(validURL(url)){
+        
+    }else{
+        return;
+    }
 }
