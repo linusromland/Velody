@@ -167,6 +167,15 @@ exports.loop = async () => {
     }
 }
 
+exports.shuffle = async () => {
+    let firstSong = queue[0]
+    queue.shift();
+    queue = shuffleQueue(queue);
+    queue.unshift(firstSong)
+    return 200;
+}
+
+
 exports.nowplaying = () => {
     let object = {
         statusCode: 401
@@ -318,3 +327,18 @@ createSong = (message, songInfo, interaction, url) => {
     };
     return song
 }
+
+shuffleQueue = (array) => {
+    let m = array.length, t, i;
+  
+    while (m) {
+  
+      i = Math.floor(Math.random() * m--);
+  
+      t = array[m];
+      array[m] = array[i];
+      array[i] = t;
+    }
+  
+    return array;
+  }
