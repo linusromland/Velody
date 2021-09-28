@@ -21,9 +21,11 @@ module.exports = {
 
         let msgEmbed = new discordJS.MessageEmbed();
         embed.setDefaults(msgEmbed)
+        let search = args[0]
 
-        let playskip = await voice.playskip();
+        await voice.join(message, client, interaction)
 
+        let playskip = await voice.playskip(client, interaction, search, message);
         switch (playskip.statusCode) {
             case 200:
                 msgEmbed.setTitle(`Playing **${playskip.song.title}** now!`)
@@ -33,6 +35,10 @@ module.exports = {
             case 404:
                 msgEmbed.setTitle("Didn't find a video with that name/URL!");
                 msgEmbed.setDescription("Try searching for something else")
+                break;
+            case 323:
+                msgEmbed.setTitle("Playlist is not allowed with playskip!");
+                msgEmbed.setDescription(`Please use command "/play <song/playlist>" instead!`)
                 break;
             default:
                 embed.setError(msgEmbed)

@@ -120,6 +120,10 @@ exports.playskip = async (client, interaction, search, message) => {
     let object = {
         statusCode: 401,
     }
+    if(ytPlaylist(search)){
+        object.statusCode = 323
+        return object;
+    }
     if (queue.length > 0) {
         let song = await getSong(search, interaction, message, client)
         if (!song) {
