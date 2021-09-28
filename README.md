@@ -23,9 +23,9 @@
 | `/clear`| Clears the queue.  |
 | `/remove`| Removes from queue at location.  |
 | `/shuffle`| Shuffles the queue.  |
+| `/save`| Saves currently playing song to DM. |
 
 ## ⚡️ Setup
-
 
 First of all, [download](https://nodejs.org/en/) and install **Node.JS**. Version `14` or higher is required.
 

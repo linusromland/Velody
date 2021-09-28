@@ -32,8 +32,10 @@ module.exports = {
       "/queue" - View the queue\u200b
       "/clear" - Clears the queue\u200b
       "/remove" - Removes from queue at location\u200b
-      "/shuffle" - Shuffles the queue\u200b`
+      "/shuffle" - Shuffles the queue\u200b
+      "/save" - Saves currently playing song to DM\u200b`
     );
+    
     if (message) messageObject.edit(msgEmbed)
     return msgEmbed;
   },
