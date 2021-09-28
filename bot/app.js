@@ -8,6 +8,7 @@ require("better-logging")(console);
 const DiscordJS = require("discord.js");
 const WOKCommands = require("wokcommands");
 const prefix = process.env.PREFIX || "!"
+const embed = require("./embed")
 
 //Local Variables
 const guildId = "554977304665784325";
@@ -17,19 +18,18 @@ const client = new DiscordJS.Client({
 
 //When DiscordBot started, init of WOKCommands
 client.on("ready", () => {
-
   console.info(`Logged in as ${client.user.tag}!`);
-  let wok = new WOKCommands(client, {
+  new WOKCommands(client, {
       commandsDir: "commands",
       testServers: [guildId],
       showWarns: false,
     })
     .setDefaultPrefix(prefix)
     .setColor(0xff0000)
-    .setBotOwner("400691601011113986") //sets bot owner to linusromland#7577
+    .setBotOwner(process.env.BOT_OWNER) //sets bot owner to linusromland#7577
   console.info(`WOKCommands loaded and using prefix "${prefix}"`)
+  client.channels.cache.get(process.env.CHANNEL_ID).send(embed.botReady());
 });
-
 
 //Login with Discord Bot Token
 client.login(process.env.TOKEN);

@@ -67,10 +67,34 @@ exports.leave = async () => {
 exports.play = async (client, interaction, search, message) => {
     try {
         let song = await getSong(search, interaction, message, client)
-        queue.push(song);
+
+        if (song.type == "pl") {
+            song.playlist.items.forEach(item => {
+                let nickname = message ? message.member.nickname : interaction.member.nick
+                let username = message ? message.author.tag : `${interaction.member.user.username}#${interaction.member.user.discriminator}`
+
+                const song = {
+                    title: item.title,
+                    url: item.url,
+                    thumbnail: item.bestThumbnail.url,
+                    length: item.durationSec,
+                    nick: nickname,
+                    username: username,
+                    seek: 0
+                };
+                queue.push(song);
+            });
+        } else {
+            queue.push(song);
+        }
         let object = {
             song: song,
             statusCode: 404
+        }
+        if (song.type == "pl") {
+            object.statusCode = 300;
+            startPlay(client, interaction)
+            return object;
         }
         if (!song) {
             object.statusCode = 404;
@@ -84,6 +108,7 @@ exports.play = async (client, interaction, search, message) => {
         }
         return object;
     } catch (error) {
+        console.error(error);
         return {
             statusCode: 400,
             error: error
@@ -163,17 +188,21 @@ exports.nowplaying = () => {
 exports.queue = () => {
     let object = {
         statusCode: 401,
+        description: {},
     };
-    if (queue.length > 1 && nowplaying) {
+    if (queue.length >= 1 && playingMusic) {
         let description = `__Now Playing:__
         [${queue[0].title}](${queue[0].url}) - ${new Date(queue[0].length * 1000).toISOString().substr(14, 5)}
         \n`
         if (queue.length > 1) description += "__Up next:__\n"
-        for (let i = 1; i < queue.length; i++) {
+        let nextLength = 11;
+        let length = queue.length > nextLength ? nextLength : queue.length
+        for (let i = 1; i < length; i++) {
             const element = queue[i];
             description += "``" + i + ".``" + ` [${element.title}](${element.url}) - ${new Date(element.length * 1000).toISOString().substr(14, 5)}\n
             `
         }
+        if (queue.length > nextLength) description += `and ${queue.length - nextLength} more songs in queue!`
         object.statusCode = 200;
         object.description = description;
     } else {
@@ -224,35 +253,25 @@ playMusic = async () => {
 }
 
 getSong = async (search, interaction, message, client) => {
+    let URL;
     if (!validURL(search)) {
         let searchResults = await ytsr(search, {
             limit: 1
         })
+        URL = searchResults.items[0].url
     } else if (ytPlaylist(search)) {
-        const playlist = await ytpl('PLAYLIST_URL');
-        console.log(playlist)
+        const playlist = await ytpl(search);
+        return {
+            type: "pl",
+            playlist: playlist
+        }
     } else {
-
+        URL = search
     }
-
-    let data = await ytdl.getInfo(searchResults.correctedQuery)
-
-    let URL = searchResults.items[0].url
 
     const songInfo = await ytdl.getInfo(URL);
 
-    let nickname = message ? message.member.nickname : interaction.member.nick
-    let username = message ? message.author.tag : `${interaction.member.user.username}#${interaction.member.user.discriminator}`
-
-    const song = {
-        title: songInfo.videoDetails.title,
-        url: searchResults.items[0].url,
-        thumbnail: songInfo.player_response.videoDetails.thumbnail.thumbnails[0].url,
-        length: songInfo.videoDetails.lengthSeconds,
-        nick: nickname,
-        username: username,
-        seek: 0
-    };
+    let song = createSong(message, songInfo, interaction, URL)
     return song
 }
 validURL = (url) => {
@@ -262,9 +281,9 @@ validURL = (url) => {
         '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
         '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
         '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
-    if(!!pattern.test(url)){
+    if (!!pattern.test(url)) {
         let domain = new URL(url);
-        if(domain.hostname == "www.youtube.com"){
+        if (domain.hostname == "www.youtube.com") {
             return true;
         }
     }
@@ -272,9 +291,26 @@ validURL = (url) => {
 }
 
 ytPlaylist = (url) => {
-    if(validURL(url)){
-        
-    }else{
-        return;
+    if (validURL(url)) {
+        let domain = new URL(url);
+        if (domain.pathname == "/playlist") return true;
     }
+    return false;
+}
+
+createSong = (message, songInfo, interaction, url) => {
+    let nickname = message ? message.member.nickname : interaction.member.nick
+    let username = message ? message.author.tag : `${interaction.member.user.username}#${interaction.member.user.discriminator}`
+
+    const song = {
+        type: "song",
+        title: songInfo.videoDetails.title,
+        url: url,
+        thumbnail: songInfo.player_response.videoDetails.thumbnail.thumbnails[0].url,
+        length: songInfo.videoDetails.lengthSeconds,
+        nick: nickname,
+        username: username,
+        seek: 0
+    };
+    return song
 }

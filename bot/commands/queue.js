@@ -18,7 +18,7 @@ module.exports = {
         let msgEmbed = new discordJS.MessageEmbed();
         embed.setDefaults(msgEmbed)
 
-        let queue = await voice.leave();
+        let queue = await voice.queue();
         switch (queue.statusCode) {
             case 200:
                 msgEmbed.setTitle(`Queue`);
