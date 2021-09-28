@@ -175,6 +175,13 @@ exports.shuffle = async () => {
     return 200;
 }
 
+exports.clear = async () => {
+    let firstSong = queue[0]
+    queue = []
+    queue.push(firstSong)
+    return 200;
+}
+
 
 exports.nowplaying = () => {
     let object = {
