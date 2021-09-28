@@ -28,12 +28,12 @@ module.exports = {
       "/nowplaying" - Shows what song the bot is currently playing.\u200b
       "/skip" - Skips the currently playing song.\u200b
       "/loop" - Loop the currently playing song.\u200b
-      "/loopqueue" - Loop the queue\u200b
-      "/queue" - View the queue\u200b
-      "/clear" - Clears the queue\u200b
-      "/remove" - Removes from queue at location\u200b
-      "/shuffle" - Shuffles the queue\u200b
-      "/save" - Saves currently playing song to DM\u200b`
+      "/loopqueue" - Loop the queue.\u200b
+      "/queue" - View the queue.\u200b
+      "/clear" - Clears the queue.\u200b
+      "/remove" - Removes from queue at location.\u200b
+      "/shuffle" - Shuffles the queue.\u200b
+      "/save" - Saves currently playing song to DM.\u200b`
     );
     
     if (message) messageObject.edit(msgEmbed)
