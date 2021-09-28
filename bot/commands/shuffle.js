@@ -4,12 +4,12 @@ const voice = require("../voice.js");
 const embed = require("../embed.js");
 let messageObject;
 
+
 module.exports = {
-    name: 'queue',
-    aliases: ['q'],
+    name: 'shuffle',
     slash: "both",
-    testOnly: false,
-    description: "View the queue.",
+    testOnly: true,
+    description: "Shuffles queue.",
     callback: async ({
         message
     }) => {
@@ -18,14 +18,10 @@ module.exports = {
         let msgEmbed = new discordJS.MessageEmbed();
         embed.setDefaults(msgEmbed)
 
-        let queue = await voice.queue();
-        switch (queue.statusCode) {
+        let shuffle = await voice.shuffle();
+        switch (shuffle) {
             case 200:
-                msgEmbed.setTitle(`Queue`);
-                msgEmbed.setDescription(queue.description)
-                break;
-            case 201:
-                msgEmbed.setTitle(`Queue is empty!`);
+                msgEmbed.setTitle(`Shuffled queue!`);
                 break;
             default:
                 embed.setError(msgEmbed)

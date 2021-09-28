@@ -5,11 +5,11 @@ const embed = require("../embed.js");
 let messageObject;
 
 module.exports = {
-    name: 'queue',
-    aliases: ['q'],
+    name: 'clear',
+    aliases: ['c'],
     slash: "both",
     testOnly: false,
-    description: "View the queue.",
+    description: "Clears the queue.",
     callback: async ({
         message
     }) => {
@@ -18,14 +18,10 @@ module.exports = {
         let msgEmbed = new discordJS.MessageEmbed();
         embed.setDefaults(msgEmbed)
 
-        let queue = await voice.queue();
-        switch (queue.statusCode) {
+        let clear = await voice.clear();
+        switch (clear) {
             case 200:
-                msgEmbed.setTitle(`Queue`);
-                msgEmbed.setDescription(queue.description)
-                break;
-            case 201:
-                msgEmbed.setTitle(`Queue is empty!`);
+                msgEmbed.setTitle(`Queue cleared`);
                 break;
             default:
                 embed.setError(msgEmbed)

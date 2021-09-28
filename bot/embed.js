@@ -16,3 +16,11 @@ exports.loading = () => {
     msgEmbed.setTitle("Velody is thinking...")
     return msgEmbed;
 }
+
+exports.botReady = () => {
+    let msgEmbed = new discordJS.MessageEmbed();
+    this.setDefaults(msgEmbed)
+    msgEmbed.setTitle("Hello! I'm ready for your commands!")
+    msgEmbed.setDescription(`Don't know my commands? run "/help"`)
+    return msgEmbed;
+}

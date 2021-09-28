@@ -19,6 +19,8 @@
 | `/skip`| Skips the currently playing song. |
 | `/loop`| Loop the currently playing song. |
 | `/queue`| View the queue.  |
+| `/clear`| Clears the queue.  |
+| `/shuffle`| Shuffles the queue.  |
 
 ## ⚡️ Setup
 

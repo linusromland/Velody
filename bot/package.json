@@ -25,19 +25,20 @@
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",
     "forever": "^4.0.1",
+    "lodash": ">=4.17.21",
     "mongoose": "^5.13.2",
+    "mpath": ">=0.8.4",
     "node-fetch": "^2.6.1",
     "redis": "^3.1.2",
     "sessionstore": "^1.3.7",
+    "set-value": ">=4.0.1",
     "string-progressbar": "^1.0.4",
     "valid-url": "^1.0.9",
     "wokcommands": "^1.3.6",
     "youtube-search": "^1.1.6",
     "ytdl-core": "^4.9.1",
-    "ytsr": "^3.5.3",
-    "set-value": ">=4.0.1",
-    "mpath": ">=0.8.4",
-    "lodash": ">=4.17.21"
+    "ytpl": "^2.2.3",
+    "ytsr": "^3.5.3"
   },
   "devDependencies": {
     "nodemon": "^2.0.9"

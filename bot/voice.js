@@ -10,7 +10,9 @@ let playingMusic = false;
 
 const ytdl = require('ytdl-core');
 const ytsr = require('ytsr');
+const ytpl = require('ytpl');
 const validUrl = require('valid-url');
+const fs = require('fs');
 
 let opts = {
     maxResults: 10,
@@ -18,7 +20,9 @@ let opts = {
 };
 
 exports.join = async (message, client, interaction) => {
-    let object = {statusCode: 401};
+    let object = {
+        statusCode: 401
+    };
     if (message) {
         voiceChannel = await message.member.voice.channel
     } else {
@@ -49,7 +53,7 @@ exports.leave = async () => {
     let name = voiceChannel ? voiceChannel.name : null;
     let object = {
         statusCode: 401,
-        name : name
+        name: name
     }
     if (voiceChannel) {
         this.clearAll();
@@ -63,10 +67,34 @@ exports.leave = async () => {
 exports.play = async (client, interaction, search, message) => {
     try {
         let song = await getSong(search, interaction, message, client)
-        queue.push(song);
+
+        if (song.type == "pl") {
+            song.playlist.items.forEach(item => {
+                let nickname = message ? message.member.nickname : interaction.member.nick
+                let username = message ? message.author.tag : `${interaction.member.user.username}#${interaction.member.user.discriminator}`
+
+                const song = {
+                    title: item.title,
+                    url: item.url,
+                    thumbnail: item.bestThumbnail.url,
+                    length: item.durationSec,
+                    nick: nickname,
+                    username: username,
+                    seek: 0
+                };
+                queue.push(song);
+            });
+        } else {
+            queue.push(song);
+        }
         let object = {
             song: song,
             statusCode: 404
+        }
+        if (song.type == "pl") {
+            object.statusCode = 300;
+            startPlay(client, interaction)
+            return object;
         }
         if (!song) {
             object.statusCode = 404;
@@ -80,6 +108,7 @@ exports.play = async (client, interaction, search, message) => {
         }
         return object;
     } catch (error) {
+        console.error(error);
         return {
             statusCode: 400,
             error: error
@@ -91,9 +120,13 @@ exports.playskip = async (client, interaction, search, message) => {
     let object = {
         statusCode: 401,
     }
+    if(ytPlaylist(search)){
+        object.statusCode = 323
+        return object;
+    }
     if (queue.length > 0) {
         let song = await getSong(search, interaction, message, client)
-        if(!song){
+        if (!song) {
             object.statusCode = 404;
             return object
         }
@@ -117,7 +150,7 @@ exports.skip = async () => {
         object.info.skipped = queue[0].title
         if (queue[1]) object.info.upcoming = queue[1].title;
         dispatcher.end();
-    } else  {
+    } else {
         object.statusCode = 201
     }
 
@@ -134,6 +167,22 @@ exports.loop = async () => {
     }
 }
 
+exports.shuffle = async () => {
+    let firstSong = queue[0]
+    queue.shift();
+    queue = shuffleQueue(queue);
+    queue.unshift(firstSong)
+    return 200;
+}
+
+exports.clear = async () => {
+    let firstSong = queue[0]
+    queue = []
+    queue.push(firstSong)
+    return 200;
+}
+
+
 exports.nowplaying = () => {
     let object = {
         statusCode: 401
@@ -143,7 +192,7 @@ exports.nowplaying = () => {
         object.info = {
             title: queue[0].title,
             length: queue[0].length,
-            dispatcherStreamTime: dispatcher.streamTime, 
+            dispatcherStreamTime: dispatcher.streamTime,
             nick: queue[0].nick,
             username: queue[0].username,
             url: queue[0].url,
@@ -159,20 +208,24 @@ exports.nowplaying = () => {
 exports.queue = () => {
     let object = {
         statusCode: 401,
+        description: {},
     };
-    if(queue.length > 1 && nowplaying){
+    if (queue.length >= 1 && playingMusic) {
         let description = `__Now Playing:__
         [${queue[0].title}](${queue[0].url}) - ${new Date(queue[0].length * 1000).toISOString().substr(14, 5)}
         \n`
         if (queue.length > 1) description += "__Up next:__\n"
-        for (let i = 1; i < queue.length; i++) {
+        let nextLength = 11;
+        let length = queue.length > nextLength ? nextLength : queue.length
+        for (let i = 1; i < length; i++) {
             const element = queue[i];
             description += "``" + i + ".``" + ` [${element.title}](${element.url}) - ${new Date(element.length * 1000).toISOString().substr(14, 5)}\n
             `
         }
+        if (queue.length > nextLength) description += `and ${queue.length - nextLength} more songs in queue!`
         object.statusCode = 200;
         object.description = description;
-    }else{
+    } else {
         object.statusCode = 201;
     }
     return object;
@@ -220,19 +273,59 @@ playMusic = async () => {
 }
 
 getSong = async (search, interaction, message, client) => {
-    let searchResults = await ytsr(search, {
-        limit: 1
-    })
-    let URL = searchResults.items[0].url
+    let URL;
+    if (!validURL(search)) {
+        let searchResults = await ytsr(search, {
+            limit: 1
+        })
+        URL = searchResults.items[0].url
+    } else if (ytPlaylist(search)) {
+        const playlist = await ytpl(search);
+        return {
+            type: "pl",
+            playlist: playlist
+        }
+    } else {
+        URL = search
+    }
 
     const songInfo = await ytdl.getInfo(URL);
 
+    let song = createSong(message, songInfo, interaction, URL)
+    return song
+}
+validURL = (url) => {
+    let pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+        '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+    if (!!pattern.test(url)) {
+        let domain = new URL(url);
+        if (domain.hostname == "www.youtube.com") {
+            return true;
+        }
+    }
+    return false;
+}
+
+ytPlaylist = (url) => {
+    if (validURL(url)) {
+        let domain = new URL(url);
+        if (domain.pathname == "/playlist") return true;
+    }
+    return false;
+}
+
+createSong = (message, songInfo, interaction, url) => {
     let nickname = message ? message.member.nickname : interaction.member.nick
     let username = message ? message.author.tag : `${interaction.member.user.username}#${interaction.member.user.discriminator}`
 
     const song = {
+        type: "song",
         title: songInfo.videoDetails.title,
-        url: searchResults.items[0].url,
+        url: url,
         thumbnail: songInfo.player_response.videoDetails.thumbnail.thumbnails[0].url,
         length: songInfo.videoDetails.lengthSeconds,
         nick: nickname,
@@ -241,3 +334,18 @@ getSong = async (search, interaction, message, client) => {
     };
     return song
 }
+
+shuffleQueue = (array) => {
+    let m = array.length, t, i;
+  
+    while (m) {
+  
+      i = Math.floor(Math.random() * m--);
+  
+      t = array[m];
+      array[m] = array[i];
+      array[i] = t;
+    }
+  
+    return array;
+  }
