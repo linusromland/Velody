@@ -46,9 +46,6 @@ git clone https://github.com/linusromland/Velody.git
 # Navigate to folder:
 cd Velody/velody-bot
 
-#Navigate to folder (for Windows):
-dir Velody/velody-bot
-
 #Install necessary dependencies:
 npm install
 
