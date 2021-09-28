@@ -4,12 +4,13 @@ const voice = require("../voice.js");
 const embed = require("../embed.js");
 let messageObject;
 
+
 module.exports = {
-    name: 'queue',
-    aliases: ['q'],
+    name: 'loopqueue',
+    aliases: ['lq'],
     slash: "both",
-    testOnly: false,
-    description: "View the queue.",
+    testOnly: true,
+    description: "Loop the queue.",
     callback: async ({
         message
     }) => {
@@ -18,16 +19,15 @@ module.exports = {
         let msgEmbed = new discordJS.MessageEmbed();
         embed.setDefaults(msgEmbed)
 
-        let queue = await voice.queue();
-        switch (queue.statusCode) {
+        let loop = await voice.loopqueue();
+        switch (loop) {
             case 200:
-                msgEmbed.setTitle(`Queue`);
-                msgEmbed.setDescription(queue.description)
-                let loops = await voice.getLoops();
-                embed.addLoopSymbols(msgEmbed, loops)
+                msgEmbed.setTitle(`Disabled queue loop`);
+                msgEmbed.setDescription(`To renable run "/loopqueue"`)
                 break;
             case 201:
-                msgEmbed.setTitle(`Queue is empty!`);
+                msgEmbed.setTitle(`Enabled queue loop`);
+                msgEmbed.setDescription(`To disable run "/loopqueue"`)
                 break;
             default:
                 embed.setError(msgEmbed)

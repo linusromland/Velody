@@ -18,6 +18,7 @@
 | `/nowplaying`| Shows what song the bot is currently playing. |
 | `/skip`| Skips the currently playing song. |
 | `/loop`| Loop the currently playing song. |
+| `/loopqueue`| Loop the queue. |
 | `/queue`| View the queue.  |
 | `/clear`| Clears the queue.  |
 | `/shuffle`| Shuffles the queue.  |
