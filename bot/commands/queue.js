@@ -23,6 +23,8 @@ module.exports = {
             case 200:
                 msgEmbed.setTitle(`Queue`);
                 msgEmbed.setDescription(queue.description)
+                let loops = await voice.getLoops();
+                embed.addLoopSymbols(msgEmbed, loops)
                 break;
             case 201:
                 msgEmbed.setTitle(`Queue is empty!`);

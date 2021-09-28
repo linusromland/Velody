@@ -24,3 +24,9 @@ exports.botReady = () => {
     msgEmbed.setDescription(`Don't know my commands? run "/help"`)
     return msgEmbed;
 }
+
+exports.addLoopSymbols = (msgEmbed, loops) => {
+    let text = loops.loop ? "Loop: ✔️" : "Loop: ❌"
+    text += loops.loopqueue ? "\nQueue loop: ✔️" : "\nQueue loop: ❌"
+    msgEmbed.setFooter(text);
+}

@@ -29,6 +29,8 @@ module.exports = {
         \n` + "``Requested by:`` " + `${object.info.nick} (${object.info.username})`)
                 msgEmbed.setURL(object.info.url)
                 msgEmbed.setThumbnail(object.info.thumbnail)
+                let loops = await voice.getLoops();
+                embed.addLoopSymbols(msgEmbed, loops)
                 break;
             case 201:
                 msgEmbed.setTitle(`No song is currently playing!`);

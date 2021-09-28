@@ -251,6 +251,14 @@ exports.clearAll = async () => {
     playingMusic = false;
 }
 
+exports.getLoops = () => {
+    let object = {
+        loop: loop,
+        loopqueue: loopqueue
+    };
+    return object;
+}
+
 startPlay = async () => {
     do {
         await playMusic()
