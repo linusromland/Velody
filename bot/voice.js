@@ -6,6 +6,7 @@ let voiceConnection;
 let dispatcher;
 let queue = [];
 let loop = false;
+let loopqueue = false;
 let playingMusic = false;
 
 const ytdl = require('ytdl-core');
@@ -167,6 +168,16 @@ exports.loop = async () => {
     }
 }
 
+exports.loopqueue = async () => {
+    if (loopqueue) {
+        loopqueue = false
+        return 200
+    } else {
+        loopqueue = true
+        return 201
+    }
+}
+
 exports.shuffle = async () => {
     let firstSong = queue[0]
     queue.shift();
@@ -181,7 +192,6 @@ exports.clear = async () => {
     queue.push(firstSong)
     return 200;
 }
-
 
 exports.nowplaying = () => {
     let object = {
@@ -259,6 +269,7 @@ playMusic = async () => {
         };
         dispatcher = voiceConnection.play(stream, streamOptions)
             .on("finish", () => {
+                if(loopqueue && !loop) queue.push(queue[0])
                 if (!loop) queue.shift()
                 playingMusic = false;
                 resolve()
@@ -294,6 +305,7 @@ getSong = async (search, interaction, message, client) => {
     let song = createSong(message, songInfo, interaction, URL)
     return song
 }
+
 validURL = (url) => {
     let pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
         '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
