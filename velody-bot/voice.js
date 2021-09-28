@@ -121,7 +121,7 @@ exports.playskip = async (client, interaction, search, message) => {
     let object = {
         statusCode: 401,
     }
-    if(ytPlaylist(search)){
+    if (ytPlaylist(search)) {
         object.statusCode = 323
         return object;
     }
@@ -263,11 +263,11 @@ exports.remove = (removeIndex) => {
     let object = {
         statusCode: 401
     }
-    if(queue[removeIndex]){
+    if (queue[removeIndex]) {
         object.title = queue[removeIndex].title
         queue.splice(removeIndex, 1);
         object.statusCode = 200
-    }else{
+    } else {
         object.statusCode = 201
     }
     return object
@@ -291,7 +291,7 @@ playMusic = async () => {
         };
         dispatcher = voiceConnection.play(stream, streamOptions)
             .on("finish", () => {
-                if(loopqueue && !loop) queue.push(queue[0])
+                if (loopqueue && !loop) queue.push(queue[0])
                 if (!loop) queue.shift()
                 playingMusic = false;
                 resolve()
@@ -308,7 +308,9 @@ playMusic = async () => {
 getSong = async (search, interaction, message, client) => {
     let URL;
     if (!validURL(search)) {
-        let searchResults = await ytsr(search, {
+        let filters = await ytsr.getFilters(search);
+        const filter = filters.get('Type').get('Video');
+        let searchResults = await ytsr(filter.url, {
             limit: 1
         })
         URL = searchResults.items[0].url
@@ -370,16 +372,17 @@ createSong = (message, songInfo, interaction, url) => {
 }
 
 shuffleQueue = (array) => {
-    let m = array.length, t, i;
-  
+    let m = array.length,
+        t, i;
+
     while (m) {
-  
-      i = Math.floor(Math.random() * m--);
-  
-      t = array[m];
-      array[m] = array[i];
-      array[i] = t;
+
+        i = Math.floor(Math.random() * m--);
+
+        t = array[m];
+        array[m] = array[i];
+        array[i] = t;
     }
-  
+
     return array;
-  }
+}
