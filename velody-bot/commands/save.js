@@ -26,13 +26,9 @@ module.exports = {
                 msgEmbed.setDescription(`**${object.info.title}**\n${object.info.url}`)
                 msgEmbed.setThumbnail(object.info.thumbnail)
                 break;
-            case 201:
+            default:
                 msgEmbed.setTitle("Nothing is playing!")
                 error = true;
-            default:
-                embed.setError(msgEmbed)
-                error = true;
-                break;
         }
 
         if(!error){
@@ -53,6 +49,6 @@ module.exports = {
             messageEmbed.setTitle("Saved! Check your DM!")
         }
 
-        return messageEmbed;
+        return error ? msgEmbed : messageEmbed;
     },
 };
