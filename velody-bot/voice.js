@@ -259,6 +259,20 @@ exports.getLoops = () => {
     return object;
 }
 
+exports.remove = (removeIndex) => {
+    let object = {
+        statusCode: 401
+    }
+    if(queue[removeIndex]){
+        object.title = queue[removeIndex].title
+        queue.splice(removeIndex, 1);
+        object.statusCode = 200
+    }else{
+        object.statusCode = 201
+    }
+    return object
+}
+
 startPlay = async () => {
     do {
         await playMusic()

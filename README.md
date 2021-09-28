@@ -21,6 +21,7 @@
 | `/loopqueue`| Loop the queue. |
 | `/queue`| View the queue.  |
 | `/clear`| Clears the queue.  |
+| `/remove`| Removes from queue at location.  |
 | `/shuffle`| Shuffles the queue.  |
 
 ## ⚡️ Setup
