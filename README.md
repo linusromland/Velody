@@ -65,7 +65,10 @@ Also enable slash commands for the bot!
 Setup your .env as following:
 
 ```bash
-TOKEN=YOUR_DISCORD_BOT_TOKEN
+TOKEN=YOUR_DISCORD_BOT_TOKEN_REQUIRED
+PREFIX=YOUR_PREFIX_FOR_COMMANDS_NOTREQUIRED
+CHANNEL_ID=CHANNEL_ID_FOR_WELCOME_MESSAGE_REQUIRED
+BOT_OWNER=BOT_OWNER_ID_REQUIRED
 ```
 
 Next, you can start the bot using the following command:
