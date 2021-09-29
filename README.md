@@ -44,7 +44,7 @@ node -v
 git clone https://github.com/linusromland/Velody.git
 
 # Navigate to folder:
-cd Velody/velody-bot
+cd Velody/bot
 
 #Install necessary dependencies:
 npm install
