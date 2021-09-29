@@ -8,11 +8,11 @@
 <a href="https://github.com/linusromland/Velody/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge&logo=none" alt="license" /></a></p>
 
 ## ⚙️ Commands
-
 | Command | Description |
 | ------ | ---- |
 | `/play <song>`| Plays a song with the given name or URL. |
 | `/playskip <song>`| Adds a song to the top of the queue then skips to it. |
+| `/playtop <song>`| Adds a song to the top of the queue. |
 | `/join`| Summons the bot to your voice channel.. |
 | `/leave`| Disconnect the bot from the voice channel it is in. |
 | `/nowplaying`| Shows what song the bot is currently playing. |
