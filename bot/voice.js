@@ -141,6 +141,29 @@ exports.playskip = async (client, interaction, search, message) => {
     return object
 }
 
+exports.playtop = async (client, interaction, search, message) => {
+    let object = {
+        statusCode: 401,
+    }
+    if (ytPlaylist(search)) {
+        object.statusCode = 323
+        return object;
+    }
+    if (queue.length > 0) {
+        let song = await getSong(search, interaction, message, client)
+        if (!song) {
+            object.statusCode = 404;
+            return object
+        }
+        queue.splice(1, 0, song)
+        object.song = song
+        object.statusCode = 200
+    } else {
+        object = await this.play(client, interaction, search, message)
+    }
+    return object
+}
+
 exports.skip = async () => {
     let object = {
         statusCode: 401,

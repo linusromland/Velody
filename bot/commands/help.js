@@ -23,6 +23,7 @@ module.exports = {
     msgEmbed.setDescription(
       `"/play <song>" - Plays a song with the given name or URL.\u200b
       "/playskip <song>" - Adds a song to the top of the queue then skips to it.\u200b
+      "/playtop <song>" - Adds a song to the top of the queue.\u200b
       "/join" - Summons the bot to your voice channel.\u200b
       "/leave" - Disconnect the bot from the voice channel it is in.\u200b
       "/nowplaying" - Shows what song the bot is currently playing.\u200b
