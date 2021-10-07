@@ -1,6 +1,10 @@
+//init of dotenv
+require("dotenv").config();
+
 //Dependencies Import
 const discordJS = require("discord.js");
 const embed = require("../embed.js");
+const prefix = process.env.PREFIX || "!"
 let messageObject;
 
 module.exports = {
@@ -21,7 +25,11 @@ module.exports = {
     msgEmbed.setAuthor('Velody', 'https://raw.githubusercontent.com/linusromland/Velody/master/Velody-logos.jpeg', 'https://github.com/linusromland/Velody')
     msgEmbed.setTitle("Available Commands"); //Sets the title for the Embed
     msgEmbed.setDescription(
-      `"/play <song>" - Plays a song with the given name or URL.\u200b
+      `Thank you for using Velody!
+      My Prefix is set to "${prefix}"\n
+      You can use all commands with ${prefix}<command> aswell as using slash (/<command>). 
+      \u200b
+      "/play <song>" - Plays a song with the given name or URL.\u200b
       "/playskip <song>" - Adds a song to the top of the queue then skips to it.\u200b
       "/playtop <song>" - Adds a song to the top of the queue.\u200b
       "/join" - Summons the bot to your voice channel.\u200b

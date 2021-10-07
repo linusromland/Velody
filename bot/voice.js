@@ -8,6 +8,7 @@ let queue = [];
 let loop = false;
 let loopqueue = false;
 let playingMusic = false;
+let djsClient;
 
 const ytdl = require('ytdl-core');
 const ytsr = require('ytsr');
@@ -21,6 +22,8 @@ let opts = {
 };
 
 exports.join = async (message, client, interaction) => {
+    djsClient = client;
+
     let object = {
         statusCode: 401
     };
@@ -298,8 +301,10 @@ exports.remove = (removeIndex) => {
 
 startPlay = async () => {
     do {
+        djsClient.user.setActivity({ type: "LISTENING", name: queue[0].title })
         await playMusic()
     } while (queue.length > 0);
+    djsClient.user.setActivity({ type: "STREAMING", name: 'using "/help"' })
     voiceChannel.leave();
 }
 
