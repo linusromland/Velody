@@ -90,7 +90,6 @@ If you want to say **thank you** or/and support active development of `Velody`:
 
 - Add a [GitHub Star](https://github.com/linusromland/velody) to the project.
 
-Together, we can make this project **better** every day! 
 
 ## ⚠️ License
 
