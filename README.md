@@ -8,22 +8,23 @@
 <a href="https://github.com/linusromland/Velody/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge&logo=none" alt="license" /></a></p>
 
 ## ⚙️ Commands
-| Command | Description |
-| ------ | ---- |
-| `/play <song>`| Plays a song with the given name or URL. |
-| `/playskip <song>`| Adds a song to the top of the queue then skips to it. |
-| `/playtop <song>`| Adds a song to the top of the queue. |
-| `/join`| Summons the bot to your voice channel.. |
-| `/leave`| Disconnect the bot from the voice channel it is in. |
-| `/nowplaying`| Shows what song the bot is currently playing. |
-| `/skip`| Skips the currently playing song. |
-| `/loop`| Loop the currently playing song. |
-| `/loopqueue`| Loop the queue. |
-| `/queue`| View the queue.  |
-| `/clear`| Clears the queue.  |
-| `/remove`| Removes from queue at location.  |
-| `/shuffle`| Shuffles the queue.  |
-| `/save`| Saves currently playing song to DM. |
+
+| Command            | Description                                           |
+| ------------------ | ----------------------------------------------------- |
+| `/play <song>`     | Plays a song with the given name or URL.              |
+| `/playskip <song>` | Adds a song to the top of the queue then skips to it. |
+| `/playtop <song>`  | Adds a song to the top of the queue.                  |
+| `/join`            | Summons the bot to your voice channel..               |
+| `/leave`           | Disconnect the bot from the voice channel it is in.   |
+| `/nowplaying`      | Shows what song the bot is currently playing.         |
+| `/skip`            | Skips the currently playing song.                     |
+| `/loop`            | Loop the currently playing song.                      |
+| `/loopqueue`       | Loop the queue.                                       |
+| `/queue`           | View the queue.                                       |
+| `/clear`           | Clears the queue.                                     |
+| `/remove`          | Removes from queue at location.                       |
+| `/shuffle`         | Shuffles the queue.                                   |
+| `/save`            | Saves currently playing song to DM.                   |
 
 ## ⚡️ Setup
 
@@ -77,7 +78,12 @@ Next, you can start the bot using the following command:
 npm run start
 ```
 
+RUN WITH DOCKER:
+`docker build -t velody .`
+`docker run -d -e TOKEN= -e CHANNEL_ID= -e BOT_OWNER= velody`
+
 That's all you need to know to start! 🎉
+
 ## 📝 Contact
 
 If you find issues please report them on the [issue](https://github.com/linusromland/Velody/issues) section of the repository.
@@ -88,8 +94,7 @@ If you have any features requests or other improvements to the project they are 
 
 If you want to say **thank you** or/and support active development of `Velody`:
 
-- Add a [GitHub Star](https://github.com/linusromland/velody) to the project.
-
+-   Add a [GitHub Star](https://github.com/linusromland/velody) to the project.
 
 ## ⚠️ License
 
