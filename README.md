@@ -11,6 +11,7 @@
 
 ## ⚙️ Commands
 
+
 | Command            | Description                                           |
 | ------------------ | ----------------------------------------------------- |
 | `/play <song>`     | Plays a song with the given name or URL.              |
