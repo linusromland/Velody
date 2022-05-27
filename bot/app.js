@@ -1,5 +1,5 @@
 //init of dotenv
-//require("dotenv").config();
+require("dotenv").config();
 
 //init of better-logging
 require('better-logging')(console);
