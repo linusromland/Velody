@@ -1,0 +1,32 @@
+{
+    "name": "velody-backend",
+    "version": "2.0.0",
+    "description": "Velody backend containing the bot itself and the API.",
+    "main": "main.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "forever main.js",
+        "dev": "nodemon main.js",
+        "lint": "eslint .",
+        "format": "prettier . --write"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/linusromland/Velody.git"
+    },
+    "author": "Linus Romland (linusromland)",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/linusromland/Velody/issues"
+    },
+    "homepage": "https://github.com/linusromland/Velody#readme",
+    "devDependencies": {
+        "eslint": "^8.16.0",
+        "eslint-config-prettier": "^8.5.0",
+        "nodemon": "^2.0.16",
+        "prettier": "^2.6.2"
+    },
+    "dependencies": {
+        "forever": "^0.15.3"
+    }
+}
