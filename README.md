@@ -1,3 +1,8 @@
+<hr/>
+
+# **Velody is no longer in devlopment**
+
+<hr/>
 <h1 align="center">
   <img src="assets/logo.jpeg" width="224px"/><br/>
   Velody
@@ -6,7 +11,7 @@
 
 <p align="center"><a href="https://github.com/linusromland/velody/releases" target="_blank"><img src="https://img.shields.io/badge/version-v1.0.0-blue?style=for-the-badge&logo=none" alt="cli version" /></a>&nbsp;<a href="https://nodejs.org/en/" target="_blank"><img src="https://img.shields.io/badge/Node.JS-14.17+-0?style=for-the-badge&logo=nodedotjs" alt="go version" /></a>&nbsp;
 <a href="https://github.com/linusromland/Velody/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge&logo=none" alt="license" /></a>
-<a ><img src="https://img.shields.io/badge/Project%20Status-Work%20in%20Progress-yellow?style=for-the-badge&logo=none" alt="Repo Status" /></a>
+<a ><img src="https://img.shields.io/badge/Project%20Status-Inactive-grey?style=for-the-badge&logo=none" alt="Repo Status" /></a>
 </p>
 
 ## ⚙️ Commands
@@ -88,9 +93,7 @@ That's all you need to know to start! 🎉
 
 ## 📝 Contact
 
-If you find issues please report them on the [issue](https://github.com/linusromland/Velody/issues) section of the repository.
-
-If you have any features requests or other improvements to the project they are more then welcome. Add a [issue](https://github.com/linusromland/Velody/issues) on the repository and i will check them out!
+`Velody` is no longer in development, feel free to fork it if you want to add something!
 
 ## ⭐️ Project assistance
 
