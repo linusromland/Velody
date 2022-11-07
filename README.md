@@ -1,99 +1,28 @@
-<hr/>
+# Here you can see the development of Velody 2.0. To check out Velody 1.0, go to the [Velody 1.0 branch](https://github.com/linusromland/Velody/tree/1.0).
 
-# **Velody is no longer in devlopment**
-
-<hr/>
+<hr>
 <h1 align="center">
   <img src="assets/logo.jpeg" width="224px"/><br/>
   Velody
 </h1>
-<p align="center">Velody is a <b>Discord music bot</b> written in <b>Node.JS</b> and using <b>Discord.JS, Wokcommands & ytdl-core</b>.
+<p align="center">Velody is a <b>Discord music bot</b> written in <b>Node.JS</b> using <b>Discord.JS</b>.
 
 <p align="center"><a href="https://github.com/linusromland/velody/releases" target="_blank"><img src="https://img.shields.io/badge/version-v1.0.0-blue?style=for-the-badge&logo=none" alt="cli version" /></a>&nbsp;<a href="https://nodejs.org/en/" target="_blank"><img src="https://img.shields.io/badge/Node.JS-14.17+-0?style=for-the-badge&logo=nodedotjs" alt="go version" /></a>&nbsp;
 <a href="https://github.com/linusromland/Velody/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge&logo=none" alt="license" /></a>
-<a ><img src="https://img.shields.io/badge/Project%20Status-Inactive-grey?style=for-the-badge&logo=none" alt="Repo Status" /></a>
+<a ><img src="https://img.shields.io/badge/Project%20Status-WIP-yellow?style=for-the-badge&logo=none" alt="Repo Status" /></a>
 </p>
 
 ## ⚙️ Commands
 
-| Command            | Description                                           |
-| ------------------ | ----------------------------------------------------- |
-| `/play <song>`     | Plays a song with the given name or URL.              |
-| `/playskip <song>` | Adds a song to the top of the queue then skips to it. |
-| `/playtop <song>`  | Adds a song to the top of the queue.                  |
-| `/join`            | Summons the bot to your voice channel..               |
-| `/leave`           | Disconnect the bot from the voice channel it is in.   |
-| `/nowplaying`      | Shows what song the bot is currently playing.         |
-| `/skip`            | Skips the currently playing song.                     |
-| `/loop`            | Loop the currently playing song.                      |
-| `/loopqueue`       | Loop the queue.                                       |
-| `/queue`           | View the queue.                                       |
-| `/clear`           | Clears the queue.                                     |
-| `/remove`          | Removes from queue at location.                       |
-| `/shuffle`         | Shuffles the queue.                                   |
-| `/save`            | Saves currently playing song to DM.                   |
+Coming soon!
 
 ## ⚡️ Setup
 
-First of all, [download](https://nodejs.org/en/) and install **Node.JS**. Version `14` or higher is required.
-
-> If need help to **install Node.JS on Linux**, you can find a guide [here](https://www.digitalocean.com/community/tutorial_collections/how-to-install-node-js).
-
-To confirm your installation of Node.JS run the following in the terminal or CMD:
-
-```bash
-node -v
-```
-
-### Setup:
-
-```bash
-# Clone the repo:
-git clone https://github.com/linusromland/Velody.git
-
-# Navigate to folder:
-cd Velody/bot
-
-#Install necessary dependencies:
-npm install
-
-#Create .env file
-touch .env
-
-#Create .env file (for Windows):
-type nul > .env
-```
-
-Now you need to setup your .env file. To do this you need to create a Discord Bot and invite it to your server.
-
-> If need help to **creating a discord bot**, you can find a guide [here](https://dsharpplus.github.io/articles/basics/bot_account.html).
-
-Also enable slash commands for the bot!
-
-Setup your .env as following:
-
-```bash
-TOKEN=YOUR_DISCORD_BOT_TOKEN_REQUIRED
-PREFIX=YOUR_PREFIX_FOR_COMMANDS_NOTREQUIRED
-CHANNEL_ID=CHANNEL_ID_FOR_WELCOME_MESSAGE_REQUIRED
-BOT_OWNER=BOT_OWNER_ID_REQUIRED
-```
-
-Next, you can start the bot using the following command:
-
-```bash
-npm run start
-```
-
-RUN WITH DOCKER:
-`docker build -t velody .`
-`docker run -d -e TOKEN= -e CHANNEL_ID= -e BOT_OWNER= velody`
-
-That's all you need to know to start! 🎉
+Coming soon!
 
 ## 📝 Contact
 
-`Velody` is no longer in development, feel free to fork it if you want to add something!
+If you have any questions, feel free to contact me on Discord: `linusromland#1012`
 
 ## ⭐️ Project assistance
 
@@ -104,5 +33,3 @@ If you want to say **thank you** or/and support active development of `Velody`:
 ## ⚠️ License
 
 `Velody` is free and open-source software licensed under the [MIT License](https://github.com/linusromland/Velody/blob/master/LICENSE).
-
-<a href="https://hits.seeyoufarm.com"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Flinusromland%2FVelody&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=views&edge_flat=true"/></a>
