@@ -5,6 +5,8 @@ node_modules/
 .env
 .env.test
 
+# TypeScript Build Directory
+dist/
 
 # Visual Studio Code
 .vscode/*
