@@ -5,7 +5,14 @@ import { VoiceBasedChannel } from 'discord.js';
 import VoiceConnection from './VoiceConnection';
 
 export default class Server extends VoiceConnection {
-	constructor(channel: VoiceBasedChannel) {
+	private _id: string | undefined;
+
+	constructor(channel: VoiceBasedChannel, id: string) {
 		super(channel);
+		this._id = id;
+	}
+
+	get id(): string | undefined {
+		return this._id;
 	}
 }
