@@ -55,5 +55,9 @@ export class JoinCommand extends Command {
 			embed.setDescription('Join a voice channel and try again');
 			msg.edit({ embeds: [embed.embed] });
 		}
+
+		this.container.logger.info(
+			`User ${interaction?.user?.tag}(${interaction?.user?.id}) requested the bot to join the voice channel ${channel?.name}(${interaction?.id}) on server ${interaction.guild?.name}(${interaction.guildId})`
+		);
 	}
 }

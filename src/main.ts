@@ -1,5 +1,6 @@
 // External dependencies
-import { SapphireClient } from '@sapphire/framework';
+import '@sapphire/plugin-logger/register';
+import { SapphireClient, container } from '@sapphire/framework';
 import { BOT_TOKEN } from './utils/env';
 
 const client: SapphireClient<boolean> = new SapphireClient({
@@ -7,6 +8,10 @@ const client: SapphireClient<boolean> = new SapphireClient({
 });
 
 client.login(BOT_TOKEN);
+
+client.on('ready', () => {
+	container.logger.info(`Connected as ${client.user?.tag}`);
+});
 
 function shutdown() {
 	client.destroy();
