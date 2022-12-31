@@ -3,17 +3,13 @@ import { joinVoiceChannel, VoiceConnection as DiscordVoiceConnection } from '@di
 import { VoiceBasedChannel } from 'discord.js';
 
 export default class VoiceConnection {
-	private _channel: VoiceBasedChannel;
-	private _connection!: DiscordVoiceConnection;
+	private _connection: DiscordVoiceConnection | null = null;
 
 	public constructor(channel: VoiceBasedChannel) {
-		this._channel = channel;
 		this.join(channel);
 	}
 
 	public async join(channel: VoiceBasedChannel): Promise<boolean> {
-		this._channel = channel;
-
 		const connection: DiscordVoiceConnection = await joinVoiceChannel({
 			channelId: channel.id,
 			guildId: channel.guild.id,
@@ -28,7 +24,18 @@ export default class VoiceConnection {
 		return !!connection;
 	}
 
+	public async leave(): Promise<boolean> {
+		if (this._connection) {
+			this._connection.destroy();
+			this._connection = null;
+			return true;
+		}
+
+		return false;
+	}
+
 	get connectedChannelId(): string | null {
+		if (!this._connection) return null;
 		return this._connection?.joinConfig?.channelId;
 	}
 }
