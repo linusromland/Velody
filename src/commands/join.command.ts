@@ -31,7 +31,6 @@ export class JoinCommand extends Command {
 		})) as Message;
 
 		const channel: VoiceBasedChannel | null = (interaction?.member as GuildMember)?.voice?.channel;
-		console.log(channel);
 
 		if (isMessageInstance(msg) && channel) {
 			let server: Server = servers.get(interaction.guildId as string) as Server;
