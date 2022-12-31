@@ -19,7 +19,6 @@ const validUrl = (url: string): boolean => {
 
 const getFromUrl = async (url: string): Promise<Video> => {
 	const info: ytdl.videoInfo = await ytdl.getInfo(url);
-	console.log(info.videoDetails.thumbnails);
 	return {
 		title: info.videoDetails.title,
 		url: info.videoDetails.video_url,
@@ -36,7 +35,6 @@ const getFromQuery = async (query: string): Promise<Video> => {
 		{ limit: 1 }
 	);
 	const result: ytsr.Video = searchResults.items[0] as ytsr.Video;
-	console.log(result.thumbnails);
 	return {
 		title: result.title,
 		url: result.url,
