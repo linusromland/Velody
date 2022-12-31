@@ -1,28 +1,35 @@
 // External dependencies
+import { SlashCommandBuilder } from '@discordjs/builders';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import { ChatInputCommand, Command } from '@sapphire/framework';
-import { Message } from 'discord.js';
+import { GuildMember, Message, VoiceBasedChannel } from 'discord.js';
 
 // Internal dependencies
 import Server from '../classes/Server';
 
 export class JoinCommand extends Command {
 	public constructor(context: Command.Context, options: Command.Options) {
-		super(context, { ...options });
+		super(context, {
+			...options
+		});
 	}
 
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
-		registry.registerChatInputCommand((builder) => builder.setName('join').setDescription('Joins the voice channel'));
+		registry.registerChatInputCommand((builder: SlashCommandBuilder) =>
+			builder.setName('join').setDescription('Joins the voice channel')
+		);
 	}
 
 	public async chatInputRun(interaction: Command.ChatInputInteraction) {
-		const msg = (await interaction.reply({
+		const msg: Message<boolean> = (await interaction.reply({
 			content: 'Loading...',
 			fetchReply: true
 		})) as Message;
 
-		if (isMessageInstance(msg)) {
-			const server = new Server((interaction.member as any).voice.channel);
+		const channel: VoiceBasedChannel | null = (interaction?.member as GuildMember)?.voice?.channel;
+
+		if (isMessageInstance(msg) && channel) {
+			const server: Server = new Server(channel);
 
 			await msg.edit('Help menu');
 		}

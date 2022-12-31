@@ -1,20 +1,20 @@
 //External dependencies
 import { joinVoiceChannel, VoiceConnection as DiscordVoiceConnection } from '@discordjs/voice';
-import { VoiceChannel } from 'discord.js';
+import { VoiceBasedChannel } from 'discord.js';
 
 export default class VoiceConnection {
-	_channel: VoiceChannel;
+	_channel: VoiceBasedChannel;
 	_connection!: DiscordVoiceConnection;
 
-	public constructor(channel: VoiceChannel) {
+	public constructor(channel: VoiceBasedChannel) {
 		this._channel = channel;
 		this.join(channel);
 	}
 
-	public async join(channel: VoiceChannel): Promise<boolean> {
+	public async join(channel: VoiceBasedChannel): Promise<boolean> {
 		this._channel = channel;
 
-		const connection = await joinVoiceChannel({
+		const connection: DiscordVoiceConnection = await joinVoiceChannel({
 			channelId: channel.id,
 			guildId: channel.guild.id,
 			adapterCreator: channel.guild.voiceAdapterCreator
