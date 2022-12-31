@@ -7,3 +7,11 @@ const client: SapphireClient<boolean> = new SapphireClient({
 });
 
 client.login(BOT_TOKEN);
+
+function shutdown() {
+	client.destroy();
+	process.exit(0);
+}
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
