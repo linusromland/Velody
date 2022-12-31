@@ -1,32 +1,47 @@
 // External dependencies
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
-import { ChatInputCommand, Command } from '@sapphire/framework';
+import { ChatInputCommand, Command, CommandStore } from '@sapphire/framework';
 
 // Internal dependencies
+import Embed from '../classes/Embed';
 import { Message } from 'discord.js';
 
 export class HelpCommand extends Command {
 	public constructor(context: Command.Context, options: Command.Options) {
 		super(context, {
-			...options
+			...options,
+			name: 'help',
+			description: 'Shows all the available commands and how to use them.'
 		});
 	}
 
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
 		registry.registerChatInputCommand((builder: SlashCommandBuilder) =>
-			builder.setName('help').setDescription('Shows the help menu')
+			builder.setName(this.name).setDescription(this.description)
 		);
 	}
 
 	public async chatInputRun(interaction: Command.ChatInputInteraction) {
+		const embed: Embed = new Embed();
+		embed.loading();
 		const msg: Message<boolean> = (await interaction.reply({
-			content: 'Loading...',
+			embeds: [embed.embed],
 			fetchReply: true
 		})) as Message;
 
 		if (isMessageInstance(msg)) {
-			await msg.edit('Help menu');
+			const commands: CommandStore = this.container.stores.get('commands');
+
+			embed.setTitle('Available commands');
+
+			for (const command of commands.values()) {
+				if (command.name !== 'help') {
+					embed.addField(`/${command.name}`, command.description, false);
+				}
+			}
+
+			msg.edit({ embeds: [embed.embed] });
 		}
 	}
 }

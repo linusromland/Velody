@@ -12,13 +12,15 @@ import Embed from '../classes/Embed';
 export class LeaveCommand extends Command {
 	public constructor(context: Command.Context, options: Command.Options) {
 		super(context, {
-			...options
+			...options,
+			name: 'leave',
+			description: 'Leaves the voice channel'
 		});
 	}
 
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
 		registry.registerChatInputCommand((builder: SlashCommandBuilder) =>
-			builder.setName('leave').setDescription('Leaves the voice channel')
+			builder.setName(this.name).setDescription(this.description)
 		);
 	}
 

@@ -33,4 +33,9 @@ export default class Embed {
 		this._embed.setDescription(description);
 		return this;
 	}
+
+	addField(name: string, value: string, inline: boolean): Embed {
+		this._embed.addFields({ name, value, inline });
+		return this;
+	}
 }
