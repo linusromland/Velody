@@ -3,8 +3,8 @@ import { joinVoiceChannel, VoiceConnection as DiscordVoiceConnection } from '@di
 import { VoiceBasedChannel } from 'discord.js';
 
 export default class VoiceConnection {
-	_channel: VoiceBasedChannel;
-	_connection!: DiscordVoiceConnection;
+	private _channel: VoiceBasedChannel;
+	private _connection!: DiscordVoiceConnection;
 
 	public constructor(channel: VoiceBasedChannel) {
 		this._channel = channel;
@@ -26,5 +26,9 @@ export default class VoiceConnection {
 		this._connection = connection;
 
 		return !!connection;
+	}
+
+	get connectedChannelId(): string | null {
+		return this._connection?.joinConfig?.channelId;
 	}
 }
