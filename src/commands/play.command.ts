@@ -55,6 +55,8 @@ export class PlayCommand extends Command {
 			const result: Video | undefined = await youtubeSearch(interaction.options.getString('query') as string);
 
 			if (result) {
+				result.requestedBy = interaction.user.tag;
+				server.add(result as Video);
 				embed.setTitle('Playing `' + result.title + '`');
 				if (result.thumbnail) embed.setImage(result.thumbnail);
 				embed.setURL(result.url);
@@ -73,7 +75,7 @@ export class PlayCommand extends Command {
 		}
 
 		this.container.logger.info(
-			`User ${interaction?.user?.tag}(${interaction?.user?.id}) requested the bot to join the voice channel ${channel?.name}(${interaction?.id}) on server ${interaction.guild?.name}(${interaction.guildId})`
+			`User ${interaction?.user?.tag}(${interaction?.user?.id}) requested the bot to play a song in the voice channel ${channel?.name}(${interaction?.id}) on server ${interaction.guild?.name}(${interaction.guildId})`
 		);
 	}
 }

@@ -2,10 +2,14 @@
 import { joinVoiceChannel, VoiceConnection as DiscordVoiceConnection } from '@discordjs/voice';
 import { VoiceBasedChannel } from 'discord.js';
 
-export default class VoiceConnection {
+//Internal dependencies
+import Queue from './Queue';
+
+export default class VoiceConnection extends Queue {
 	private _connection: DiscordVoiceConnection | null = null;
 
 	public constructor(channel: VoiceBasedChannel) {
+		super();
 		this.join(channel);
 	}
 
