@@ -25,7 +25,7 @@ const getFromUrl = async (url: string): Promise<Video> => {
 		thumbnail:
 			info.videoDetails.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url ||
 			null,
-		length: info.videoDetails.lengthSeconds
+		length: Number(info.videoDetails.lengthSeconds)
 	};
 };
 
@@ -35,13 +35,31 @@ const getFromQuery = async (query: string): Promise<Video> => {
 		{ limit: 1 }
 	);
 	const result: ytsr.Video = searchResults.items[0] as ytsr.Video;
+
+	let lengthInSeconds: number = 0;
+	const time: string[] | undefined = result?.duration?.split(':');
+
+	if (time && time.length === 3) {
+		const hours: number = Number(time[0]);
+		const minutes: number = Number(time[1]);
+		const seconds: number = Number(time[2]);
+		lengthInSeconds = hours * 3600 + minutes * 60 + seconds;
+	} else if (time && time.length === 2) {
+		const minutes: number = Number(time[0]);
+		const seconds: number = Number(time[1]);
+		lengthInSeconds = minutes * 60 + seconds;
+	} else if (time && time.length === 1) {
+		const seconds: number = Number(time[0]);
+		lengthInSeconds = seconds;
+	}
+
 	return {
 		title: result.title,
 		url: result.url,
 		//get highest quality thumbnail
 		thumbnail:
 			result.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url || null,
-		length: result.duration
+		length: lengthInSeconds
 	};
 };
 

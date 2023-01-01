@@ -2,7 +2,7 @@ interface Video {
 	title: string;
 	url: string;
 	thumbnail: string | null;
-	length: string | null;
+	length: number;
 	requestedBy?: string;
 }
 
