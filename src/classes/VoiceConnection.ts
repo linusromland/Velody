@@ -1,9 +1,21 @@
 //External dependencies
-import { joinVoiceChannel, VoiceConnection as DiscordVoiceConnection } from '@discordjs/voice';
+import {
+	joinVoiceChannel,
+	createAudioPlayer,
+	createAudioResource,
+	AudioPlayerState,
+	AudioResource,
+	AudioPlayer,
+	StreamType,
+	VoiceConnection as DiscordVoiceConnection
+} from '@discordjs/voice';
 import { VoiceBasedChannel } from 'discord.js';
+import { Readable } from 'stream';
+import ytdl from 'ytdl-core';
 
 //Internal dependencies
 import Queue from './Queue';
+import Video from '../interfaces/Video';
 
 export default class VoiceConnection extends Queue {
 	private _connection: DiscordVoiceConnection | null = null;
@@ -26,6 +38,28 @@ export default class VoiceConnection extends Queue {
 		this._connection = connection;
 
 		return !!connection;
+	}
+
+	public async playVideo(video: Video, callback: () => void): Promise<boolean> {
+		if (!this._connection) return false;
+
+		const stream: Readable = ytdl(video.url, {
+			filter: 'audioonly'
+		});
+
+		const player: AudioPlayer = createAudioPlayer();
+
+		this._connection.subscribe(player);
+
+		player.play(createAudioResource(stream));
+
+		player.on('stateChange', (_: AudioPlayerState, newState: AudioPlayerState) => {
+			if (newState.status === 'idle') {
+				callback();
+			}
+		});
+
+		return true;
 	}
 
 	public async leave(): Promise<boolean> {

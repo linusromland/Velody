@@ -57,6 +57,9 @@ export class PlayCommand extends Command {
 			if (result) {
 				result.requestedBy = interaction.user.tag;
 				server.add(result as Video);
+				server.play(() => {
+					console.log('Song ended');
+				});
 				embed.setTitle('Playing `' + result.title + '`');
 				if (result.thumbnail) embed.setImage(result.thumbnail);
 				embed.setURL(result.url);

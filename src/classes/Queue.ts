@@ -3,7 +3,6 @@ import Video from '../interfaces/Video';
 
 export default class Queue {
 	private videos: Video[];
-	private playing: number | null = null;
 
 	constructor() {
 		this.videos = [];
@@ -18,6 +17,6 @@ export default class Queue {
 	}
 
 	get current(): Video | null {
-		return this.videos[this.playing as number] || null;
+		return this.videos[0] || null;
 	}
 }
