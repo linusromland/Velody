@@ -14,7 +14,19 @@
 
 ## ⚙️ Commands
 
-Coming soon!
+| Command               | Description                                                                         |
+| --------------------- | ----------------------------------------------------------------------------------- |
+| `/join`               | Summons the bot to your voice channel.                                              |
+| `/leave`              | Disconnect the bot from the voice channel it is in.                                 |
+| `/loop`               | Loop the currently playing video.                                                   |
+| `/loopqueue`          | Loop the queue.                                                                     |
+| `/nowplaying`         | Shows what video the bot is currently playing.                                      |
+| `/play <video>`       | Plays a video with the given name or URL.                                           |
+| `/playtop <video>`    | Adds a video to the top of the queue.                                               |
+| `/queue`              | View the queue.                                                                     |
+| `/remove <position?>` | Removes from queue at location. If position is not passed, will clear entire queue. |
+| `/skip`               | Skips the currently playing video.                                                  |
+| `/shuffle`            | Shuffles the queue.                                                                 |
 
 ## ⚡️ Setup
 
@@ -28,7 +40,7 @@ If you have any questions, feel free to contact me on Discord: `linusromland#101
 
 If you want to say **thank you** or/and support active development of `Velody`:
 
--   Add a [GitHub Star](https://github.com/linusromland/velody) to the project.
+- Add a [GitHub Star](https://github.com/linusromland/velody) to the project.
 
 ## ⚠️ License
 

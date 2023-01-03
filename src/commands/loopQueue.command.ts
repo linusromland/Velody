@@ -14,7 +14,7 @@ export class LoopQueueCommand extends Command {
 		super(context, {
 			...options,
 			name: 'loopqueue',
-			description: 'Toggles looping of the queue'
+			description: 'Loop the queue.'
 		});
 	}
 

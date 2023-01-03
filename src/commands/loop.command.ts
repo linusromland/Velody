@@ -14,7 +14,7 @@ export class LoopCommand extends Command {
 		super(context, {
 			...options,
 			name: 'loop',
-			description: 'Toggles looping of the current song'
+			description: 'Loop the currently playing video.'
 		});
 	}
 

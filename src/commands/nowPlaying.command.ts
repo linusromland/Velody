@@ -17,7 +17,7 @@ export class NowPlayingCommand extends Command {
 		super(context, {
 			...options,
 			name: 'nowplaying',
-			description: 'Shows the currently playing video'
+			description: 'Shows what video the bot is currently playing.'
 		});
 	}
 

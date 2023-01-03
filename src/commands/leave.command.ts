@@ -14,7 +14,7 @@ export class LeaveCommand extends Command {
 		super(context, {
 			...options,
 			name: 'leave',
-			description: 'Leaves the voice channel'
+			description: 'Disconnect the bot from the voice channel it is in.'
 		});
 	}
 

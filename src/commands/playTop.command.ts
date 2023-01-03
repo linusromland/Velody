@@ -16,7 +16,7 @@ export class PlayCommand extends Command {
 		super(context, {
 			...options,
 			name: 'playTop',
-			description: 'Searches for a video and adds it to the top of the queue'
+			description: 'Adds a video to the top of the queue.'
 		});
 	}
 

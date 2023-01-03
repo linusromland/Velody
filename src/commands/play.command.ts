@@ -16,7 +16,7 @@ export class PlayCommand extends Command {
 		super(context, {
 			...options,
 			name: 'play',
-			description: 'Searches for a video and plays it'
+			description: 'Plays a video with the given name or URL.'
 		});
 	}
 

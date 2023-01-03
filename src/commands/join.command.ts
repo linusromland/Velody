@@ -14,7 +14,7 @@ export class JoinCommand extends Command {
 		super(context, {
 			...options,
 			name: 'join',
-			description: 'Joins the voice channel'
+			description: 'Summons the bot to your voice channel.'
 		});
 	}
 

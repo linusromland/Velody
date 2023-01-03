@@ -14,7 +14,7 @@ export class ShuffleCommand extends Command {
 		super(context, {
 			...options,
 			name: 'shuffle',
-			description: 'Shuffles the queue'
+			description: 'Shuffles the queue.'
 		});
 	}
 

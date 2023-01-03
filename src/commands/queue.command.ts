@@ -16,7 +16,7 @@ export class QueueCommand extends Command {
 		super(context, {
 			...options,
 			name: 'queue',
-			description: 'Shows the current queue'
+			description: 'View the queue.'
 		});
 	}
 

@@ -15,7 +15,7 @@ export class RemoveCommand extends Command {
 		super(context, {
 			...options,
 			name: 'remove',
-			description: 'Removes a video from the queue (if empty, clears entire queue)'
+			description: 'Removes from queue at location. If position is not passed, will clear entire queue.'
 		});
 	}
 
