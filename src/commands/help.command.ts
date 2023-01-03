@@ -43,5 +43,9 @@ export class HelpCommand extends Command {
 
 			msg.edit({ embeds: [embed.embed] });
 		}
+
+		this.container.logger.info(
+			`User ${interaction?.user?.tag}(${interaction?.user?.id}) requested the bot to show help on server ${interaction.guild?.name}(${interaction.guildId})`
+		);
 	}
 }

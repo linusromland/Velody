@@ -67,7 +67,7 @@ export class SkipCommand extends Command {
 		}
 
 		this.container.logger.info(
-			`User ${interaction?.user?.tag}(${interaction?.user?.id}) requested the bot to show currently playing on server ${interaction.guild?.name}(${interaction.guildId})`
+			`User ${interaction?.user?.tag}(${interaction?.user?.id}) requested the bot to skip the currently playing on server ${interaction.guild?.name}(${interaction.guildId})`
 		);
 	}
 }

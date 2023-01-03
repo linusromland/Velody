@@ -64,7 +64,7 @@ export class ShuffleCommand extends Command {
 		}
 
 		this.container.logger.info(
-			`User ${interaction?.user?.tag}(${interaction?.user?.id}) requested the bot to show currently playing on server ${interaction.guild?.name}(${interaction.guildId})`
+			`User ${interaction?.user?.tag}(${interaction?.user?.id}) requested the bot to shuffle queue playing on server ${interaction.guild?.name}(${interaction.guildId})`
 		);
 	}
 }
