@@ -57,6 +57,7 @@ export default class Queue {
 
 	public shuffleQueue(): boolean {
 		try {
+			if (this.videos.length <= 1) return false;
 			//Shuffle all the videos except the first one
 			this.videos = [this.videos[0], ...this.videos.slice(1).sort(() => Math.random() - Math.random())];
 			return true;

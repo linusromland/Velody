@@ -20,6 +20,8 @@ export default class VoiceConnection extends Queue {
 	private _connection: DiscordVoiceConnection | null = null;
 	private _playing: boolean = false;
 	private _player: AudioPlayer | null = null;
+	private _loop: boolean = false;
+	private _loopQueue: boolean = false;
 
 	public constructor(channel: VoiceBasedChannel) {
 		super();
@@ -66,7 +68,8 @@ export default class VoiceConnection extends Queue {
 
 		this._player.on('stateChange', (_: AudioPlayerState, newState: AudioPlayerState) => {
 			if (newState.status === 'idle') {
-				this.removeFirst();
+				if (!this._loop && this._loopQueue) this.add(this.current as Video);
+				if (!this._loop) this.removeFirst();
 				this._playing = false;
 
 				if (this.current) return this.playVideo(this.current as Video);
@@ -117,5 +120,21 @@ export default class VoiceConnection extends Queue {
 
 	get isPlaying(): boolean {
 		return this._playing;
+	}
+
+	get loop(): boolean {
+		return this._loop;
+	}
+
+	set loop(value: boolean) {
+		this._loop = value;
+	}
+
+	get loopQueue(): boolean {
+		return this._loopQueue;
+	}
+
+	set loopQueue(value: boolean) {
+		this._loopQueue = value;
 	}
 }

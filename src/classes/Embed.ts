@@ -53,4 +53,11 @@ export default class Embed {
 		this._embed.addFields({ name, value, inline });
 		return this;
 	}
+
+	addLoopSymbols(loop: boolean, loopQueue: boolean): Embed {
+		this._embed.setFooter({
+			text: `Loop: ${loop ? '✅' : '❌'}\nLoop Queue: ${loopQueue ? '✅' : '❌'}`
+		});
+		return this;
+	}
 }

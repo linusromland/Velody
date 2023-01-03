@@ -8,15 +8,13 @@ import { GuildMember, Message, VoiceBasedChannel } from 'discord.js';
 import Server from '../classes/Server';
 import servers from '../utils/servers';
 import Embed from '../classes/Embed';
-import Video from '../interfaces/Video';
-import formatTime from '../utils/formatTime';
 
-export class QueueCommand extends Command {
+export class LoopQueueCommand extends Command {
 	public constructor(context: Command.Context, options: Command.Options) {
 		super(context, {
 			...options,
-			name: 'queue',
-			description: 'Shows the current queue'
+			name: 'loopQueue',
+			description: 'Toggles looping of the queue'
 		});
 	}
 
@@ -47,32 +45,10 @@ export class QueueCommand extends Command {
 				return msg.edit({ embeds: [embed.embed] });
 			}
 
-			const queue: Video[] = server.queue;
+			server.loopQueue = !server.loopQueue;
 
-			if (queue && queue.length > 0) {
-				embed.setTitle('Current queue');
-				let description: string = `__Now Playing:__
-        [${queue[0].title}](${queue[0].url}) - ${formatTime(queue[0].length)}
-        \n`;
-
-				if (queue.length > 1) {
-					description += '__Up next:__\n';
-					for (let i: number = 1; i < (queue.length > 10 ? 11 : queue.length); i++) {
-						description +=
-							'``' + i + '.``' + ` [${queue[i].title}](${queue[i].url}) - ${formatTime(queue[i].length)}\n`;
-					}
-					if (queue.length > 10) description += 'and ' + (queue.length - 10) + ' more...';
-				} else {
-					description += 'No more videos in queue';
-				}
-
-				embed.setDescription(description);
-				embed.addLoopSymbols(server.loop, server.loopQueue);
-			} else {
-				embed.setTitle('No videos in queue');
-				embed.setDescription('Use `/play` to add videos to the queue');
-			}
-
+			embed.setTitle(`${server.loopQueue ? '✅ Enabled' : '❌ Disabled'} loop queue!`);
+			embed.setDescription('Use `/loopQueue` to toggle queue loop');
 			msg.edit({ embeds: [embed.embed] });
 		} else {
 			embed.setTitle('You are not connected to a voice channel');
@@ -81,7 +57,7 @@ export class QueueCommand extends Command {
 		}
 
 		this.container.logger.info(
-			`User ${interaction?.user?.tag}(${interaction?.user?.id}) requested the bot to show the queue on server ${interaction.guild?.name}(${interaction.guildId})`
+			`User ${interaction?.user?.tag}(${interaction?.user?.id}) requested the bot to loop on server ${interaction.guild?.name}(${interaction.guildId})`
 		);
 	}
 }
