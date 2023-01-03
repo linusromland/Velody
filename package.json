@@ -4,8 +4,7 @@
 	"description": "Velody is a discord music bot!",
 	"main": "src/main.ts",
 	"scripts": {
-		"build": "tsc",
-		"start": "node dist/main.js",
+		"start": "ts-node -r dotenv/config src/main.ts dotenv_config_path=.env",
 		"dev": "nodemon -r dotenv/config src/main.ts dotenv_config_path=.env",
 		"lint": "eslint src --ext .ts",
 		"format": "prettier --write src/**/*.{ts,js}"

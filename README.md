@@ -36,6 +36,10 @@ In order to run `Velody` natively, you will need to have the following installed
 
 - [Node.JS](https://nodejs.org/en/) (v16+)
 
+If you want to run `Velody` in a Docker container, you will need to have the following installed:
+
+- [Docker](https://www.docker.com/)
+
 ### Running natively
 
 1. Clone the repository
@@ -64,6 +68,33 @@ Then, fill in the environment variables in the `.env` file. More information abo
 npm run dev
 ```
 
+### Running in a Docker container
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/linusromland/Velody.git
+```
+
+2. Set up the environment variables
+
+```bash
+cp .env.example .env
+```
+
+Then, fill in the environment variables in the `.env` file. More information about the environment variables can be found [here](#-environment-variables).
+
+3. Build the Docker image
+
+```bash
+docker build -t velody .
+```
+
+4. Run the Docker container
+
+```bash
+docker run -d --name velody velody
+```
 
 ## 📦 Environment variables
 
