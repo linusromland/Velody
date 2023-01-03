@@ -70,6 +70,7 @@ export default class VoiceConnection extends Queue {
 				this._playing = false;
 
 				if (this.current) return this.playVideo(this.current as Video);
+				else this.leave();
 			}
 		});
 
