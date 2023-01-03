@@ -18,6 +18,7 @@ import Video from '../interfaces/Video';
 export default class VoiceConnection extends Queue {
 	private _connection: DiscordVoiceConnection | null = null;
 	private _playing: boolean = false;
+	private _player: AudioPlayer | null = null;
 
 	public constructor(channel: VoiceBasedChannel) {
 		super();
@@ -46,15 +47,15 @@ export default class VoiceConnection extends Queue {
 			filter: 'audioonly'
 		});
 
-		const player: AudioPlayer = createAudioPlayer();
+		this._player = createAudioPlayer();
 
-		this._connection.subscribe(player);
+		this._connection.subscribe(this._player);
 
-		player.play(createAudioResource(stream));
+		this._player.play(createAudioResource(stream));
 
 		this._playing = true;
 
-		player.on('stateChange', (_: AudioPlayerState, newState: AudioPlayerState) => {
+		this._player.on('stateChange', (_: AudioPlayerState, newState: AudioPlayerState) => {
 			if (newState.status === 'idle') {
 				this.removeFirst();
 				this._playing = false;
@@ -63,11 +64,25 @@ export default class VoiceConnection extends Queue {
 			}
 		});
 
-		player.on('error', (error: Error) => {
-			console.error(error);
+		this._player.on('error', (error: Error) => {
+			if (error.message === 'aborted') {
+				console.log('TODO: FIX THIS');
+			}
 		});
 
 		return true;
+	}
+
+	public getDuration(): number {
+		if (!this._player) return 0;
+		if (!this._playing) return 0;
+		const playerState: AudioPlayerState = this._player.state;
+
+		if (playerState.status !== 'playing') return 0;
+
+		if (!playerState.resource.playbackDuration) return 0;
+
+		return Math.floor(playerState.resource.playbackDuration / 1000);
 	}
 
 	public async leave(): Promise<boolean> {

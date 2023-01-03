@@ -44,6 +44,11 @@ export default class Embed {
 		return this;
 	}
 
+	setThumbnail(url: string): Embed {
+		this._embed.setThumbnail(url);
+		return this;
+	}
+
 	addField(name: string, value: string, inline: boolean): Embed {
 		this._embed.addFields({ name, value, inline });
 		return this;

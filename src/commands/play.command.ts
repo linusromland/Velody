@@ -9,7 +9,6 @@ import Server from '../classes/Server';
 import servers from '../utils/servers';
 import Embed from '../classes/Embed';
 import youtubeSearch from '../utils/youtubeSearch';
-import ytsr from 'ytsr';
 import Video from '../interfaces/Video';
 
 export class PlayCommand extends Command {
