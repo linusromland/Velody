@@ -1,5 +1,3 @@
-# Here you can see the development of Velody 2.0. To check out Velody 1.0, go to the [Velody 1.0 branch](https://github.com/linusromland/Velody/tree/1.0).
-
 <hr>
 <h1 align="center">
   <img src="assets/logo.jpeg" width="224px"/><br/>
