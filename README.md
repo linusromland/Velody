@@ -1,4 +1,3 @@
-<hr>
 <h1 align="center">
   <img src="assets/logo.jpeg" width="224px"/><br/>
   Velody
