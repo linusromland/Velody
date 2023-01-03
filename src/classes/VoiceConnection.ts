@@ -92,6 +92,13 @@ export default class VoiceConnection extends Queue {
 		return Math.floor(playerState.resource.playbackDuration / 1000);
 	}
 
+	public skip(): boolean {
+		if (!this._player) return false;
+		if (!this._playing) return false;
+		this._player.stop();
+		return true;
+	}
+
 	public async leave(): Promise<boolean> {
 		if (this._connection) {
 			this._connection.destroy();
