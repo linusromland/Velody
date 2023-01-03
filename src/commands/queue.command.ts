@@ -57,10 +57,11 @@ export class QueueCommand extends Command {
 
 				if (queue.length > 1) {
 					description += '__Up next:__\n';
-					for (let i: number = 1; i < queue.length; i++) {
+					for (let i: number = 1; i < (queue.length > 10 ? 11 : queue.length); i++) {
 						description +=
 							'``' + i + '.``' + ` [${queue[i].title}](${queue[i].url}) - ${formatTime(queue[i].length)}\n`;
 					}
+					if (queue.length > 10) description += 'and ' + (queue.length - 10) + ' more...';
 				} else {
 					description += 'No more videos in queue';
 				}
