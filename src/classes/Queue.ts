@@ -36,6 +36,16 @@ export default class Queue {
 		}
 	}
 
+	public shuffleQueue(): boolean {
+		try {
+			//Shuffle all the videos except the first one
+			this.videos = [this.videos[0], ...this.videos.slice(1).sort(() => Math.random() - Math.random())];
+			return true;
+		} catch (e) {
+			return false;
+		}
+	}
+
 	get queue(): Video[] {
 		return this.videos;
 	}
