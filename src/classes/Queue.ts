@@ -36,6 +36,25 @@ export default class Queue {
 		}
 	}
 
+	public removeAt(index: number): boolean | Video {
+		try {
+			if (index == 0) return false;
+
+			return this.videos.splice(index, 1)[0];
+		} catch (e) {
+			return false;
+		}
+	}
+
+	public clearQueue(): boolean {
+		try {
+			this.videos = [this.videos[0]];
+			return true;
+		} catch (e) {
+			return false;
+		}
+	}
+
 	public shuffleQueue(): boolean {
 		try {
 			//Shuffle all the videos except the first one
