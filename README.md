@@ -25,8 +25,8 @@
 | `/playtop <video>`    | Adds a video to the top of the queue.                                               |
 | `/queue`              | View the queue.                                                                     |
 | `/remove <position?>` | Removes from queue at location. If position is not passed, will clear entire queue. |
-| `/skip`               | Skips the currently playing video.                                                  |
 | `/shuffle`            | Shuffles the queue.                                                                 |
+| `/skip`               | Skips the currently playing video.                                                  |
 
 ## ⚡️ Setup
 
