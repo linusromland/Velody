@@ -30,7 +30,46 @@
 
 ## ⚡️ Setup
 
-Coming soon!
+### Prerequisites
+
+In order to run `Velody` natively, you will need to have the following installed:
+
+- [Node.JS](https://nodejs.org/en/) (v16+)
+
+### Running natively
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/linusromland/Velody.git
+```
+
+2. Install dependencies
+
+```bash
+npm install
+```
+
+3. Environment variables
+
+```bash
+cp .env.example .env
+```
+
+Then, fill in the environment variables in the `.env` file. More information about the environment variables can be found [here](#-environment-variables).
+
+4. Run the bot
+
+```bash
+npm run dev
+```
+
+
+## 📦 Environment variables
+
+| Variable  | Description                        | Required | Default value |
+| --------- | ---------------------------------- | -------- | ------------- |
+| BOT_TOKEN | The bot token of your Discord bot. | Yes      | -             |
 
 ## 📝 Contact
 
