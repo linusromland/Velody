@@ -56,11 +56,24 @@ export class PlayCommand extends Command {
 
 			if (result) {
 				result.requestedBy = interaction.user.tag;
-				server.add(result as Video);
-				server.play(() => {
-					console.log('Song ended');
-				});
-				embed.setTitle('Playing `' + result.title + '`');
+				const added: {
+					success: boolean;
+					addedToQueue: boolean;
+				} = server.addVideo(result as Video);
+
+				if (!added.success) {
+					embed.setTitle('An error occurred');
+					embed.setDescription('Try again later');
+					msg.edit({ embeds: [embed.embed] });
+					return;
+				}
+
+				if (added.addedToQueue) {
+					embed.setTitle('Added `' + result.title + '` to queue');
+				} else {
+					embed.setTitle('Playing `' + result.title + '`');
+				}
+
 				if (result.thumbnail) embed.setImage(result.thumbnail);
 				embed.setURL(result.url);
 				msg.edit({ embeds: [embed.embed] });

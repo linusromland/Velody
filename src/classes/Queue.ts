@@ -8,8 +8,32 @@ export default class Queue {
 		this.videos = [];
 	}
 
-	public add(video: Video): void {
-		this.videos.push(video);
+	public add(video: Video): {
+		success: boolean;
+		addedToQueue: boolean;
+	} {
+		try {
+			this.videos.push(video);
+
+			return {
+				success: true,
+				addedToQueue: this.videos.length > 1
+			};
+		} catch (e) {
+			return {
+				success: false,
+				addedToQueue: false
+			};
+		}
+	}
+
+	public removeFirst(): boolean {
+		try {
+			this.videos.shift();
+			return true;
+		} catch (e) {
+			return false;
+		}
 	}
 
 	get queue(): Video[] {

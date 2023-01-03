@@ -17,8 +17,14 @@ export default class Server extends VoiceConnection {
 		return this._id;
 	}
 
-	public async play(callback: () => void): Promise<boolean> {
+	public async play(): Promise<boolean> {
 		if (!this.current) return false;
-		return await this.playVideo(this.current, callback);
+		return await this.playVideo(this.current);
+	}
+
+	public addVideo(video: Video): { success: boolean; addedToQueue: boolean } {
+		const result: { success: boolean; addedToQueue: boolean } = this.add(video);
+		if (result.success && !this.isPlaying) this.play();
+		return result;
 	}
 }

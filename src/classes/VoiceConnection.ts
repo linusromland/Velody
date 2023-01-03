@@ -4,9 +4,7 @@ import {
 	createAudioPlayer,
 	createAudioResource,
 	AudioPlayerState,
-	AudioResource,
 	AudioPlayer,
-	StreamType,
 	VoiceConnection as DiscordVoiceConnection
 } from '@discordjs/voice';
 import { VoiceBasedChannel } from 'discord.js';
@@ -19,6 +17,7 @@ import Video from '../interfaces/Video';
 
 export default class VoiceConnection extends Queue {
 	private _connection: DiscordVoiceConnection | null = null;
+	private _playing: boolean = false;
 
 	public constructor(channel: VoiceBasedChannel) {
 		super();
@@ -40,7 +39,7 @@ export default class VoiceConnection extends Queue {
 		return !!connection;
 	}
 
-	public async playVideo(video: Video, callback: () => void): Promise<boolean> {
+	public async playVideo(video: Video): Promise<boolean> {
 		if (!this._connection) return false;
 
 		const stream: Readable = ytdl(video.url, {
@@ -53,10 +52,19 @@ export default class VoiceConnection extends Queue {
 
 		player.play(createAudioResource(stream));
 
+		this._playing = true;
+
 		player.on('stateChange', (_: AudioPlayerState, newState: AudioPlayerState) => {
 			if (newState.status === 'idle') {
-				callback();
+				this.removeFirst();
+				this._playing = false;
+
+				if (this.current) return this.playVideo(this.current as Video);
 			}
+		});
+
+		player.on('error', (error: Error) => {
+			console.error(error);
 		});
 
 		return true;
@@ -75,5 +83,9 @@ export default class VoiceConnection extends Queue {
 	get connectedChannelId(): string | null {
 		if (!this._connection) return null;
 		return this._connection?.joinConfig?.channelId;
+	}
+
+	get isPlaying(): boolean {
+		return this._playing;
 	}
 }
