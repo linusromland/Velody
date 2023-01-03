@@ -44,6 +44,7 @@
 		"dotenv": "^16.0.3",
 		"libsodium-wrappers": "^0.7.10",
 		"string-progressbar": "^1.0.4",
+		"youtube-dl-exec": "^2.1.11",
 		"ytdl-core": "^4.11.2",
 		"ytsr": "^3.8.0"
 	}

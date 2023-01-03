@@ -9,7 +9,8 @@ import {
 } from '@discordjs/voice';
 import { VoiceBasedChannel } from 'discord.js';
 import { Readable } from 'stream';
-import ytdl from 'ytdl-core';
+import { exec as ytdlexec } from 'youtube-dl-exec';
+import { ExecaChildProcess } from 'execa';
 
 //Internal dependencies
 import Queue from './Queue';
@@ -43,15 +44,23 @@ export default class VoiceConnection extends Queue {
 	public async playVideo(video: Video): Promise<boolean> {
 		if (!this._connection) return false;
 
-		const stream: Readable = ytdl(video.url, {
-			filter: 'audioonly'
-		});
+		const stream: ExecaChildProcess = ytdlexec(
+			video.url,
+			{
+				output: '-',
+				format: 'bestaudio',
+				limitRate: '1M',
+				rmCacheDir: true,
+				verbose: true
+			},
+			{ stdio: ['ignore', 'pipe', 'pipe'] }
+		);
 
 		this._player = createAudioPlayer();
 
 		this._connection.subscribe(this._player);
 
-		this._player.play(createAudioResource(stream));
+		this._player.play(createAudioResource(stream.stdout as Readable));
 
 		this._playing = true;
 
@@ -65,9 +74,7 @@ export default class VoiceConnection extends Queue {
 		});
 
 		this._player.on('error', (error: Error) => {
-			if (error.message === 'aborted') {
-				console.log('TODO: FIX THIS');
-			}
+			console.error(error);
 		});
 
 		return true;
