@@ -38,6 +38,8 @@ export class LeaveCommand extends Command {
 			const server: Server = servers.get(interaction.guildId as string) as Server;
 
 			if (server?.connectedChannelId === channel.id && (await server.leave())) {
+				servers.remove(interaction.guildId as string);
+
 				embed.setTitle('Left `' + channel.name + '`');
 				embed.setDescription('Use `/join` to add me back');
 				return msg.edit({ embeds: [embed.embed] });
