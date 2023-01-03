@@ -62,13 +62,13 @@ export class QueueCommand extends Command {
 							'``' + i + '.``' + ` [${queue[i].title}](${queue[i].url}) - ${formatTime(queue[i].length)}\n`;
 					}
 				} else {
-					description += 'No more songs in queue';
+					description += 'No more videos in queue';
 				}
 
 				embed.setDescription(description);
 			} else {
-				embed.setTitle('No songs in queue');
-				embed.setDescription('Use `/play` to add songs to the queue');
+				embed.setTitle('No videos in queue');
+				embed.setDescription('Use `/play` to add videos to the queue');
 			}
 
 			msg.edit({ embeds: [embed.embed] });

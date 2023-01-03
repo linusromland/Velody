@@ -16,7 +16,7 @@ export class PlayCommand extends Command {
 		super(context, {
 			...options,
 			name: 'play',
-			description: 'Searches for a song and plays it'
+			description: 'Searches for a video and plays it'
 		});
 	}
 
@@ -26,7 +26,7 @@ export class PlayCommand extends Command {
 				.setName(this.name)
 				.setDescription(this.description)
 				.addStringOption((option: SlashCommandStringOption) =>
-					option.setName('query').setDescription('The song to search for').setRequired(true)
+					option.setName('query').setDescription('The video to search for').setRequired(true)
 				)
 		);
 	}
@@ -51,26 +51,40 @@ export class PlayCommand extends Command {
 
 			if (server.connectedChannelId !== channel.id) server.join(channel);
 
-			const result: Video | void = await youtubeSearch(interaction.options.getString('query') as string);
+			const results: Video[] | void = await youtubeSearch(interaction.options.getString('query') as string);
 
-			if (result) {
-				result.requestedBy = interaction.user.tag;
-				const added: {
-					success: boolean;
-					addedToQueue: boolean;
-				} = server.addVideo(result as Video);
+			if (results) {
+				let success: boolean = true;
+				let addedToQueue: boolean = false;
 
-				if (!added.success) {
+				// Add requested by
+				for (const [index, result] of results.entries()) {
+					result.requestedBy = interaction.user.tag;
+					const added: {
+						success: boolean;
+						addedToQueue: boolean;
+					} = server.addVideo(result as Video);
+
+					if (index === 0 && added.addedToQueue) addedToQueue = true;
+
+					if (!added.success) success = false;
+				}
+
+				if (!success) {
 					embed.setTitle('An error occurred');
 					embed.setDescription('Try again later');
 					msg.edit({ embeds: [embed.embed] });
 					return;
 				}
 
-				if (added.addedToQueue) {
+				const result: Video = results[0];
+
+				if (addedToQueue) {
 					embed.setTitle('Added `' + result.title + '` to queue');
+					if (results.length > 1) embed.setDescription(`and ${results.length - 1} more`);
 				} else {
 					embed.setTitle('Playing `' + result.title + '`');
+					if (results.length > 1) embed.setDescription(`Added ${results.length - 1} more to queue`);
 				}
 
 				if (result.thumbnail) embed.setImage(result.thumbnail);
@@ -88,7 +102,7 @@ export class PlayCommand extends Command {
 		}
 
 		this.container.logger.info(
-			`User ${interaction?.user?.tag}(${interaction?.user?.id}) requested the bot to play a song in the voice channel ${channel?.name}(${interaction?.id}) on server ${interaction.guild?.name}(${interaction.guildId})`
+			`User ${interaction?.user?.tag}(${interaction?.user?.id}) requested the bot to play a video in the voice channel ${channel?.name}(${interaction?.id}) on server ${interaction.guild?.name}(${interaction.guildId})`
 		);
 	}
 }

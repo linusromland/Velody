@@ -17,7 +17,7 @@ export class NowPlayingCommand extends Command {
 		super(context, {
 			...options,
 			name: 'nowplaying',
-			description: 'Shows the currently playing song'
+			description: 'Shows the currently playing video'
 		});
 	}
 
@@ -52,7 +52,7 @@ export class NowPlayingCommand extends Command {
 
 			if (!current) {
 				embed.setTitle('Nothing is playing');
-				embed.setDescription('Use `/play <song>` to play a song');
+				embed.setDescription('Use `/play <video>` to play a video');
 				return msg.edit({ embeds: [embed.embed] });
 			}
 

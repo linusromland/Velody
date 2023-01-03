@@ -1,20 +1,31 @@
 // External dependencies
 import ytsr from 'ytsr';
 import ytdl from 'ytdl-core';
+import ytpl from 'ytpl';
 
 // Internal dependencies
 import Video from '../interfaces/Video';
 
-const youtubeSearch = async (query: string): Promise<Video | void> => {
+const youtubeSearch = async (query: string): Promise<Video[] | void> => {
 	const isUrl: boolean = validUrl(query);
 
 	if (!isUrl && !query) return;
+
+	//Check if url is valid & has query parameter "list"
+	if (isUrl) {
+		const url: URL = new URL(query);
+		const playListId: string | null = url.searchParams.get('list');
+
+		if (playListId) {
+			return await getPlaylist(playListId);
+		}
+	}
 
 	const video: Video | void = isUrl ? await getFromUrl(query) : await getFromQuery(query);
 
 	if (!video) return;
 
-	return video;
+	return [video];
 };
 
 const validUrl = (url: string): boolean => {
@@ -24,18 +35,22 @@ const validUrl = (url: string): boolean => {
 };
 
 const getFromUrl = async (url: string): Promise<Video | void> => {
-	const info: ytdl.videoInfo = await ytdl.getInfo(url);
+	try {
+		const info: ytdl.videoInfo = await ytdl.getInfo(url);
 
-	if (!info.videoDetails) return;
+		if (!info.videoDetails) return;
 
-	return {
-		title: info.videoDetails.title,
-		url: info.videoDetails.video_url,
-		thumbnail:
-			info.videoDetails.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url ||
-			null,
-		length: Number(info.videoDetails.lengthSeconds)
-	};
+		return {
+			title: info.videoDetails.title,
+			url: info.videoDetails.video_url,
+			thumbnail:
+				info.videoDetails.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url ||
+				null,
+			length: Number(info.videoDetails.lengthSeconds)
+		};
+	} catch (e) {
+		return;
+	}
 };
 
 const getFromQuery = async (query: string): Promise<Video | void> => {
@@ -74,6 +89,16 @@ const getFromQuery = async (query: string): Promise<Video | void> => {
 			result.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url || null,
 		length: lengthInSeconds
 	};
+};
+
+const getPlaylist = async (id: string) => {
+	const playlist: ytpl.Result = await ytpl(id);
+	return playlist.items.map((item: ytpl.Item) => ({
+		title: item.title,
+		url: item.url,
+		thumbnail: item.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url || null,
+		length: Number(item.durationSec)
+	}));
 };
 
 export default youtubeSearch;

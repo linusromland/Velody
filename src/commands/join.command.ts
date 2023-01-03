@@ -44,13 +44,13 @@ export class JoinCommand extends Command {
 
 			if (server.connectedChannelId === channel.id) {
 				embed.setTitle('Already connected to `' + channel.name + '`');
-				embed.setDescription('Use `/play <song>` to play a song');
+				embed.setDescription('Use `/play <video>` to play a video');
 				return msg.edit({ embeds: [embed.embed] });
 			}
 
 			server.join(channel);
 			embed.setTitle('Joined `' + channel.name + '`');
-			embed.setDescription('Use `/play <song>` to play a song');
+			embed.setDescription('Use `/play <video>` to play a video');
 			msg.edit({ embeds: [embed.embed] });
 		} else {
 			embed.setTitle('You are not connected to a voice channel');

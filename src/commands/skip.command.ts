@@ -15,7 +15,7 @@ export class SkipCommand extends Command {
 		super(context, {
 			...options,
 			name: 'skip',
-			description: 'Skips the currently playing song'
+			description: 'Skips the currently playing video'
 		});
 	}
 
