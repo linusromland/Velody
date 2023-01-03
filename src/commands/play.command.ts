@@ -76,12 +76,10 @@ export class PlayCommand extends Command {
 				if (result.thumbnail) embed.setImage(result.thumbnail);
 				embed.setURL(result.url);
 				msg.edit({ embeds: [embed.embed] });
-				return;
 			} else {
 				embed.setTitle('No results found');
 				embed.setDescription('Try again with a different query');
 				msg.edit({ embeds: [embed.embed] });
-				return;
 			}
 		} else {
 			embed.setTitle('You are not connected to a voice channel');
