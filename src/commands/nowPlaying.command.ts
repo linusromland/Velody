@@ -66,7 +66,7 @@ export class NowPlayingCommand extends Command {
 			if (duration != null) {
 				const progress: string = progressBar.splitBar(
 					current.length,
-					duration % 20 < 1 ? current.length * 0.05 : duration,
+					duration < current.length * 0.05 ? current.length * 0.05 : duration,
 					20
 				)[0];
 				description += `${progress}\n \`${formatTime(current.length, duration)}\`\n`;
