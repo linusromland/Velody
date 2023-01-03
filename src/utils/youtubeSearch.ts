@@ -5,10 +5,16 @@ import ytdl from 'ytdl-core';
 // Internal dependencies
 import Video from '../interfaces/Video';
 
-const youtubeSearch = async (query: string): Promise<Video> => {
+const youtubeSearch = async (query: string): Promise<Video | void> => {
 	const isUrl: boolean = validUrl(query);
 
-	return isUrl ? getFromUrl(query) : getFromQuery(query);
+	if (!isUrl && !query) return;
+
+	const video: Video | void = isUrl ? await getFromUrl(query) : await getFromQuery(query);
+
+	if (!video) return;
+
+	return video;
 };
 
 const validUrl = (url: string): boolean => {
@@ -17,8 +23,11 @@ const validUrl = (url: string): boolean => {
 	);
 };
 
-const getFromUrl = async (url: string): Promise<Video> => {
+const getFromUrl = async (url: string): Promise<Video | void> => {
 	const info: ytdl.videoInfo = await ytdl.getInfo(url);
+
+	if (!info.videoDetails) return;
+
 	return {
 		title: info.videoDetails.title,
 		url: info.videoDetails.video_url,
@@ -29,12 +38,14 @@ const getFromUrl = async (url: string): Promise<Video> => {
 	};
 };
 
-const getFromQuery = async (query: string): Promise<Video> => {
+const getFromQuery = async (query: string): Promise<Video | void> => {
 	const searchResults: ytsr.Result = await ytsr(
 		`https://www.youtube.com/results?search_query=${query}&sp=EgIQAQ%253D%253D`,
 		{ limit: 1 }
 	);
 	const result: ytsr.Video = searchResults.items[0] as ytsr.Video;
+
+	if (!result) return;
 
 	let lengthInSeconds: number = 0;
 	const time: string[] | undefined = result?.duration?.split(':');
@@ -52,6 +63,8 @@ const getFromQuery = async (query: string): Promise<Video> => {
 		const seconds: number = Number(time[0]);
 		lengthInSeconds = seconds;
 	}
+
+	if (!result.title || !result.url) return;
 
 	return {
 		title: result.title,

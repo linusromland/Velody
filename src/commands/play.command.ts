@@ -52,7 +52,7 @@ export class PlayCommand extends Command {
 
 			if (server.connectedChannelId !== channel.id) server.join(channel);
 
-			const result: Video | undefined = await youtubeSearch(interaction.options.getString('query') as string);
+			const result: Video | void = await youtubeSearch(interaction.options.getString('query') as string);
 
 			if (result) {
 				result.requestedBy = interaction.user.tag;
