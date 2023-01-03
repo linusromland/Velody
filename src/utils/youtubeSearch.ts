@@ -95,7 +95,7 @@ const getPlaylist = async (id: string) => {
 	const playlist: ytpl.Result = await ytpl(id);
 	return playlist.items.map((item: ytpl.Item) => ({
 		title: item.title,
-		url: item.url,
+		url: item.shortUrl,
 		thumbnail: item.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url || null,
 		length: Number(item.durationSec)
 	}));
