@@ -22,7 +22,13 @@ export default class Server extends VoiceConnection {
 		return await this.playVideo(this.current);
 	}
 
-	public addVideo(video: Video): { success: boolean; addedToQueue: boolean } {
+	public addVideo(video: Video, top: boolean = false): { success: boolean; addedToQueue: boolean } {
+		if (top && this.queue.length > 0) {
+			//Add to queue on position 1
+			this.queue.splice(1, 0, video);
+			return { success: true, addedToQueue: true };
+		}
+
 		const result: { success: boolean; addedToQueue: boolean } = this.add(video);
 		if (result.success && !this.isPlaying) this.play();
 		return result;

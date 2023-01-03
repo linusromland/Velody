@@ -6,7 +6,7 @@ import ytpl from 'ytpl';
 // Internal dependencies
 import Video from '../interfaces/Video';
 
-const youtubeSearch = async (query: string): Promise<Video[] | void> => {
+const youtubeSearch = async (query: string, allowPlaylist: boolean = true): Promise<Video[] | void> => {
 	const isUrl: boolean = validUrl(query);
 
 	if (!isUrl && !query) return;
@@ -16,8 +16,10 @@ const youtubeSearch = async (query: string): Promise<Video[] | void> => {
 		const url: URL = new URL(query);
 		const playListId: string | null = url.searchParams.get('list');
 
-		if (playListId) {
+		if (playListId && allowPlaylist) {
 			return await getPlaylist(playListId);
+		} else if (playListId && !allowPlaylist) {
+			return;
 		}
 	}
 
@@ -92,13 +94,18 @@ const getFromQuery = async (query: string): Promise<Video | void> => {
 };
 
 const getPlaylist = async (id: string) => {
-	const playlist: ytpl.Result = await ytpl(id);
-	return playlist.items.map((item: ytpl.Item) => ({
-		title: item.title,
-		url: item.shortUrl,
-		thumbnail: item.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url || null,
-		length: Number(item.durationSec)
-	}));
+	try {
+		const playlist: ytpl.Result = await ytpl(id);
+		return playlist.items.map((item: ytpl.Item) => ({
+			title: item.title,
+			url: item.shortUrl,
+			thumbnail:
+				item.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url || null,
+			length: Number(item.durationSec)
+		}));
+	} catch (e) {
+		return;
+	}
 };
 
 export default youtubeSearch;
