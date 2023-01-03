@@ -13,7 +13,7 @@ export class LoopQueueCommand extends Command {
 	public constructor(context: Command.Context, options: Command.Options) {
 		super(context, {
 			...options,
-			name: 'loopQueue',
+			name: 'loopqueue',
 			description: 'Toggles looping of the queue'
 		});
 	}
