@@ -44,42 +44,6 @@ export default class VoiceConnection extends Queue {
 
 		this._connection = connection;
 
-		const auth: GoogleAuth<JSONClient> = new google.auth.GoogleAuth({
-			keyFile: process.env.GOOGLE_AUTH_FILE,
-			scopes: ['https://www.googleapis.com/auth/cloud-platform']
-		});
-
-		const ttsClient: TextToSpeechClient = new TextToSpeechClient({
-			auth
-		});
-
-		const [response] = await ttsClient.synthesizeSpeech({
-			audioConfig: {
-				audioEncoding: 'LINEAR16',
-				effectsProfileId: ['telephony-class-application'],
-				pitch: 0,
-				speakingRate: 1
-			},
-			input: {
-				text: 'Thanks for adding me! Play something by using the slash play command.'
-			},
-			voice: {
-				languageCode: 'en-US',
-				name: 'en-US-Neural2-D'
-			}
-		});
-
-		if (!response.audioContent) return !!connection;
-
-		// convert type binary mp3 to Readable stream
-		const stream: Readable = Readable.from(response.audioContent, { objectMode: false });
-
-		const player: AudioPlayer = createAudioPlayer();
-
-		connection.subscribe(player);
-
-		player.play(createAudioResource(stream));
-
 		return !!connection;
 	}
 
