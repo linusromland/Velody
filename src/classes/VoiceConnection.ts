@@ -23,6 +23,7 @@ export default class VoiceConnection extends Queue {
 	private _player: AudioPlayer | null = null;
 	private _loop: boolean = false;
 	private _loopQueue: boolean = false;
+	private _voicePresenter: boolean = true;
 
 	public constructor(channel: VoiceBasedChannel) {
 		super();
@@ -130,7 +131,7 @@ export default class VoiceConnection extends Queue {
 
 	public tts(text: string) {
 		try {
-			if (!this._connection) return false;
+			if (!this._connection || !this._voicePresenter) return false;
 			return playTTS(text, this._connection as DiscordVoiceConnection);
 		} catch (error) {
 			console.error(error);
@@ -160,6 +161,25 @@ export default class VoiceConnection extends Queue {
 
 	set loopQueue(value: boolean) {
 		this._loopQueue = value;
+	}
+
+	get voicePresenter(): boolean {
+		return this._voicePresenter;
+	}
+
+	set voicePresenter(value: boolean) {
+		if (this._playing) {
+			this._voicePresenter = value;
+			return;
+		}
+
+		if (value) {
+			this._voicePresenter = value;
+			this.tts(`Voice presenter enabled`);
+		} else {
+			this.tts(`Voice presenter disabled`);
+			this._voicePresenter = value;
+		}
 	}
 
 	get voiceConnection(): DiscordVoiceConnection | null {

@@ -66,8 +66,8 @@ const playTTS = (text: string, connection: VoiceConnection) => {
 
 			player.play(createAudioResource(stream));
 
-			player.on('stateChange', (oldState: AudioPlayerState, newState: AudioPlayerState) => {
-				if (newState.status === 'idle' && oldState.status !== 'idle') {
+			player.on('stateChange', (_: AudioPlayerState, newState: AudioPlayerState) => {
+				if (newState.status === 'idle') {
 					player.stop();
 					resolve(true);
 				}
