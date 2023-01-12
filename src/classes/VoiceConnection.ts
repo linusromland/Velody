@@ -11,14 +11,11 @@ import { VoiceBasedChannel } from 'discord.js';
 import { Readable } from 'stream';
 import { exec as ytdlexec } from 'youtube-dl-exec';
 import { ExecaChildProcess } from 'execa';
-import { TextToSpeechClient } from '@google-cloud/text-to-speech';
-import { google } from 'googleapis';
-import { GoogleAuth } from 'google-auth-library';
-import { JSONClient } from 'google-auth-library/build/src/auth/googleauth';
 
 //Internal dependencies
 import Queue from './Queue';
 import Video from '../interfaces/Video';
+import playTTS from '../utils/tts';
 
 export default class VoiceConnection extends Queue {
 	private _connection: DiscordVoiceConnection | null = null;
@@ -85,10 +82,13 @@ export default class VoiceConnection extends Queue {
 				if (!this._loop) this.removeFirst();
 				this._playing = false;
 
-				else this.leave();
 				if (this.current) {
 					await this.tts(`Up next ${this.current.title}. Requested by ${this.current.requestedBy?.split('#')[0]}`);
 					return this.playVideo(this.current as Video);
+				} else {
+					await this.tts('Queue is empty. Goodbye');
+					return this.leave();
+				}
 			}
 		});
 
@@ -160,5 +160,9 @@ export default class VoiceConnection extends Queue {
 
 	set loopQueue(value: boolean) {
 		this._loopQueue = value;
+	}
+
+	get voiceConnection(): DiscordVoiceConnection | null {
+		return this._connection;
 	}
 }
