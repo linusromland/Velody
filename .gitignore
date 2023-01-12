@@ -10,3 +10,6 @@ dist/
 
 # Visual Studio Code
 .vscode/*
+
+# Google Service Account
+service_account.json

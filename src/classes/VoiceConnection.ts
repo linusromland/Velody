@@ -15,6 +15,7 @@ import { ExecaChildProcess } from 'execa';
 //Internal dependencies
 import Queue from './Queue';
 import Video from '../interfaces/Video';
+import playTTS from '../utils/tts';
 
 export default class VoiceConnection extends Queue {
 	private _connection: DiscordVoiceConnection | null = null;
@@ -22,6 +23,7 @@ export default class VoiceConnection extends Queue {
 	private _player: AudioPlayer | null = null;
 	private _loop: boolean = false;
 	private _loopQueue: boolean = false;
+	private _voicePresenter: boolean = true;
 
 	public constructor(channel: VoiceBasedChannel) {
 		super();
@@ -43,37 +45,51 @@ export default class VoiceConnection extends Queue {
 		return !!connection;
 	}
 
-	public async playVideo(video: Video): Promise<boolean> {
+	public async playVideo(video: Video | Readable): Promise<boolean> {
 		if (!this._connection) return false;
 
-		const stream: ExecaChildProcess = ytdlexec(
-			video.url,
-			{
-				output: '-',
-				format: 'bestaudio',
-				limitRate: '1M',
-				rmCacheDir: true,
-				verbose: true
-			},
-			{ stdio: ['ignore', 'pipe', 'pipe'] }
-		);
+		let toPlay: Readable;
+
+		//Check if video is of type Readable
+		if (video instanceof Readable) {
+			toPlay = video;
+		} else {
+			const stream: ExecaChildProcess = ytdlexec(
+				video.url,
+				{
+					output: '-',
+					format: 'bestaudio',
+					limitRate: '1M',
+					rmCacheDir: true,
+					verbose: true
+				},
+				{ stdio: ['ignore', 'pipe', 'pipe'] }
+			);
+
+			toPlay = stream.stdout as Readable;
+		}
 
 		this._player = createAudioPlayer();
 
 		this._connection.subscribe(this._player);
 
-		this._player.play(createAudioResource(stream.stdout as Readable));
+		this._player.play(createAudioResource(toPlay));
 
 		this._playing = true;
 
-		this._player.on('stateChange', (_: AudioPlayerState, newState: AudioPlayerState) => {
+		this._player.on('stateChange', async (_: AudioPlayerState, newState: AudioPlayerState) => {
 			if (newState.status === 'idle') {
 				if (!this._loop && this._loopQueue) this.add(this.current as Video);
 				if (!this._loop) this.removeFirst();
 				this._playing = false;
 
-				if (this.current) return this.playVideo(this.current as Video);
-				else this.leave();
+				if (this.current) {
+					await this.tts(`Up next ${this.current.title}. Requested by ${this.current.requestedBy?.split('#')[0]}`);
+					return this.playVideo(this.current as Video);
+				} else {
+					await this.tts('Queue is empty. Goodbye');
+					return this.leave();
+				}
 			}
 		});
 
@@ -113,6 +129,15 @@ export default class VoiceConnection extends Queue {
 		return false;
 	}
 
+	public tts(text: string) {
+		try {
+			if (!this._connection || !this._voicePresenter) return false;
+			return playTTS(text, this._connection as DiscordVoiceConnection);
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
 	get connectedChannelId(): string | null {
 		if (!this._connection) return null;
 		return this._connection?.joinConfig?.channelId;
@@ -136,5 +161,28 @@ export default class VoiceConnection extends Queue {
 
 	set loopQueue(value: boolean) {
 		this._loopQueue = value;
+	}
+
+	get voicePresenter(): boolean {
+		return this._voicePresenter;
+	}
+
+	set voicePresenter(value: boolean) {
+		if (this._playing) {
+			this._voicePresenter = value;
+			return;
+		}
+
+		if (value) {
+			this._voicePresenter = value;
+			this.tts(`Voice presenter enabled`);
+		} else {
+			this.tts(`Voice presenter disabled`);
+			this._voicePresenter = value;
+		}
+	}
+
+	get voiceConnection(): DiscordVoiceConnection | null {
+		return this._connection;
 	}
 }

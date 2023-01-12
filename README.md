@@ -24,6 +24,7 @@
 | `/remove <position?>` | Removes from queue at location. If position is not passed, will clear entire queue. |
 | `/shuffle`            | Shuffles the queue.                                                                 |
 | `/skip`               | Skips the currently playing video.                                                  |
+| `/tts`                | Enables or disables the Voice Presenter for the bot.                                |
 
 ## ⚡️ Setup
 
@@ -95,9 +96,10 @@ docker run -d --name velody velody
 
 ## 📦 Environment variables
 
-| Variable  | Description                        | Required | Default value |
-| --------- | ---------------------------------- | -------- | ------------- |
-| BOT_TOKEN | The bot token of your Discord bot. | Yes      | -             |
+| Variable         | Description                                                | Required | Default value |
+| ---------------- | ---------------------------------------------------------- | -------- | ------------- |
+| BOT_TOKEN        | The bot token of your Discord bot.                         | Yes      | -             |
+| GOOGLE_AUTH_FILE | The path to the Google auth file for your Service Account. | No       | -             |
 
 ## 📝 Contact
 

@@ -60,7 +60,7 @@ export class PlayCommand extends Command {
 				const added: {
 					success: boolean;
 					addedToQueue: boolean;
-				} = server.addVideo(result as Video, true);
+				} = await server.addVideo(result as Video, true);
 
 				const { success, addedToQueue } = added;
 
