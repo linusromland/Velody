@@ -11,6 +11,10 @@ import { VoiceBasedChannel } from 'discord.js';
 import { Readable } from 'stream';
 import { exec as ytdlexec } from 'youtube-dl-exec';
 import { ExecaChildProcess } from 'execa';
+import { TextToSpeechClient } from '@google-cloud/text-to-speech';
+import { google } from 'googleapis';
+import { GoogleAuth } from 'google-auth-library';
+import { JSONClient } from 'google-auth-library/build/src/auth/googleauth';
 
 //Internal dependencies
 import Queue from './Queue';
@@ -40,29 +44,74 @@ export default class VoiceConnection extends Queue {
 
 		this._connection = connection;
 
+		const auth: GoogleAuth<JSONClient> = new google.auth.GoogleAuth({
+			keyFile: process.env.GOOGLE_AUTH_FILE,
+			scopes: ['https://www.googleapis.com/auth/cloud-platform']
+		});
+
+		const ttsClient: TextToSpeechClient = new TextToSpeechClient({
+			auth
+		});
+
+		const [response] = await ttsClient.synthesizeSpeech({
+			audioConfig: {
+				audioEncoding: 'LINEAR16',
+				effectsProfileId: ['telephony-class-application'],
+				pitch: 0,
+				speakingRate: 1
+			},
+			input: {
+				text: 'Thanks for adding me! Play something by using the slash play command.'
+			},
+			voice: {
+				languageCode: 'en-US',
+				name: 'en-US-Neural2-D'
+			}
+		});
+
+		if (!response.audioContent) return !!connection;
+
+		// convert type binary mp3 to Readable stream
+		const stream: Readable = Readable.from(response.audioContent, { objectMode: false });
+
+		const player: AudioPlayer = createAudioPlayer();
+
+		connection.subscribe(player);
+
+		player.play(createAudioResource(stream));
+
 		return !!connection;
 	}
 
-	public async playVideo(video: Video): Promise<boolean> {
+	public async playVideo(video: Video | Readable): Promise<boolean> {
 		if (!this._connection) return false;
 
-		const stream: ExecaChildProcess = ytdlexec(
-			video.url,
-			{
-				output: '-',
-				format: 'bestaudio',
-				limitRate: '1M',
-				rmCacheDir: true,
-				verbose: true
-			},
-			{ stdio: ['ignore', 'pipe', 'pipe'] }
-		);
+		let toPlay: Readable;
+
+		//Check if video is of type Readable
+		if (video instanceof Readable) {
+			toPlay = video;
+		} else {
+			const stream: ExecaChildProcess = ytdlexec(
+				video.url,
+				{
+					output: '-',
+					format: 'bestaudio',
+					limitRate: '1M',
+					rmCacheDir: true,
+					verbose: true
+				},
+				{ stdio: ['ignore', 'pipe', 'pipe'] }
+			);
+
+			toPlay = stream.stdout as Readable;
+		}
 
 		this._player = createAudioPlayer();
 
 		this._connection.subscribe(this._player);
 
-		this._player.play(createAudioResource(stream.stdout as Readable));
+		this._player.play(createAudioResource(toPlay));
 
 		this._playing = true;
 
