@@ -79,14 +79,16 @@ export default class VoiceConnection extends Queue {
 
 		this._playing = true;
 
-		this._player.on('stateChange', (_: AudioPlayerState, newState: AudioPlayerState) => {
+		this._player.on('stateChange', async (_: AudioPlayerState, newState: AudioPlayerState) => {
 			if (newState.status === 'idle') {
 				if (!this._loop && this._loopQueue) this.add(this.current as Video);
 				if (!this._loop) this.removeFirst();
 				this._playing = false;
 
-				if (this.current) return this.playVideo(this.current as Video);
 				else this.leave();
+				if (this.current) {
+					await this.tts(`Up next ${this.current.title}. Requested by ${this.current.requestedBy?.split('#')[0]}`);
+					return this.playVideo(this.current as Video);
 			}
 		});
 
