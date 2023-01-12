@@ -24,7 +24,7 @@
 | `/remove <position?>` | Removes from queue at location. If position is not passed, will clear entire queue. |
 | `/shuffle`            | Shuffles the queue.                                                                 |
 | `/skip`               | Skips the currently playing video.                                                  |
-| `/tts`                | Enables or disables the Voice Presenter for the bot.                                |
+| `/voicePresenter`     | Enables or disables the Voice Presenter for the bot.                                |
 
 ## ⚡️ Setup
 
