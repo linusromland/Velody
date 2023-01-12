@@ -67,7 +67,7 @@ export class QueueCommand extends Command {
 				}
 
 				embed.setDescription(description);
-				embed.addLoopSymbols(server.loop, server.loopQueue);
+				embed.addLoopSymbols(server.loop, server.loopQueue, server.voicePresenter);
 			} else {
 				embed.setTitle('No videos in queue');
 				embed.setDescription('Use `/play` to add videos to the queue');

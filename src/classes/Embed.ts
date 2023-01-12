@@ -54,9 +54,11 @@ export default class Embed {
 		return this;
 	}
 
-	addLoopSymbols(loop: boolean, loopQueue: boolean): Embed {
+	addLoopSymbols(loop: boolean, loopQueue: boolean, voicePresenter: boolean): Embed {
 		this._embed.setFooter({
-			text: `Loop: ${loop ? '✅' : '❌'}\nLoop Queue: ${loopQueue ? '✅' : '❌'}`
+			text: `Loop: ${loop ? '✅' : '❌'}\nLoop Queue: ${loopQueue ? '✅' : '❌'}\nVoice Presenter: ${
+				voicePresenter ? '✅' : '❌'
+			}`
 		});
 		return this;
 	}

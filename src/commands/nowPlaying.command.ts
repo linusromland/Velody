@@ -74,7 +74,7 @@ export class NowPlayingCommand extends Command {
 			if (current.requestedBy) description += `Requested by: \`${current.requestedBy}\``;
 			embed.setDescription(description);
 			embed.setURL(current.url);
-			embed.addLoopSymbols(server.loop, server.loopQueue);
+			embed.addLoopSymbols(server.loop, server.loopQueue, server.voicePresenter);
 
 			msg.edit({ embeds: [embed.embed] });
 		} else {
