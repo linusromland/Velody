@@ -126,6 +126,15 @@ export default class VoiceConnection extends Queue {
 		return false;
 	}
 
+	public tts(text: string) {
+		try {
+			if (!this._connection) return false;
+			return playTTS(text, this._connection as DiscordVoiceConnection);
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
 	get connectedChannelId(): string | null {
 		if (!this._connection) return null;
 		return this._connection?.joinConfig?.channelId;
