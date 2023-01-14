@@ -1,0 +1,9 @@
+version: '3.7'
+name: velody
+services:
+  velody_bot:
+    environment:
+      - NODE_ENV=production
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
