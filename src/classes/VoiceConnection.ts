@@ -84,10 +84,10 @@ export default class VoiceConnection extends Queue {
 				this._playing = false;
 
 				if (this.current) {
-					await this.tts(`Up next ${this.current.title}. Requested by ${this.current.requestedBy?.split('#')[0]}`);
+					await this.tts({});
 					return this.playVideo(this.current as Video);
 				} else {
-					await this.tts('Queue is empty. Goodbye');
+					await this.tts({});
 					return this.leave();
 				}
 			}
@@ -129,10 +129,13 @@ export default class VoiceConnection extends Queue {
 		return false;
 	}
 
-	public tts(text: string) {
+	public tts(input: { previousSong?: string; nextSong?: string } | string) {
 		try {
 			if (!this._connection || !this._voicePresenter) return false;
-			return playTTS(text, this._connection as DiscordVoiceConnection);
+			console.log('TTS', input);
+			if (typeof input === 'string') return playTTS(input, this._connection as DiscordVoiceConnection);
+
+			return playTTS('text', this._connection as DiscordVoiceConnection);
 		} catch (error) {
 			console.error(error);
 		}
