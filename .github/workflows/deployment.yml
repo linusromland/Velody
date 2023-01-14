@@ -1,10 +1,10 @@
 name: Deploy Velody
 
-# on:
-#   push:
-#     branches: [ "master" ]
-#   pull_request:
-#     branches: [ "master" ]
+on:
+  push:
+    branches: ['master', '76-configure-for-cicd']
+  pull_request:
+    branches: ['master']
 
 env:
   IMAGE_TAG: velody:$(date +%s)
