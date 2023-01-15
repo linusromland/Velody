@@ -24,4 +24,4 @@ spec:
           imagePullPolicy: Always
           envFrom:
             - secretRef:
-                name: bottoken
+                name: velody-bot-token

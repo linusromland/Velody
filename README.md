@@ -98,7 +98,7 @@ docker run -d --name velody velody
 
 | Variable         | Description                                                | Required | Default value |
 | ---------------- | ---------------------------------------------------------- | -------- | ------------- |
-| bot-token        | The bot token of your Discord bot.                         | Yes      | -             |
+| BOT_TOKEN        | The bot token of your Discord bot.                         | Yes      | -             |
 | GOOGLE_AUTH_FILE | The path to the Google auth file for your Service Account. | No       | -             |
 
 ## 📝 Contact
