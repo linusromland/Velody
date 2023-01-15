@@ -5,3 +5,4 @@ resources:
 images:
   - name: ghcr.io/linusromland/velody
     newTag: master-1
+asdasd
