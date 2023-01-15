@@ -23,4 +23,4 @@ spec:
           imagePullPolicy: Always
           envFrom:
             - secretRef:
-                name: bot-token
+                name: bottoken
