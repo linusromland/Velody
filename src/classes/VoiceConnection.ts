@@ -16,6 +16,7 @@ import { ExecaChildProcess } from 'execa';
 import Queue from './Queue';
 import Video from '../interfaces/Video';
 import playTTS from '../utils/tts';
+import { createPrompt, gpt3 } from '../utils/gpt3';
 
 export default class VoiceConnection extends Queue {
 	private _connection: DiscordVoiceConnection | null = null;
@@ -79,15 +80,21 @@ export default class VoiceConnection extends Queue {
 
 		this._player.on('stateChange', async (_: AudioPlayerState, newState: AudioPlayerState) => {
 			if (newState.status === 'idle') {
+				const previousSong: Video | undefined = this.current as Video | undefined;
 				if (!this._loop && this._loopQueue) this.add(this.current as Video);
 				if (!this._loop) this.removeFirst();
 				this._playing = false;
 
-				if (this.current) {
-					await this.tts({});
+				if (this.current && this.current?.title && this.current.requestedBy) {
+					await this.tts({
+						previousSong: previousSong?.title,
+						nextSong: this.current.title,
+						requestedBy: this.current.requestedBy
+					});
+
 					return this.playVideo(this.current as Video);
 				} else {
-					await this.tts({});
+					await this.tts('Queue is empty. Goodbye');
 					return this.leave();
 				}
 			}
@@ -129,13 +136,23 @@ export default class VoiceConnection extends Queue {
 		return false;
 	}
 
-	public tts(input: { previousSong?: string; nextSong?: string } | string) {
+	public async tts(input: { previousSong?: string; nextSong: string; requestedBy: string } | string) {
 		try {
 			if (!this._connection || !this._voicePresenter) return false;
 			console.log('TTS', input);
 			if (typeof input === 'string') return playTTS(input, this._connection as DiscordVoiceConnection);
 
-			return playTTS('text', this._connection as DiscordVoiceConnection);
+			const prompt: string = createPrompt({
+				previousSong: input.previousSong,
+				nextSong: input.nextSong,
+				requestedBy: input.requestedBy
+			});
+
+			const text: string | undefined = await gpt3(prompt);
+
+			if (!text) return playTTS('Something went wrong', this._connection as DiscordVoiceConnection);
+
+			return playTTS(text, this._connection as DiscordVoiceConnection);
 		} catch (error) {
 			console.error(error);
 		}
