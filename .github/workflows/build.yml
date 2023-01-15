@@ -35,8 +35,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ github.run_number }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ghcr.io/linusromland/velody:master-${{ github.run_number }}
 
   update-deployment:
     runs-on: self-hosted
