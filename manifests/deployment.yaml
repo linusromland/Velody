@@ -15,6 +15,13 @@ spec:
       labels:
         app: velody
     spec:
+      arguments:
+        parameters:
+          - name: config
+            valueFrom:
+              configMapKeyRef:
+                name: velody-config
+                key: config
       nodeSelector:
         'beta.kubernetes.io/os': linux
       containers:
