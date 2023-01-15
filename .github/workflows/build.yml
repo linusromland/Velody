@@ -44,11 +44,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Update image tag
-        run: cd manifests && pwd && kustomize edit set image ghcr.io/linusromland/velody=ghcr.io/linusromland/velody:master-${{ github.run_number }}
+        run: cd manifests && kustomize edit set image ghcr.io/linusromland/velody=ghcr.io/linusromland/velody:master-${{ github.run_number }} && ..
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add kustomization.yaml
+          git add .
           git commit -m "Update image tag to ${{ github.run_number }}"
           git push https://linusromland:${{ secrets.GITHUB_TOKEN }}@github.com/linusromland/Velody.git HEAD:<branch>
