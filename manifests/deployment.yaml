@@ -29,9 +29,9 @@ spec:
             - secretRef:
                 name: velody-bot-token
           volumeMounts:
-            - name: velody-service-account
+            - name: account-volume
               mountPath: /account
       volumes:
-        - name: velody-service-account
+        - name: account-volume
           secret:
             secretName: velody-service-account
