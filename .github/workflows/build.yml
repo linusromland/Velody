@@ -43,10 +43,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Navigate to manifests directory
-        run: cd manifests
       - name: Update image tag
-        run: kustomize edit set image ghcr.io/linusromland/velody=ghcr.io/linusromland/velody:master-${{ github.run_number }}
+        run: cd manifests && pwd && kustomize edit set image ghcr.io/linusromland/velody=ghcr.io/linusromland/velody:master-${{ github.run_number }}
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
