@@ -44,7 +44,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Update image tag
-        run: cd manifests && kustomize edit set image ghcr.io/linusromland/velody=ghcr.io/linusromland/velody:master-${{ github.run_number }} && ..
+        run: cd manifests && kustomize edit set image ghcr.io/linusromland/velody=ghcr.io/linusromland/velody:master-${{ github.run_number }} && cd ..
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
