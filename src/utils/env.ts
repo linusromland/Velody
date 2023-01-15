@@ -1,1 +1,1 @@
-export const bot-token: string = process.env.bot-token || '';
+export const bottoken: string = process.env.bottoken || '';
