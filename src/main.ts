@@ -12,14 +12,8 @@ const client: SapphireClient<boolean> = new SapphireClient({
 	intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_VOICE_STATES']
 });
 
-//Log contents of the account directory
-fs.readdir('./account', (err: any, files: any) => {
-	if (err) {
-		container.logger.error(err);
-	} else {
-		container.logger.info(`Account directory contents: ${files}`);
-	}
-});
+//print current directory
+container.logger.info(`Current directory: ${process.cwd()}`);
 
 client.login(BOT_TOKEN);
 
