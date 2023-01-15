@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: velody
+  namespace: velody
+  labels:
+    app: velody
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: velody
+  template:
+    metadata:
+      labels:
+        app: velody
+    spec:
+      nodeSelector:
+        'beta.kubernetes.io/os': linux
+      containers:
+        - name: velody
+          image: ghcr.io/linusromland/velody:latest
