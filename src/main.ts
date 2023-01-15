@@ -12,9 +12,6 @@ const client: SapphireClient<boolean> = new SapphireClient({
 	intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_VOICE_STATES']
 });
 
-//print current directory
-container.logger.info(`Current directory: ${process.cwd()}`);
-
 client.login(BOT_TOKEN);
 
 client.on('ready', () => {

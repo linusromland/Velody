@@ -24,7 +24,7 @@ spec:
           imagePullPolicy: Always
           env:
             - name: GOOGLE_AUTH_FILE
-              value: account/account.json
+              value: /account/account.json
           envFrom:
             - secretRef:
                 name: velody-bot-token
