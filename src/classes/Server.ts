@@ -1,7 +1,6 @@
 // External dependencies
 import { VoiceBasedChannel } from 'discord.js';
 import Video from '../interfaces/Video';
-import playTTS from '../utils/tts';
 
 // Internal dependencies
 import VoiceConnection from './VoiceConnection';

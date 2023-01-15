@@ -28,7 +28,12 @@ const gpt3 = async (text: string): Promise<string | undefined> => {
 const createPrompt = (input: { previousSong?: string; nextSong: string; requestedBy: string }): string => {
 	const { previousSong, nextSong } = input;
 
-	return `Write a dj callout for a discord bot based on the following information. The callout should be fun and mention the requestor:
+	return `Write a dj callout for a discord bot based on the following information.
+		The callout should be fun and mention the requestor.
+		The callout should be no more than 140 characters.
+		The callout should not include any special characters.
+		Roast the requestor very hard.
+
 		${previousSong ? `Previous song: ${previousSong}` : ''}
 		Next song: ${nextSong}
 		Requestor: ${input.requestedBy.split('#')[0]}

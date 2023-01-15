@@ -25,6 +25,7 @@ export default class VoiceConnection extends Queue {
 	private _loop: boolean = false;
 	private _loopQueue: boolean = false;
 	private _voicePresenter: boolean = true;
+	private _gpt3: boolean = true;
 
 	public constructor(channel: VoiceBasedChannel) {
 		super();
@@ -142,6 +143,20 @@ export default class VoiceConnection extends Queue {
 			console.log('TTS', input);
 			if (typeof input === 'string') return playTTS(input, this._connection as DiscordVoiceConnection);
 
+			if (!this._gpt3) {
+				if (!input.previousSong)
+					return playTTS(
+						`Playing ${input.nextSong}. Requested by ${input.requestedBy?.split('#')[0]}`,
+						this._connection as DiscordVoiceConnection
+					);
+				return playTTS(
+					`Next up is ${input.nextSong} requested by ${input.requestedBy.split('#')[0]}. Previously played ${
+						input.previousSong
+					}`,
+					this._connection as DiscordVoiceConnection
+				);
+			}
+
 			const prompt: string = createPrompt({
 				previousSong: input.previousSong,
 				nextSong: input.nextSong,
@@ -199,6 +214,25 @@ export default class VoiceConnection extends Queue {
 		} else {
 			this.tts(`Voice presenter disabled`);
 			this._voicePresenter = value;
+		}
+	}
+
+	get gpt3(): boolean {
+		return this._gpt3;
+	}
+
+	set gpt3(value: boolean) {
+		if (this._playing) {
+			this._gpt3 = value;
+			return;
+		}
+
+		if (value) {
+			this._gpt3 = value;
+			this.tts(`GPT3 enabled`);
+		} else {
+			this.tts(`GPT3 disabled`);
+			this._gpt3 = value;
 		}
 	}
 
