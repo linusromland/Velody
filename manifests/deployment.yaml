@@ -19,4 +19,4 @@ spec:
         'beta.kubernetes.io/os': linux
       containers:
         - name: velody
-          image: ghcr.io/linusromland/velody:latest
+          image: ghcr.io/linusromland/velody:master
