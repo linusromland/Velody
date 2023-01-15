@@ -3,6 +3,5 @@ kind: Kustomization
 resources:
   - deployment.yaml
 images:
-  - name: velody
-    newName: velody
-    newTag: v2.2
+  - name: ghcr.io/linusromland/velody
+    newTag: master-1

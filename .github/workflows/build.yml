@@ -37,3 +37,20 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+  update-deployment:
+    runs-on: self-hosted
+    needs: build-and-push
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - uses: stefanprodan/kustomize-action@v2
+        with:
+          kustomize_version: latest
+          args: edit set image ghcr.io/linusromland/velody=ghcr.io/linusromland/velody:master-${{ github.run_number }}
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add kustomization.yaml
+          git commit -m "Update image tag to ${{ github.run_number }}"
+          git push https://linusromland:${{ secrets.GITHUB_TOKEN }}@github.com/linusromland/Velody.git HEAD:<branch>
