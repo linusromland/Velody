@@ -6,13 +6,10 @@ on:
   pull_request:
     branches: ['master']
 
-env:
-  IMAGE_TAG: velody:$(date +%s)
-
 jobs:
   build:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
       - name: Build the docker image
-        run: docker build -t $IMAGE_TAG .
+        run: docker build -t velody .
