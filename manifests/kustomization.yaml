@@ -6,8 +6,3 @@ images:
   - name: velody
     newName: velody
     newTag: v1
-
-configMapGenerator:
-  - name: velody-config
-    literals:
-      - BOT_TOKEN=token

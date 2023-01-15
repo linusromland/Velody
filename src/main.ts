@@ -4,16 +4,16 @@ import { SapphireClient, container } from '@sapphire/framework';
 import { VoiceState } from 'discord.js';
 
 // Internal dependencies
-import { BOT_TOKEN } from './utils/env';
+import { bot-token } from './utils/env';
 import servers from './utils/servers';
 
 const client: SapphireClient<boolean> = new SapphireClient({
 	intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_VOICE_STATES']
 });
 
-console.log(BOT_TOKEN);
+console.log(bot-token);
 
-client.login(BOT_TOKEN);
+client.login(bot-token);
 
 client.on('ready', () => {
 	container.logger.info(`Connected as ${client.user?.tag}`);
