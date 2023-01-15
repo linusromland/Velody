@@ -5,4 +5,4 @@ resources:
 images:
   - name: velody
     newName: velody
-    newTag: v2.1.2
+    newTag: v2.2
