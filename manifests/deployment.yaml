@@ -19,3 +19,6 @@ spec:
       containers:
         - name: velody
           image: ghcr.io/linusromland/velody:master
+        envFrom:
+          - configMapRef:
+              name: velody-config

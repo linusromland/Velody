@@ -11,6 +11,8 @@ const client: SapphireClient<boolean> = new SapphireClient({
 	intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_VOICE_STATES']
 });
 
+console.log(BOT_TOKEN);
+
 client.login(BOT_TOKEN);
 
 client.on('ready', () => {
