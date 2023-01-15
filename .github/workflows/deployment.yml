@@ -11,6 +11,8 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
-      - name: Build the docker image
+      - name: Echo the user
         run: echo $USER
+      - uses: actions/checkout@v3
+      - name: Build the docker image
         run: docker build -t velody .
