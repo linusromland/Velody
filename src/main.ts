@@ -2,7 +2,6 @@
 import '@sapphire/plugin-logger/register';
 import { SapphireClient, container } from '@sapphire/framework';
 import { VoiceState } from 'discord.js';
-import fs from 'fs';
 
 // Internal dependencies
 import { BOT_TOKEN } from './utils/env';
