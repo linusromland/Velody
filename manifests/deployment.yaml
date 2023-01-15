@@ -22,6 +22,16 @@ spec:
         - name: velody
           image: ghcr.io/linusromland/velody:master
           imagePullPolicy: Always
+          env:
+            - name: GOOGLE_AUTH_FILE
+              value: account/account.json
           envFrom:
             - secretRef:
                 name: velody-bot-token
+          volumeMounts:
+            - name: velody-service-account
+              mountPath: /account
+      volumes:
+        - name: velody-service-account
+          secret:
+            secretName: velody-service-account
