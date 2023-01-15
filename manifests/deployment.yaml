@@ -20,6 +20,7 @@ spec:
       containers:
         - name: velody
           image: ghcr.io/linusromland/velody:master
+          imagePullPolicy: Always
           envFrom:
             - secretRef:
                 name: bot-token
