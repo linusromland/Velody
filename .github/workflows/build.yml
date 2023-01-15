@@ -43,10 +43,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Set up Kustomize
-        uses: docker://k8s.gcr.io/kustomize/kustomize:v3.8.7
+      - name: Update image tag
         with:
-          args: edit set image ghcr.io/linusromland/velody=ghcr.io/linusromland/velody:master-${{ github.run_number }}
+          args: kustomize edit set image ghcr.io/linusromland/velody=ghcr.io/linusromland/velody:master-${{ github.run_number }}
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
