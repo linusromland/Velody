@@ -12,4 +12,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build the docker image
+        run: echo $USER
         run: docker build -t velody .
