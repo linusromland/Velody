@@ -2,7 +2,7 @@ name: Deploy Velody
 
 on:
   push:
-    branches: ['master', '76-configure-for-cicd']
+    branches: ['master']
   pull_request:
     branches: ['master']
 
