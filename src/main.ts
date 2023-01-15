@@ -12,6 +12,7 @@ const client: SapphireClient<boolean> = new SapphireClient({
 });
 
 console.log('bottoken: ' + bottoken);
+console.log(process.env);
 
 // client.login(bottoken);
 
