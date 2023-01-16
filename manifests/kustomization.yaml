@@ -5,4 +5,4 @@ resources:
 images:
 - name: ghcr.io/linusromland/velody
   newName: ghcr.io/linusromland/velody
-  newTag: master-42
+  newTag: master-46
