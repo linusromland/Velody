@@ -57,7 +57,7 @@ export class Gpt3Command extends Command {
 		}
 
 		this.container.logger.info(
-			`User ${interaction?.user?.tag}(${interaction?.user?.id}) requested the bot to loop on server ${interaction.guild?.name}(${interaction.guildId})`
+			`User ${interaction?.user?.tag}(${interaction?.user?.id}) toggled gpt3 in guild ${interaction?.guild?.name}(${interaction?.guild?.id})`
 		);
 	}
 }

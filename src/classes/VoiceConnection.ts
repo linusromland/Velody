@@ -140,7 +140,6 @@ export default class VoiceConnection extends Queue {
 	public async tts(input: { previousSong?: string; nextSong: string; requestedBy: string } | string) {
 		try {
 			if (!this._connection || !this._voicePresenter) return false;
-			console.log('TTS', input);
 			if (typeof input === 'string') return playTTS(input, this._connection as DiscordVoiceConnection);
 
 			if (!this._gpt3) {

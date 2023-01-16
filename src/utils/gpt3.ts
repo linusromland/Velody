@@ -18,7 +18,6 @@ const gpt3 = async (text: string): Promise<string | undefined> => {
 	});
 
 	if (response?.data?.choices[0]?.text) {
-		console.log(response.data.choices[0].text);
 		return response.data.choices[0].text;
 	} else {
 		return undefined;
