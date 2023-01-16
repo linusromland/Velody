@@ -25,6 +25,7 @@
 | `/shuffle`            | Shuffles the queue.                                                                 |
 | `/skip`               | Skips the currently playing video.                                                  |
 | `/voicePresenter`     | Enables or disables the Voice Presenter for the bot.                                |
+| `/gpt3`               | Enables or disables the GPT-3 for the bot.                                          |
 
 ## ⚡️ Setup
 
@@ -100,6 +101,9 @@ docker run -d --name velody velody
 | ---------------- | ---------------------------------------------------------- | -------- | ------------- |
 | BOT_TOKEN        | The bot token of your Discord bot.                         | Yes      | -             |
 | GOOGLE_AUTH_FILE | The path to the Google auth file for your Service Account. | No       | -             |
+| OPENAI_ORG       | The OpenAI organization ID.                                | No       | -             |
+| OPENAI_SECRET    | The OpenAI secret key.                                     | No       | -             |
+| OPENAI_KEY       | The OpenAI API key.                                        | No       | -             |
 
 ## 📝 Contact
 
