@@ -1,3 +1,4 @@
+// External Dependencies
 import { Configuration, OpenAIApi, CreateCompletionResponse } from 'openai';
 import { AxiosResponse } from 'axios';
 
@@ -9,18 +10,22 @@ const configuration: Configuration = new Configuration({
 const openai: OpenAIApi = new OpenAIApi(configuration);
 
 const gpt3 = async (text: string): Promise<string | undefined> => {
-	const response: AxiosResponse<CreateCompletionResponse> = await openai.createCompletion({
-		model: 'text-davinci-003',
-		prompt: text,
-		max_tokens: 140,
-		temperature: 0.9,
-		stop: '"'
-	});
+	try {
+		const response: AxiosResponse<CreateCompletionResponse> = await openai.createCompletion({
+			model: 'text-davinci-003',
+			prompt: text,
+			max_tokens: 140,
+			temperature: 0.9,
+			stop: '"'
+		});
 
-	if (response?.data?.choices[0]?.text) {
-		return response.data.choices[0].text;
-	} else {
-		return undefined;
+		if (response?.data?.choices[0]?.text) {
+			return response.data.choices[0].text;
+		} else {
+			return undefined;
+		}
+	} catch (error) {
+		throw 'GPT-3 failed to generate a response.';
 	}
 };
 

@@ -11,6 +11,7 @@ import { VoiceBasedChannel } from 'discord.js';
 import { Readable } from 'stream';
 import { exec as ytdlexec } from 'youtube-dl-exec';
 import { ExecaChildProcess } from 'execa';
+import { container } from '@sapphire/framework';
 
 //Internal dependencies
 import Queue from './Queue';
@@ -142,7 +143,7 @@ export default class VoiceConnection extends Queue {
 			if (!this._connection || !this._voicePresenter) return false;
 			if (typeof input === 'string') return playTTS(input, this._connection as DiscordVoiceConnection);
 
-			if (!this._gpt3) {
+			if (!this._gpt3 || !process.env.OPENAI_ORG || !process.env.OPENAI_KEY) {
 				if (!input.previousSong)
 					return playTTS(
 						`Playing ${input.nextSong}. Requested by ${input.requestedBy?.split('#')[0]}`,
@@ -156,17 +157,22 @@ export default class VoiceConnection extends Queue {
 				);
 			}
 
-			const prompt: string = createPrompt({
-				previousSong: input.previousSong,
-				nextSong: input.nextSong,
-				requestedBy: input.requestedBy
-			});
+			try {
+				const prompt: string = createPrompt({
+					previousSong: input.previousSong,
+					nextSong: input.nextSong,
+					requestedBy: input.requestedBy
+				});
 
-			const text: string | undefined = await gpt3(prompt);
+				const text: string | undefined = await gpt3(prompt);
 
-			if (!text) return playTTS('Something went wrong', this._connection as DiscordVoiceConnection);
+				if (!text) return playTTS('Something went wrong', this._connection as DiscordVoiceConnection);
 
-			return playTTS(text, this._connection as DiscordVoiceConnection);
+				return playTTS(text, this._connection as DiscordVoiceConnection);
+			} catch (error) {
+				container.logger.error('Error while using GPT-3', error);
+				return;
+			}
 		} catch (error) {
 			console.error(error);
 		}
