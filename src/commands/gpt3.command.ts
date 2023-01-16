@@ -14,7 +14,7 @@ export class Gpt3Command extends Command {
 		super(context, {
 			...options,
 			name: 'gpt3',
-			description: 'Enables or disables gpt3 for the bot.'
+			description: 'Enables or disables the GPT-3 for the bot.'
 		});
 	}
 
