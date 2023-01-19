@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+  velody:
+    image: velody
+    container_name: velody
+    restart: always
+    build: .
