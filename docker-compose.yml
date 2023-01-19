@@ -5,3 +5,8 @@ services:
     container_name: velody
     restart: always
     build: .
+    environment:
+      - BOT_TOKEN=NOT_PROVIDED
+      - GOOGLE_AUTH_FILE=NOT_PROVIDED
+      - OPENAI_ORG=NOT_PROVIDED
+      - OPENAI_KEY=NOT_PROVIDED
