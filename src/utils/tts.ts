@@ -50,8 +50,8 @@ const playTTS = (text: string, connection: VoiceConnection) => {
 					text: text
 				},
 				voice: {
-					languageCode: 'en-GB',
-					name: 'en-GB-Neural2-A'
+					languageCode: 'en-US',
+					name: 'en-US-Neural2-J'
 				}
 			});
 
@@ -64,7 +64,12 @@ const playTTS = (text: string, connection: VoiceConnection) => {
 
 			connection.subscribe(player);
 
-			player.play(createAudioResource(stream));
+			const resource = createAudioResource(stream, {
+				inlineVolume: true
+			});
+			resource.volume?.setVolume(3);
+
+			player.play(resource);
 
 			player.on('stateChange', (_: AudioPlayerState, newState: AudioPlayerState) => {
 				if (newState.status === 'idle') {

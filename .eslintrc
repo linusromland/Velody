@@ -15,14 +15,6 @@
 	"rules": {
 		"turbo/no-undeclared-env-vars": "off",
 		"@typescript-eslint/no-inferrable-types": "off",
-		"@typescript-eslint/typedef": [
-			"error",
-			{
-				"arrowParameter": true,
-				"variableDeclaration": true,
-				"variableDeclarationIgnoreFunction": true
-			}
-		],
 		"@typescript-eslint/no-explicit-any": "error"
 	}
 }
