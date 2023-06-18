@@ -37,11 +37,9 @@ export default class VoiceConnection extends Queue {
 		const connection: DiscordVoiceConnection = await joinVoiceChannel({
 			channelId: channel.id,
 			guildId: channel.guild.id,
-			adapterCreator: channel.guild.voiceAdapterCreator
+			adapterCreator: channel.guild.voiceAdapterCreator,
+			selfDeaf: true
 		});
-
-		//Deafen the bot TODO: FIX!
-		// await channel.guild.me?.voice.setDeaf(true);
 
 		this._connection = connection;
 
