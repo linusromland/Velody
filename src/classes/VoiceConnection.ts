@@ -40,8 +40,8 @@ export default class VoiceConnection extends Queue {
 			adapterCreator: channel.guild.voiceAdapterCreator
 		});
 
-		//Deafen the bot
-		await channel.guild.me?.voice.setDeaf(true);
+		//Deafen the bot TODO: FIX!
+		// await channel.guild.me?.voice.setDeaf(true);
 
 		this._connection = connection;
 

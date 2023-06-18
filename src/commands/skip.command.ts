@@ -25,7 +25,7 @@ export class SkipCommand extends Command {
 		);
 	}
 
-	public async chatInputRun(interaction: Command.ChatInputInteraction) {
+	public async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
 		const embed: Embed = new Embed();
 		embed.loading();
 		const msg: Message<boolean> = (await interaction.reply({

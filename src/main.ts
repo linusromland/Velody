@@ -1,14 +1,14 @@
 // External dependencies
 import '@sapphire/plugin-logger/register';
 import { SapphireClient, container } from '@sapphire/framework';
-import { VoiceState } from 'discord.js';
+import { VoiceState, GatewayIntentBits } from 'discord.js';
 
 // Internal dependencies
 import { BOT_TOKEN } from './utils/env';
 import servers from './utils/servers';
 
 const client: SapphireClient<boolean> = new SapphireClient({
-	intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_VOICE_STATES']
+	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildVoiceStates]
 });
 
 client.login(BOT_TOKEN);
