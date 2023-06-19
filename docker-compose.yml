@@ -7,6 +7,6 @@ services:
     build: .
     environment:
       - BOT_TOKEN=$BOT_TOKEN
-      - GOOGLE_AUTH_FILE=$GOOGLE_AUTH_FILE
+      - GOOGLE_AUTH_FILE=account.json
       - OPENAI_ORG=$OPENAI_ORG
       - OPENAI_KEY=$OPENAI_KEY

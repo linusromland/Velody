@@ -10,6 +10,10 @@ COPY package*.json ./
 
 RUN npm install --quiet
 
+COPY setup/write_service_account.sh /usr/app/write_service_account.sh
+
+RUN chmod +x /usr/app/write_service_account.sh
+
 COPY . .
 
-CMD npm run start
+CMD /usr/app/write_service_account.sh && npm run start
