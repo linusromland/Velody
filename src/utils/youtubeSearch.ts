@@ -163,8 +163,7 @@ const youtubeApiWrapper = async (query: string): Promise<IResponseData> => {
 			.then((response) => {
 				if (!response) return;
 				if (!response.data) return;
-				// @ts-ignore
-				resolve(response.data as IResponseData);
+				resolve(response.data as unknown as IResponseData);
 			})
 			.catch((err: object) => {
 				reject(err);
