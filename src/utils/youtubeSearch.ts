@@ -2,6 +2,7 @@
 import ytsr from 'ytsr';
 import ytdl from 'ytdl-core';
 import ytpl from 'ytpl';
+import { google } from 'googleapis';
 
 // Internal dependencies
 import Video from '../interfaces/Video';
@@ -64,6 +65,10 @@ const getFromQuery = async (query: string): Promise<Video | void> => {
 
 	if (!result) return;
 
+	const realApiResult: IResponseData = await youtubeApiWrapper(query);
+
+	console.log(realApiResult.items[0].snippet);
+
 	let lengthInSeconds: number = 0;
 	const time: string[] | undefined = result?.duration?.split(':');
 
@@ -106,6 +111,65 @@ const getPlaylist = async (id: string) => {
 	} catch (e) {
 		return;
 	}
+};
+
+interface IThumbnail {
+	url: string;
+}
+
+interface IThumbnails {
+	default: IThumbnail;
+}
+
+interface ISnippet {
+	title: string;
+	thumbnails: IThumbnails;
+}
+
+interface IResourceId {
+	videoId: string;
+}
+
+interface IId {
+	videoId: string;
+}
+
+interface IItem {
+	id: IId;
+	snippet: ISnippet;
+}
+
+interface IResponseData {
+	items: IItem[];
+}
+
+const youtubeApiWrapper = async (query: string): Promise<IResponseData> => {
+	return new Promise((resolve, reject) => {
+		// Create a client instance
+		const youtube = google.youtube({
+			version: 'v3',
+			auth: process.env.YOUTUBE_API_KEY
+		});
+
+		const res = youtube.search.list({
+			// @ts-ignore
+			part: 'id,snippet',
+			q: query,
+			maxResults: 1,
+			type: 'video'
+		});
+
+		res
+			.then((response) => {
+				if (!response) return;
+				if (!response.data) return;
+				// @ts-ignore
+				resolve(response.data as IResponseData);
+			})
+			.catch((err: object) => {
+				reject(err);
+			});
+	});
 };
 
 export default youtubeSearch;
