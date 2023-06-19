@@ -14,4 +14,7 @@ if [ ! -f "$FILE_PATH" ]; then
 
   # Print a message for logging purposes
   echo "File created with contents from the $ENV_VAR_NAME environment variable"
+  echo "File path: $FILE_PATH"
+  echo "File contents:"
+  cat "$FILE_PATH"
 fi
