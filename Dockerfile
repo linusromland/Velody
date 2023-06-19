@@ -1,6 +1,6 @@
 FROM node:16-alpine
 
-RUN apk add  --no-cache ffmpeg
+RUN apk add  --no-cache ffmpeg build-base make
 
 RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
 
