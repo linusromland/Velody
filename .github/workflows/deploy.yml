@@ -1,0 +1,58 @@
+name: ContinuumCI Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CONTINUUMCI_API: ${{ secrets.CONTINUUMCI_API }}
+      TOKEN: ${{ secrets.TOKEN }}
+    steps:
+      - name: Check for required secrets
+        run: |
+          if [ -z "${{ secrets.CONTINUUMCI_API }}" ]; then
+            echo "Missing required secret: CONTINUUMCI_API"
+            exit 1
+          fi
+          if [ -z "${{ secrets.TOKEN }}" ]; then
+            echo "Missing required secret: TOKEN"
+            exit 1
+          fi
+      - name: Check ContinuumCI API health
+        run: |
+          response=$(curl -sSL -w "%{http_code}" -X GET "${{ env.CONTINUUMCI_API }}/health" -o /dev/null)
+          if [ "$response" != "200" ]; then
+            echo "Error: ContinuumCI API is not responding."
+            exit 1
+          else
+            echo "ContinuumCI API is running."
+          fi
+        env:
+          CONTINUUMCI_API: ${{ secrets.CONTINUUMCI_API }}
+      - name: Call ContinuumCI Deploy API
+        run: |
+          response=$(curl -sSL -X GET "${{ env.CONTINUUMCI_API }}/projects/cdDeploy/${{ env.TOKEN }}")
+          success=$(echo "$response" | jq -r '.success')
+          message=$(echo "$response" | jq -r '.message')
+          logs=$(echo "$response" | jq -r '.data[] // empty')
+
+          if [ "$success" = "true" ]; then
+            if [ -n "$logs" ]; then
+              echo "$logs"
+            fi
+            echo "Deployment successful: $message"
+          else
+            if [ -n "$logs" ]; then
+              echo "$logs"
+            fi
+            echo "Deployment failed: $message"
+            exit 1
+          fi
+        env:
+          CONTINUUMCI_API: ${{ secrets.CONTINUUMCI_API }}
+          TOKEN: ${{ secrets.TOKEN }}
+          CI: true
