@@ -75,15 +75,7 @@ pipeline {
                     def releaseNotes = ""
                     
                     if (currentChangelog) {
-                        releaseNotes = """
-                            ## Changelog for Release ${currentVersion}\n
-                            ${currentChangelog}\n
-                            ## How to Run\n
-                            \`\`\`
-                            docker pull ${DOCKER_REGISTRY}/${DOCKER_REPO}:${currentVersion}
-                            docker run -d ${DOCKER_REGISTRY}/${DOCKER_REPO}:${currentVersion}
-                            \`\`\`
-                            """
+                        releaseNotes = currentChangelog.split("## \\[").find { it.startsWith("${currentVersion}]") }.split("## \\[")[1].split("\\]")[1].trim()
                     } else {
                         releaseNotes = "No specific changelog for version ${currentVersion}."
                     }
