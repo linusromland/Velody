@@ -1,5 +1,4 @@
 // External dependencies
-import ytsr from 'ytsr';
 import ytdl from 'ytdl-core';
 import ytpl from 'ytpl';
 import { google } from 'googleapis';
@@ -57,45 +56,46 @@ const getFromUrl = async (url: string): Promise<Video | void> => {
 };
 
 const getFromQuery = async (query: string): Promise<Video | void> => {
-	const searchResults: ytsr.Result = await ytsr(
-		`https://www.youtube.com/results?search_query=${query}&sp=EgIQAQ%253D%253D`,
-		{ limit: 1 }
-	);
-	const result: ytsr.Video = searchResults.items[0] as ytsr.Video;
-
-	if (!result) return;
-
 	const realApiResult: IResponseData = await youtubeApiWrapper(query);
 
-	console.log(realApiResult.items[0].snippet);
+	console.log(realApiResult.items[0].snippet.title);
 
-	let lengthInSeconds: number = 0;
-	const time: string[] | undefined = result?.duration?.split(':');
-
-	if (time && time.length === 3) {
-		const hours: number = Number(time[0]);
-		const minutes: number = Number(time[1]);
-		const seconds: number = Number(time[2]);
-		lengthInSeconds = hours * 3600 + minutes * 60 + seconds;
-	} else if (time && time.length === 2) {
-		const minutes: number = Number(time[0]);
-		const seconds: number = Number(time[1]);
-		lengthInSeconds = minutes * 60 + seconds;
-	} else if (time && time.length === 1) {
-		const seconds: number = Number(time[0]);
-		lengthInSeconds = seconds;
-	}
-
-	if (!result.title || !result.url) return;
+	console.log(`https://www.youtube.com/watch?v=${realApiResult.items[0].id.videoId}`);
 
 	return {
-		title: result.title,
-		url: result.url,
-		//get highest quality thumbnail
-		thumbnail:
-			result.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url || null,
-		length: lengthInSeconds
+		title: realApiResult.items[0].snippet.title,
+		url: `https://www.youtube.com/watch?v=${realApiResult.items[0].id.videoId}`,
+		thumbnail: realApiResult.items[0].snippet.thumbnails.default.url,
+		length: 0
 	};
+
+	// let lengthInSeconds: number = 0;
+	// const time: string[] | undefined = result?.duration?.split(':');
+
+	// if (time && time.length === 3) {
+	// 	const hours: number = Number(time[0]);
+	// 	const minutes: number = Number(time[1]);
+	// 	const seconds: number = Number(time[2]);
+	// 	lengthInSeconds = hours * 3600 + minutes * 60 + seconds;
+	// } else if (time && time.length === 2) {
+	// 	const minutes: number = Number(time[0]);
+	// 	const seconds: number = Number(time[1]);
+	// 	lengthInSeconds = minutes * 60 + seconds;
+	// } else if (time && time.length === 1) {
+	// 	const seconds: number = Number(time[0]);
+	// 	lengthInSeconds = seconds;
+	// }
+
+	// if (!result.title || !result.url) return;
+
+	// return {
+	// 	title: result.title,
+	// 	url: result.url,
+	// 	//get highest quality thumbnail
+	// 	thumbnail:
+	// 		result.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url || null,
+	// 	length: lengthInSeconds
+	// };
 };
 
 const getPlaylist = async (id: string) => {
@@ -145,6 +145,8 @@ interface IResponseData {
 
 const youtubeApiWrapper = async (query: string): Promise<IResponseData> => {
 	return new Promise((resolve, reject) => {
+		console.log(process.env.YOUTUBE_API_KEY);
+
 		// Create a client instance
 		const youtube = google.youtube({
 			version: 'v3',
