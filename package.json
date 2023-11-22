@@ -1,6 +1,6 @@
 {
 	"name": "velody",
-	"version": "2.2",
+	"version": "2.2.1",
 	"description": "Velody is a discord music bot!",
 	"main": "src/main.ts",
 	"scripts": {
@@ -50,7 +50,7 @@
 		"opusscript": "^0.0.8",
 		"string-progressbar": "^1.0.4",
 		"youtube-dl-exec": "^2.1.11",
-		"ytdl-core": "^4.11.2",
+		"ytdl-core": "^4.11.5",
 		"ytpl": "^2.3.0",
 		"ytsr": "^3.8.0"
 	}
