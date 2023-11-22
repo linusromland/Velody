@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:20.9.0-alpine3.18
 
 RUN apk add  --no-cache ffmpeg build-base make
 
@@ -10,10 +10,6 @@ COPY package*.json ./
 
 RUN npm install --quiet
 
-COPY setup/write_service_account.sh /usr/app/write_service_account.sh
-
-RUN chmod +x /usr/app/write_service_account.sh
-
 COPY . .
 
-CMD /usr/app/write_service_account.sh && npm run start
+CMD npm run start
