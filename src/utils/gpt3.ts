@@ -40,7 +40,8 @@ const createPrompt = (input: {
 		The callout should be fun and mention the requestor.
 		The callout should be no more than 140 characters.
 		The callout should not include any special characters.
-		Roast the requestor very hard.`
+		Roast the requestor very hard.
+		Be funny, ad whatever you want to the callout.`
 		},
 		{
 			role: 'user',

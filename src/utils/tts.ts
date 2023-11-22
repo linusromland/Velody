@@ -19,7 +19,7 @@ const playTTS = (text: string, connection: VoiceConnection) => {
 		try {
 			const response = await openai.audio.speech.create({
 				model: 'tts-1',
-				voice: 'onyx',
+				voice: 'echo',
 				input: text
 			});
 

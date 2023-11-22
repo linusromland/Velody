@@ -142,7 +142,7 @@ export default class VoiceConnection extends Queue {
 			if (!this._connection || !this._voicePresenter) return false;
 			if (typeof input === 'string') return playTTS(input, this._connection as DiscordVoiceConnection);
 
-			if (!this._gpt3 || !process.env.OPENAI_ORG || !process.env.OPENAI_KEY) {
+			if (!this._gpt3 || !process.env.OPENAI_ORG || !process.env.OPENAI_API_KEY) {
 				if (!input.previousSong)
 					return playTTS(
 						`Playing ${input.nextSong}. Requested by ${input.requestedBy?.split('#')[0]}`,
