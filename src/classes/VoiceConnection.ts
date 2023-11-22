@@ -18,6 +18,7 @@ import Queue from './Queue';
 import Video from '../interfaces/Video';
 import playTTS from '../utils/tts';
 import { createPrompt, gpt3 } from '../utils/gpt3';
+import { ChatCompletionMessageParam } from 'openai/resources';
 
 export default class VoiceConnection extends Queue {
 	private _connection: DiscordVoiceConnection | null = null;
@@ -156,7 +157,7 @@ export default class VoiceConnection extends Queue {
 			}
 
 			try {
-				const prompt: string = createPrompt({
+				const prompt: ChatCompletionMessageParam[] = createPrompt({
 					previousSong: input.previousSong,
 					nextSong: input.nextSong,
 					requestedBy: input.requestedBy

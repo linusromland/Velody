@@ -1,26 +1,23 @@
 // External Dependencies
-import { Configuration, OpenAIApi, CreateCompletionResponse } from 'openai';
-import { AxiosResponse } from 'axios';
+import OpenAI from 'openai';
+import { ChatCompletionMessageParam } from 'openai/resources';
 
-const configuration: Configuration = new Configuration({
-	organization: process.env.OPENAI_ORG,
+const openai: OpenAI = new OpenAI({
 	apiKey: process.env.OPENAI_KEY
 });
 
-const openai: OpenAIApi = new OpenAIApi(configuration);
-
-const gpt3 = async (text: string): Promise<string | undefined> => {
+const gpt3 = async (text: ChatCompletionMessageParam[]): Promise<string | undefined> => {
 	try {
-		const response: AxiosResponse<CreateCompletionResponse> = await openai.createCompletion({
-			model: 'text-davinci-003',
-			prompt: text,
-			max_tokens: 140,
-			temperature: 0.9,
-			stop: '"'
+		const response = await openai.chat.completions.create({
+			model: 'gpt-3.5-turbo',
+			messages: text,
+			max_tokens: 140
 		});
 
-		if (response?.data?.choices[0]?.text) {
-			return response.data.choices[0].text;
+		response;
+
+		if (response.choices[0].message.content) {
+			return response.choices[0].message.content || undefined;
 		} else {
 			return undefined;
 		}
@@ -29,19 +26,31 @@ const gpt3 = async (text: string): Promise<string | undefined> => {
 	}
 };
 
-const createPrompt = (input: { previousSong?: string; nextSong: string; requestedBy: string }): string => {
+const createPrompt = (input: {
+	previousSong?: string;
+	nextSong: string;
+	requestedBy: string;
+}): ChatCompletionMessageParam[] => {
 	const { previousSong, nextSong } = input;
 
-	return `Write a dj callout for a discord bot based on the following information.
+	const messages: ChatCompletionMessageParam[] = [
+		{
+			role: 'system',
+			content: `Write a dj callout for a discord bot based on the following information.
 		The callout should be fun and mention the requestor.
 		The callout should be no more than 140 characters.
 		The callout should not include any special characters.
-		Roast the requestor very hard.
+		Roast the requestor very hard.`
+		},
+		{
+			role: 'user',
+			content: `${previousSong ? `Previous song: ${previousSong}` : ''}
+			Next song: ${nextSong}
+			Requestor: ${input.requestedBy.split('#')[0]}`
+		}
+	];
 
-		${previousSong ? `Previous song: ${previousSong}` : ''}
-		Next song: ${nextSong}
-		Requestor: ${input.requestedBy.split('#')[0]}
-		Callout: "`;
+	return messages;
 };
 
 export { gpt3, createPrompt };
