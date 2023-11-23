@@ -1,0 +1,37 @@
+name: Build and push Docker image for Velody
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Extract version from package.json
+      id: package_version
+      run: echo "::set-output name=VERSION::$(jq -r .version package.json)"
+      shell: bash
+
+    - name: Check if image with version already exists
+      id: check_image
+      run: |
+        if curl --silent --fail --location "https://ghcr.io/v2/linusromland/Velody/manifests/${{ steps.package_version.outputs.VERSION }}" > /dev/null; then
+          echo "::set-output name=EXISTS::yes"
+        else
+          echo "::set-output name=EXISTS::no"
+        fi
+      shell: bash
+
+    - name: Build and Push Image
+      if: steps.check_image.outputs.EXISTS == 'no'
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: |
+          ghcr.io/linusromland/Velody:latest
+          ghcr.io/linusromland/Velody:${{ steps.package_version.outputs.VERSION }}
