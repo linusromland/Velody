@@ -82,7 +82,7 @@ const getPlaylist = async (id: string) => {
 			url: item.shortUrl,
 			thumbnail:
 				item.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url || null,
-			length: 0
+			length: Number(item.durationSec)
 		}));
 	} catch (e) {
 		return;
