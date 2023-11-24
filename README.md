@@ -97,13 +97,12 @@ docker run -d --name velody velody
 
 ## 📦 Environment variables
 
-| Variable               | Description                                                                          | Required | Default value |
-| ---------------------- | ------------------------------------------------------------------------------------ | -------- | ------------- |
-| BOT_TOKEN              | The bot token of your Discord bot.                                                   | Yes      | -             |
-| GOOGLE_AUTH_FILE       | The path to the Google auth file for your Service Account.                           | No       | -             |
-| GOOGLE_SERVICE_ACCOUNT | The contents of the Google Service Account JSON file. Required if running in Docker. | No       | -             |
-| OPENAI_ORG             | The OpenAI organization ID.                                                          | No       | -             |
-| OPENAI_KEY             | The OpenAI API key.                                                                  | No       | -             |
+| Variable         | Description                                                | Required | Default value |
+| ---------------- | ---------------------------------------------------------- | -------- | ------------- |
+| BOT_TOKEN        | The bot token of your Discord bot.                         | Yes      | -             |
+| GOOGLE_AUTH_FILE | The path to the Google auth file for your Service Account. | No       | -             |
+| OPENAI_ORG       | The OpenAI organization ID.                                | Yes      | -             |
+| OPENAI_API_KEY   | The OpenAI API key.                                        | Yes      | -             |
 
 ## 📝 Contact
 

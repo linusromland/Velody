@@ -10,7 +10,7 @@ import { Readable } from 'stream';
 import OpenAI from 'openai';
 
 const openai: OpenAI = new OpenAI({
-	apiKey: process.env.OPENAI_KEY
+	apiKey: process.env.OPENAI_API_KEY
 });
 
 const playTTS = (text: string, connection: VoiceConnection) => {
