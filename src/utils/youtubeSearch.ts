@@ -6,6 +6,12 @@ import { google } from 'googleapis';
 // Internal dependencies
 import Video from '../interfaces/Video';
 
+// Create a client instance
+const youtube = google.youtube({
+	version: 'v3',
+	auth: process.env.YOUTUBE_API_KEY
+});
+
 const youtubeSearch = async (query: string, allowPlaylist: boolean = true): Promise<Video[] | void> => {
 	const isUrl: boolean = validUrl(query);
 
@@ -56,46 +62,16 @@ const getFromUrl = async (url: string): Promise<Video | void> => {
 };
 
 const getFromQuery = async (query: string): Promise<Video | void> => {
-	const realApiResult: IResponseData = await youtubeApiWrapper(query);
+	const realApiResult: IResponseData = await youtubeApiSearch(query);
 
-	console.log(realApiResult.items[0].snippet.title);
-
-	console.log(`https://www.youtube.com/watch?v=${realApiResult.items[0].id.videoId}`);
+	const video: IVideoDetails = (await youtubeApiVideo(realApiResult.items[0].id.videoId)) as unknown as IVideoDetails;
 
 	return {
 		title: realApiResult.items[0].snippet.title,
 		url: `https://www.youtube.com/watch?v=${realApiResult.items[0].id.videoId}`,
 		thumbnail: realApiResult.items[0].snippet.thumbnails.default.url,
-		length: 0
+		length: convertDurationToSeconds(video.items[0].contentDetails.duration)
 	};
-
-	// let lengthInSeconds: number = 0;
-	// const time: string[] | undefined = result?.duration?.split(':');
-
-	// if (time && time.length === 3) {
-	// 	const hours: number = Number(time[0]);
-	// 	const minutes: number = Number(time[1]);
-	// 	const seconds: number = Number(time[2]);
-	// 	lengthInSeconds = hours * 3600 + minutes * 60 + seconds;
-	// } else if (time && time.length === 2) {
-	// 	const minutes: number = Number(time[0]);
-	// 	const seconds: number = Number(time[1]);
-	// 	lengthInSeconds = minutes * 60 + seconds;
-	// } else if (time && time.length === 1) {
-	// 	const seconds: number = Number(time[0]);
-	// 	lengthInSeconds = seconds;
-	// }
-
-	// if (!result.title || !result.url) return;
-
-	// return {
-	// 	title: result.title,
-	// 	url: result.url,
-	// 	//get highest quality thumbnail
-	// 	thumbnail:
-	// 		result.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url || null,
-	// 	length: lengthInSeconds
-	// };
 };
 
 const getPlaylist = async (id: string) => {
@@ -106,7 +82,7 @@ const getPlaylist = async (id: string) => {
 			url: item.shortUrl,
 			thumbnail:
 				item.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url || null,
-			length: Number(item.durationSec)
+			length: 0
 		}));
 	} catch (e) {
 		return;
@@ -126,10 +102,6 @@ interface ISnippet {
 	thumbnails: IThumbnails;
 }
 
-interface IResourceId {
-	videoId: string;
-}
-
 interface IId {
 	videoId: string;
 }
@@ -143,19 +115,35 @@ interface IResponseData {
 	items: IItem[];
 }
 
-const youtubeApiWrapper = async (query: string): Promise<IResponseData> => {
+interface IVideoDetails {
+	kind: string;
+	etag: string;
+	items: YouTubeVideo[];
+	pageInfo: object;
+}
+
+interface YouTubeVideo {
+	kind: string;
+	etag: string;
+	id: string;
+	contentDetails: IContentDetails;
+}
+
+interface IContentDetails {
+	duration: string;
+	dimension: string;
+	definition: string;
+	caption: string;
+	licensedContent: boolean;
+	contentRating: object;
+	projection: string;
+}
+
+const youtubeApiSearch = async (query: string): Promise<IResponseData> => {
 	return new Promise((resolve, reject) => {
-		console.log(process.env.YOUTUBE_API_KEY);
-
-		// Create a client instance
-		const youtube = google.youtube({
-			version: 'v3',
-			auth: process.env.YOUTUBE_API_KEY
-		});
-
 		const res = youtube.search.list({
 			// @ts-ignore
-			part: 'id,snippet',
+			part: 'snippet',
 			q: query,
 			maxResults: 1,
 			type: 'video'
@@ -172,5 +160,43 @@ const youtubeApiWrapper = async (query: string): Promise<IResponseData> => {
 			});
 	});
 };
+
+const youtubeApiVideo = async (videoId: string): Promise<IResponseData> => {
+	return new Promise((resolve, reject) => {
+		const res = youtube.videos.list({
+			// @ts-ignore
+			part: 'contentDetails',
+			id: videoId
+		});
+
+		res
+			.then((response) => {
+				if (!response) return;
+				if (!response.data) return;
+				resolve(response.data as unknown as IResponseData);
+			})
+			.catch((err: object) => {
+				reject(err);
+			});
+	});
+};
+
+function convertDurationToSeconds(duration: string): number {
+	// Regular expression to match the ISO 8601 duration format
+	const durationRegex = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/;
+
+	const matches = duration.match(durationRegex);
+	if (!matches) {
+		throw new Error('Invalid ISO 8601 duration format');
+	}
+
+	// Extract hours, minutes, and seconds from the duration string
+	const hours = parseInt(matches[1]) || 0;
+	const minutes = parseInt(matches[2]) || 0;
+	const seconds = parseInt(matches[3]) || 0;
+
+	// Convert the duration to seconds
+	return hours * 3600 + minutes * 60 + seconds;
+}
 
 export default youtubeSearch;
