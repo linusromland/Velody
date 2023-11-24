@@ -27,9 +27,7 @@ const playTTS = (text: string, connection: VoiceConnection) => {
 
 			const buffer: Buffer = Buffer.from(ArrayBuffer);
 
-			// convert type binary mp3 to Readable stream
-
-			// This is where the error is.
+			// convert buffer to Readable stream
 			const stream: Readable = Readable.from(buffer, { objectMode: false });
 
 			const player: AudioPlayer = createAudioPlayer();

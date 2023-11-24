@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources';
 
 const openai: OpenAI = new OpenAI({
-	apiKey: process.env.OPENAI_KEY
+	apiKey: process.env.OPENAI_API_KEY
 });
 
 const gpt3 = async (text: ChatCompletionMessageParam[]): Promise<string | undefined> => {
