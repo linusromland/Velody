@@ -5,6 +5,7 @@ import { google } from 'googleapis';
 
 // Internal dependencies
 import Video from '../interfaces/Video';
+import convertDurationToSeconds from './durationToSeconds';
 
 // Create a client instance
 const youtube = google.youtube({
@@ -62,15 +63,25 @@ const getFromUrl = async (url: string): Promise<Video | void> => {
 };
 
 const getFromQuery = async (query: string): Promise<Video | void> => {
-	const realApiResult: IResponseData = await youtubeApiSearch(query);
+	const result = await youtubeApiSearch(query);
 
-	const video: IVideoDetails = (await youtubeApiVideo(realApiResult.items[0].id.videoId)) as unknown as IVideoDetails;
+	if (!result) return;
+
+	const resultItem = result.items?.[0];
+
+	if (!resultItem) return;
+
+	const videoId = resultItem.id?.videoId;
+
+	if (!videoId) return;
+
+	const video = await youtubeApiVideo(videoId);
 
 	return {
-		title: realApiResult.items[0].snippet.title,
-		url: `https://www.youtube.com/watch?v=${realApiResult.items[0].id.videoId}`,
-		thumbnail: realApiResult.items[0].snippet.thumbnails.default.url,
-		length: convertDurationToSeconds(video.items[0].contentDetails.duration)
+		title: resultItem.snippet?.title ?? '',
+		url: `https://www.youtube.com/watch?v=${videoId}`,
+		thumbnail: resultItem.snippet?.thumbnails?.default?.url ?? '',
+		length: convertDurationToSeconds(video?.items?.[0].contentDetails?.duration ?? '0')
 	};
 };
 
@@ -89,114 +100,34 @@ const getPlaylist = async (id: string) => {
 	}
 };
 
-interface IThumbnail {
-	url: string;
-}
-
-interface IThumbnails {
-	default: IThumbnail;
-}
-
-interface ISnippet {
-	title: string;
-	thumbnails: IThumbnails;
-}
-
-interface IId {
-	videoId: string;
-}
-
-interface IItem {
-	id: IId;
-	snippet: ISnippet;
-}
-
-interface IResponseData {
-	items: IItem[];
-}
-
-interface IVideoDetails {
-	kind: string;
-	etag: string;
-	items: YouTubeVideo[];
-	pageInfo: object;
-}
-
-interface YouTubeVideo {
-	kind: string;
-	etag: string;
-	id: string;
-	contentDetails: IContentDetails;
-}
-
-interface IContentDetails {
-	duration: string;
-	dimension: string;
-	definition: string;
-	caption: string;
-	licensedContent: boolean;
-	contentRating: object;
-	projection: string;
-}
-
-const youtubeApiSearch = async (query: string): Promise<IResponseData> => {
-	return new Promise((resolve, reject) => {
-		const res = youtube.search.list({
-			// @ts-ignore
-			part: 'snippet',
-			q: query,
-			maxResults: 1,
-			type: 'video'
-		});
-
-		res
-			.then((response) => {
-				if (!response) return;
-				if (!response.data) return;
-				resolve(response.data as unknown as IResponseData);
-			})
-			.catch((err: object) => {
-				reject(err);
-			});
+const youtubeApiSearch = async (query: string) => {
+	const response = await youtube.search.list({
+		part: ['snippet'],
+		q: query,
+		maxResults: 1,
+		type: ['video']
 	});
+
+	if (!response) return;
+	const { data } = response;
+
+	if (!data) return;
+
+	return data;
 };
 
-const youtubeApiVideo = async (videoId: string): Promise<IResponseData> => {
-	return new Promise((resolve, reject) => {
-		const res = youtube.videos.list({
-			// @ts-ignore
-			part: 'contentDetails',
-			id: videoId
-		});
-
-		res
-			.then((response) => {
-				if (!response) return;
-				if (!response.data) return;
-				resolve(response.data as unknown as IResponseData);
-			})
-			.catch((err: object) => {
-				reject(err);
-			});
+const youtubeApiVideo = async (videoId: string) => {
+	const response = await youtube.videos.list({
+		part: ['contentDetails'],
+		id: [videoId]
 	});
+
+	if (!response) return;
+	const { data } = response;
+
+	if (!data) return;
+
+	return data;
 };
-
-function convertDurationToSeconds(duration: string): number {
-	// Regular expression to match the ISO 8601 duration format
-	const durationRegex = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/;
-
-	const matches = duration.match(durationRegex);
-	if (!matches) {
-		throw new Error('Invalid ISO 8601 duration format');
-	}
-
-	// Extract hours, minutes, and seconds from the duration string
-	const hours = parseInt(matches[1]) || 0;
-	const minutes = parseInt(matches[2]) || 0;
-	const seconds = parseInt(matches[3]) || 0;
-
-	// Convert the duration to seconds
-	return hours * 3600 + minutes * 60 + seconds;
-}
 
 export default youtubeSearch;
