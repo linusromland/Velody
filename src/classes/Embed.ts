@@ -54,11 +54,17 @@ export default class Embed {
 		return this;
 	}
 
-	addLoopSymbols(loop: boolean, loopQueue: boolean, voicePresenter: boolean): Embed {
+	addLoopSymbols(loopEnabled: boolean, loopQueueEnabled: boolean, voicePresenterEnabled: boolean): Embed {
+		let voicePresenter = 'Not available';
+
+		if (process.env.OPENAI_API_KEY) {
+			voicePresenter = voicePresenterEnabled ? '✅' : '❌';
+		}
+
 		this._embed.setFooter({
-			text: `Loop: ${loop ? '✅' : '❌'}\nLoop Queue: ${loopQueue ? '✅' : '❌'}\nVoice Presenter: ${
-				voicePresenter ? '✅' : '❌'
-			}`
+			text: `Loop: ${loopEnabled ? '✅' : '❌'}\nLoop Queue: ${
+				loopQueueEnabled ? '✅' : '❌'
+			}\nVoice Presenter: ${voicePresenter}`
 		});
 		return this;
 	}

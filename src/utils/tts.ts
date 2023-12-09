@@ -9,11 +9,19 @@ import {
 import { Readable } from 'stream';
 import OpenAI from 'openai';
 
-const openai: OpenAI = new OpenAI({
-	apiKey: process.env.OPENAI_API_KEY
-});
+let openai: OpenAI;
 
 const playTTS = (text: string, connection: VoiceConnection) => {
+	const { OPENAI_API_KEY } = process.env;
+
+	if (!OPENAI_API_KEY) return;
+
+	if (!openai) {
+		openai = new OpenAI({
+			apiKey: OPENAI_API_KEY
+		});
+	}
+
 	// eslint-disable-next-line no-async-promise-executor
 	return new Promise(async (resolve: (value: unknown) => void) => {
 		try {
@@ -34,10 +42,7 @@ const playTTS = (text: string, connection: VoiceConnection) => {
 
 			connection.subscribe(player);
 
-			const resource = createAudioResource(stream, {
-				inlineVolume: true
-			});
-			resource.volume?.setVolume(5);
+			const resource = createAudioResource(stream);
 
 			player.play(resource);
 

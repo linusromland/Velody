@@ -2,11 +2,19 @@
 import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources';
 
-const openai: OpenAI = new OpenAI({
-	apiKey: process.env.OPENAI_API_KEY
-});
+let openai: OpenAI;
 
 const gpt3 = async (text: ChatCompletionMessageParam[]): Promise<string | undefined> => {
+	const { OPENAI_API_KEY } = process.env;
+
+	if (!OPENAI_API_KEY) return;
+
+	if (!openai) {
+		openai = new OpenAI({
+			apiKey: OPENAI_API_KEY
+		});
+	}
+
 	try {
 		const response = await openai.chat.completions.create({
 			model: 'gpt-3.5-turbo',
@@ -14,9 +22,7 @@ const gpt3 = async (text: ChatCompletionMessageParam[]): Promise<string | undefi
 			max_tokens: 140
 		});
 
-		response;
-
-		if (response.choices[0].message.content) {
+		if (response.choices[0]?.message.content) {
 			return response.choices[0].message.content || undefined;
 		} else {
 			return undefined;
@@ -41,7 +47,7 @@ const createPrompt = (input: {
 		The callout should be no more than 140 characters.
 		The callout should not include any special characters.
 		Roast the requestor very hard.
-		Be funny, ad whatever you want to the callout.`
+		Be funny, add whatever you want to the callout.`
 		},
 		{
 			role: 'user',
