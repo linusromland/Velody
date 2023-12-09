@@ -6,68 +6,60 @@ import {
 	VoiceConnection,
 	AudioPlayerState
 } from '@discordjs/voice';
-import { TextToSpeechClient } from '@google-cloud/text-to-speech';
-import { google } from 'googleapis';
-import { GoogleAuth } from 'google-auth-library';
-import { JSONClient } from 'google-auth-library/build/src/auth/googleauth';
 import { Readable } from 'stream';
-import fs from 'fs';
+import OpenAI from 'openai';
 import { container } from '@sapphire/framework';
+import { SpeechCreateParams } from 'openai/resources/audio/speech';
+
+let openai: OpenAI;
 
 const playTTS = (text: string, connection: VoiceConnection) => {
+	const { OPENAI_API_KEY } = process.env;
+
+	if (!OPENAI_API_KEY) return;
+
+	if (!openai) {
+		openai = new OpenAI({
+			apiKey: OPENAI_API_KEY
+		});
+	}
+
 	// eslint-disable-next-line no-async-promise-executor
 	return new Promise(async (resolve: (value: unknown) => void) => {
 		try {
-			if (!process.env.GOOGLE_AUTH_FILE) {
-				container.logger.error('GOOGLE_AUTH_FILE is not set');
-				resolve(false);
-				return;
+			const { OPENAI_TTS_MODEL, OPENAI_TTS_VOICE } = process.env;
+
+			let model = 'tts-1';
+			let voice = 'echo';
+
+			if (OPENAI_TTS_MODEL) {
+				model = OPENAI_TTS_MODEL;
+				container.logger.info(`Using OpenAI model ${model}`);
 			}
 
-			if (!fs.existsSync(process.env.GOOGLE_AUTH_FILE)) {
-				container.logger.error('GOOGLE_AUTH_FILE does not exist');
-				resolve(false);
-				return;
+			if (OPENAI_TTS_VOICE) {
+				voice = OPENAI_TTS_VOICE;
+				container.logger.info(`Using OpenAI voice ${voice}`);
 			}
 
-			const auth: GoogleAuth<JSONClient> = new google.auth.GoogleAuth({
-				keyFile: process.env.GOOGLE_AUTH_FILE,
-				scopes: ['https://www.googleapis.com/auth/cloud-platform']
+			const response = await openai.audio.speech.create({
+				model,
+				voice: voice as SpeechCreateParams['voice'],
+				input: text
 			});
 
-			const ttsClient: TextToSpeechClient = new TextToSpeechClient({
-				auth
-			});
+			const ArrayBuffer: ArrayBuffer = await response.arrayBuffer();
 
-			const [response] = await ttsClient.synthesizeSpeech({
-				audioConfig: {
-					audioEncoding: 'LINEAR16',
-					effectsProfileId: ['large-home-entertainment-class-device'],
-					pitch: 0,
-					speakingRate: 1
-				},
-				input: {
-					text: text
-				},
-				voice: {
-					languageCode: 'en-US',
-					name: 'en-US-Neural2-J'
-				}
-			});
+			const buffer: Buffer = Buffer.from(ArrayBuffer);
 
-			if (!response.audioContent) return !!connection;
-
-			// convert type binary mp3 to Readable stream
-			const stream: Readable = Readable.from(response.audioContent, { objectMode: false });
+			// convert buffer to Readable stream
+			const stream: Readable = Readable.from(buffer, { objectMode: false });
 
 			const player: AudioPlayer = createAudioPlayer();
 
 			connection.subscribe(player);
 
-			const resource = createAudioResource(stream, {
-				inlineVolume: true
-			});
-			resource.volume?.setVolume(3);
+			const resource = createAudioResource(stream);
 
 			player.play(resource);
 

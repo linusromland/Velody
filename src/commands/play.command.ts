@@ -50,50 +50,56 @@ export class PlayCommand extends Command {
 			}
 
 			if (server.connectedChannelId !== channel.id) server.join(channel);
+			try {
+				const results: Video[] | void = await youtubeSearch(interaction.options.getString('query') as string);
 
-			const results: Video[] | void = await youtubeSearch(interaction.options.getString('query') as string);
+				if (results) {
+					let success: boolean = true;
+					let addedToQueue: boolean = false;
 
-			if (results) {
-				let success: boolean = true;
-				let addedToQueue: boolean = false;
+					// Add requested by
+					for (const [index, result] of results.entries()) {
+						result.requestedBy = interaction.user.tag;
+						const added: {
+							success: boolean;
+							addedToQueue: boolean;
+						} = await server.addVideo(result as Video);
 
-				// Add requested by
-				for (const [index, result] of results.entries()) {
-					result.requestedBy = interaction.user.tag;
-					const added: {
-						success: boolean;
-						addedToQueue: boolean;
-					} = await server.addVideo(result as Video);
+						if (index === 0 && added.addedToQueue) addedToQueue = true;
 
-					if (index === 0 && added.addedToQueue) addedToQueue = true;
+						if (!added.success) success = false;
+					}
 
-					if (!added.success) success = false;
-				}
+					if (!success) {
+						embed.setTitle('An error occurred');
+						embed.setDescription('Try again later');
+						msg.edit({ embeds: [embed.embed] });
+						return;
+					}
 
-				if (!success) {
-					embed.setTitle('An error occurred');
-					embed.setDescription('Try again later');
+					const result: Video = results[0];
+
+					if (addedToQueue) {
+						embed.setTitle('Added `' + result.title + '` to queue');
+						if (results.length > 1) embed.setDescription(`and ${results.length - 1} more`);
+					} else {
+						embed.setTitle('Playing `' + result.title + '`');
+						if (results.length > 1) embed.setDescription(`Added ${results.length - 1} more to queue`);
+					}
+
+					if (result.thumbnail) embed.setImage(result.thumbnail);
+					embed.setURL(result.url);
 					msg.edit({ embeds: [embed.embed] });
-					return;
-				}
-
-				const result: Video = results[0];
-
-				if (addedToQueue) {
-					embed.setTitle('Added `' + result.title + '` to queue');
-					if (results.length > 1) embed.setDescription(`and ${results.length - 1} more`);
 				} else {
-					embed.setTitle('Playing `' + result.title + '`');
-					if (results.length > 1) embed.setDescription(`Added ${results.length - 1} more to queue`);
+					embed.setTitle('No results found');
+					embed.setDescription('Try again with a different query');
+					msg.edit({ embeds: [embed.embed] });
 				}
-
-				if (result.thumbnail) embed.setImage(result.thumbnail);
-				embed.setURL(result.url);
+			} catch (error) {
+				embed.setTitle('An error occurred');
+				embed.setDescription('Try again later');
 				msg.edit({ embeds: [embed.embed] });
-			} else {
-				embed.setTitle('No results found');
-				embed.setDescription('Try again with a different query');
-				msg.edit({ embeds: [embed.embed] });
+				return;
 			}
 		} else {
 			embed.setTitle('You are not connected to a voice channel');

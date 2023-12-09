@@ -19,10 +19,10 @@ client.on('ready', () => {
 
 //On bot being kicked from voice channel
 client.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) => {
-	if (oldState.channel && !newState.channel) {
+	if (oldState.member?.user.id === client.user?.id && newState.channel === null) {
 		servers.remove(oldState.guild.id);
 		container.logger.info(
-			`Bot was kicked from voice channel ${oldState.channel.name}(${oldState.channel.id}) on server ${oldState.guild.name}(${oldState.guild.id})`
+			`Bot was kicked from voice channel ${oldState.channel?.name}(${oldState.channelId}) on server ${oldState.guild.name}(${oldState.guild})`
 		);
 	}
 });

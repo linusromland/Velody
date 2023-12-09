@@ -14,7 +14,7 @@ export class VoicePresenterCommand extends Command {
 		super(context, {
 			...options,
 			name: 'voicePresenter',
-			description: 'Enables or disables the Voice Presenter for the bot.'
+			description: 'Enables or disables the Voice Presenter temporarily.'
 		});
 	}
 
@@ -42,6 +42,14 @@ export class VoicePresenterCommand extends Command {
 			if (!server) {
 				embed.setTitle('Not connected to a voice channel');
 				embed.setDescription('Use `/join` to connect to a voice channel');
+				return msg.edit({ embeds: [embed.embed] });
+			}
+
+			if (!process.env.OPENAI_API_KEY) {
+				embed.setTitle('Voice Presenter is not available');
+				embed.setDescription(
+					'Voice Presenter is not available because the bot owner has not provided an OpenAI API key'
+				);
 				return msg.edit({ embeds: [embed.embed] });
 			}
 
