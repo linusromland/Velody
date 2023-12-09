@@ -8,6 +8,8 @@ import {
 } from '@discordjs/voice';
 import { Readable } from 'stream';
 import OpenAI from 'openai';
+import { container } from '@sapphire/framework';
+import { SpeechCreateParams } from 'openai/resources/audio/speech';
 
 let openai: OpenAI;
 
@@ -25,9 +27,24 @@ const playTTS = (text: string, connection: VoiceConnection) => {
 	// eslint-disable-next-line no-async-promise-executor
 	return new Promise(async (resolve: (value: unknown) => void) => {
 		try {
+			const { OPENAI_TTS_MODEL, OPENAI_TTS_VOICE } = process.env;
+
+			let model = 'tts-1';
+			let voice = 'echo';
+
+			if (OPENAI_TTS_MODEL) {
+				model = OPENAI_TTS_MODEL;
+				container.logger.info(`Using OpenAI model ${model}`);
+			}
+
+			if (OPENAI_TTS_VOICE) {
+				voice = OPENAI_TTS_VOICE;
+				container.logger.info(`Using OpenAI voice ${voice}`);
+			}
+
 			const response = await openai.audio.speech.create({
-				model: 'tts-1',
-				voice: 'echo',
+				model,
+				voice: voice as SpeechCreateParams['voice'],
 				input: text
 			});
 

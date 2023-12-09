@@ -1,6 +1,7 @@
 // External Dependencies
 import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources';
+import { container } from '@sapphire/framework';
 
 let openai: OpenAI;
 
@@ -16,8 +17,17 @@ const gpt3 = async (text: ChatCompletionMessageParam[]): Promise<string | undefi
 	}
 
 	try {
+		let model = 'gpt-3.5-turbo';
+
+		const { OPENAI_MODEL } = process.env;
+
+		if (OPENAI_MODEL) {
+			model = OPENAI_MODEL;
+			container.logger.info(`Using OpenAI model ${model}`);
+		}
+
 		const response = await openai.chat.completions.create({
-			model: 'gpt-3.5-turbo',
+			model,
 			messages: text,
 			max_tokens: 140
 		});

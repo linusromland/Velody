@@ -97,11 +97,14 @@ docker run -d --name velody velody
 
 ## 📦 Environment variables
 
-| Variable        | Description                        | Required | Default value |
-| --------------- | ---------------------------------- | -------- | ------------- |
-| BOT_TOKEN       | The bot token of your Discord bot. | Yes      | -             |
-| YOUTUBE_API_KEY | The YouTube API key.               | Yes      | -             |
-| OPENAI_API_KEY  | The OpenAI API key.                | No       | -             |
+| Variable         | Description                        | Required | Default value |
+| ---------------- | ---------------------------------- | -------- | ------------- |
+| BOT_TOKEN        | The bot token of your Discord bot. | Yes      | -             |
+| YOUTUBE_API_KEY  | The YouTube API key.               | Yes      | -             |
+| OPENAI_API_KEY   | The OpenAI API key.                | No       | -             |
+| OPENAI_MODEL     | The OpenAI model.                  | No       | gpt-3.5-turbo |
+| OPENAI_TTS_MODEL | The OpenAI TTS model.              | No       | tts-1         |
+| OPENAI_TTS_VOICE | The OpenAI TTS voice.              | No       | echo          |
 
 ## 📝 Contact
 
