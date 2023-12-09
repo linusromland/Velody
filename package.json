@@ -1,6 +1,6 @@
 {
 	"name": "velody",
-	"version": "2.2.1",
+	"version": "2.3.0",
 	"description": "Velody is a discord music bot!",
 	"main": "src/main.ts",
 	"scripts": {
