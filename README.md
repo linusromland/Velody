@@ -4,9 +4,8 @@
 </h1>
 <p align="center">Velody is a <b>Discord music bot</b> written in <b>Node.JS</b> & <b>Discord.JS</b>.
 
-<p align="center"><a href="https://github.com/linusromland/velody/releases" target="_blank"><img src="https://img.shields.io/badge/version-v1.0.0-blue?style=for-the-badge&logo=none" alt="cli version" /></a>&nbsp;<a href="https://nodejs.org/en/" target="_blank"><img src="https://img.shields.io/badge/Node.JS-14.17+-0?style=for-the-badge&logo=nodedotjs" alt="go version" /></a>&nbsp;
+<p align="center"><a href="https://github.com/linusromland/velody/releases" target="_blank"><img src="https://img.shields.io/badge/version-v2.3.0-blue?style=for-the-badge&logo=none" alt="cli version" /></a>&nbsp
 <a href="https://github.com/linusromland/Velody/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge&logo=none" alt="license" /></a>
-<a ><img src="https://img.shields.io/badge/Project%20Status-WIP-yellow?style=for-the-badge&logo=none" alt="Repo Status" /></a>
 </p>
 
 ## ⚙️ Commands
