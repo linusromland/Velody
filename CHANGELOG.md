@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.1 (2023-12-22)
+
+- Increased volume of TTS Voice Presenter.
+
 ## 2.3.0 (2023-12-09)
 
 - Implemented real Youtube API for search. Search now works!

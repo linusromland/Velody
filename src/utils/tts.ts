@@ -59,7 +59,10 @@ const playTTS = (text: string, connection: VoiceConnection) => {
 
 			connection.subscribe(player);
 
-			const resource = createAudioResource(stream);
+			const resource = createAudioResource(stream, {
+				inlineVolume: true
+			});
+			resource.volume?.setVolume(5);
 
 			player.play(resource);
 
