@@ -38,6 +38,17 @@ If you want to run `Velody` in a Docker container, you will need to have the fol
 
 - [Docker](https://www.docker.com/)
 
+### Hardware requirements
+
+Velody is a fairly resource intensive bot, so it is recommended to have at least 2GB of RAM and 2 CPU cores available.
+
+Recommended hardware:
+
+- atleast 2GB RAM
+- atleast 2 X86_64 or ARM64 CPU cores
+
+The bot will run on less, but it might be slower, less responsive and might crash more often.
+
 ### Running natively
 
 1. Clone the repository
