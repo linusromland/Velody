@@ -19,6 +19,7 @@ import Video from '../interfaces/Video';
 import playTTS from '../utils/tts';
 import { createPrompt, gpt3 } from '../utils/gpt3';
 import { ChatCompletionMessageParam } from 'openai/resources';
+import { setDefaultStatus, setPlayingStatus } from '../utils/status';
 
 export default class VoiceConnection extends Queue {
 	private _connection: DiscordVoiceConnection | null = null;
@@ -79,6 +80,10 @@ export default class VoiceConnection extends Queue {
 
 		this._playing = true;
 
+		if (!(video instanceof Readable)) {
+			setPlayingStatus(container.client, video);
+		}
+
 		this._player.on('stateChange', async (_: AudioPlayerState, newState: AudioPlayerState) => {
 			if (newState.status === 'idle') {
 				const previousSong: Video | undefined = this.current as Video | undefined;
@@ -128,6 +133,8 @@ export default class VoiceConnection extends Queue {
 	}
 
 	public async leave(): Promise<boolean> {
+		setDefaultStatus(container.client);
+
 		if (this._connection) {
 			this._connection.destroy();
 			this._connection = null;

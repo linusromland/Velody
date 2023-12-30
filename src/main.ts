@@ -6,6 +6,7 @@ import { VoiceState, GatewayIntentBits } from 'discord.js';
 // Internal dependencies
 import { BOT_TOKEN } from './utils/env';
 import servers from './utils/servers';
+import { setDefaultStatus } from './utils/status';
 
 const client: SapphireClient<boolean> = new SapphireClient({
 	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildVoiceStates]
@@ -15,6 +16,7 @@ client.login(BOT_TOKEN);
 
 client.on('ready', () => {
 	container.logger.info(`Connected as ${client.user?.tag}`);
+	setDefaultStatus(client);
 });
 
 //On bot being kicked from voice channel
@@ -25,6 +27,7 @@ client.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) => {
 			`Bot was kicked from voice channel ${oldState.channel?.name}(${oldState.channelId}) on server ${oldState.guild.name}(${oldState.guild})`
 		);
 	}
+	setDefaultStatus(client);
 });
 
 function shutdown() {
