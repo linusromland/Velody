@@ -49,6 +49,23 @@ Recommended hardware:
 
 The bot will run on less, but it might be slower, less responsive and might crash more often.
 
+### Bot Permissions
+
+Velody requires the following permissions to function properly:
+
+1. Discord permissions:
+
+- Make sure the bot has the necessary permissions to read and send messages in text channels.
+
+2. Voice Channel Interaction:
+
+- Grant the bot permissions to join voice channels.
+- Ensure the bot has sufficient permissions to speak in voice channels.
+
+3. Slash Command Permissions:
+
+- ENsure the bot has the necessary permissions to create slash commands in the specified guilds.
+
 ### Running natively
 
 1. Clone the repository
