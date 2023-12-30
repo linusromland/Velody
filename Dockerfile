@@ -12,4 +12,6 @@ RUN npm install --quiet
 
 COPY . .
 
+RUN npm run build
+
 CMD npm run start
