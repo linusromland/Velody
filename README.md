@@ -94,7 +94,7 @@ Then, fill in the environment variables in the `.env` file. More information abo
 npm run dev
 ```
 
-### Running in a Docker container
+### Build and run Docker image
 
 1. Clone the repository
 
@@ -102,24 +102,34 @@ npm run dev
 git clone https://github.com/linusromland/Velody.git
 ```
 
-2. Set up the environment variables
-
-```bash
-cp .env.example .env
-```
-
-Then, fill in the environment variables in the `.env` file. More information about the environment variables can be found [here](#-environment-variables).
-
-3. Build the Docker image
+2. Build the Docker image
 
 ```bash
 docker build -t velody .
 ```
 
-4. Run the Docker container
+3. Run the Docker container with the required environment variables.
+
+See [here](#-environment-variables) for more information about the environment variables.
 
 ```bash
-docker run -d --name velody velody
+docker run -d --name velody velody -e BOT_TOKEN=your_token_here
+```
+
+### Run Docker image from GitHub Container Registry
+
+1. Pull the Docker image
+
+```bash
+docker pull ghcr.io/linusromland/velody:latest
+```
+
+2. Run the Docker container with the required environment variables.
+
+See [here](#-environment-variables) for more information about the environment variables.
+
+```bash
+docker run -d --name velody ghcr.io/linusromland/velody:latest -e BOT_TOKEN=your_token_here
 ```
 
 ## 📦 Environment variables
