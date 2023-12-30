@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.4.0 (2023-12-30)
+
+- Currently playing song is now displayed in the bot's status.
+- Added hardware requirements to documentation.
+- Added bot permissions to documentation.
+- Added clear command to clear the queue.
+- Requested by now includes the server nickname of the user as well as the discord tag.
+- Changed ts-node to tsc for running the bot.
+
 ## 2.3.1 (2023-12-22)
 
 - Increased volume of TTS Voice Presenter.
