@@ -63,7 +63,7 @@ const createPrompt = (input: {
 			role: 'user',
 			content: `${previousSong ? `Previous song: ${previousSong}` : ''}
 			Next song: ${nextSong}
-			Requestor: ${input.requestedBy.split('#')[0]}`
+			Requestor: ${input.requestedBy}`
 		}
 	];
 

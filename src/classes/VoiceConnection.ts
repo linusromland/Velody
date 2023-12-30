@@ -152,13 +152,11 @@ export default class VoiceConnection extends Queue {
 			if (!this._gpt3 || !process.env.OPENAI_API_KEY) {
 				if (!input.previousSong)
 					return playTTS(
-						`Playing ${input.nextSong}. Requested by ${input.requestedBy?.split('#')[0]}`,
+						`Playing ${input.nextSong}. Requested by ${input.requestedBy}`,
 						this._connection as DiscordVoiceConnection
 					);
 				return playTTS(
-					`Next up is ${input.nextSong} requested by ${input.requestedBy.split('#')[0]}. Previously played ${
-						input.previousSong
-					}`,
+					`Next up is ${input.nextSong} requested by ${input.requestedBy}. Previously played ${input.previousSong}`,
 					this._connection as DiscordVoiceConnection
 				);
 			}

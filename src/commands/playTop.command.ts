@@ -10,6 +10,7 @@ import servers from '../utils/servers';
 import Embed from '../classes/Embed';
 import youtubeSearch from '../utils/youtubeSearch';
 import Video from '../interfaces/Video';
+import getUser from '../utils/getUser';
 
 export class PlayCommand extends Command {
 	public constructor(context: Command.Context, options: Command.Options) {
@@ -56,7 +57,7 @@ export class PlayCommand extends Command {
 			if (results) {
 				const result: Video = results[0];
 
-				result.requestedBy = interaction.user.tag;
+				result.requestedBy = getUser(interaction);
 				const added: {
 					success: boolean;
 					addedToQueue: boolean;
