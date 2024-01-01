@@ -17,10 +17,8 @@ export default class Server extends VoiceConnection {
 		return this._id;
 	}
 
-	public async play(input: { nextSong?: string; requestedBy?: string } | undefined): Promise<boolean> {
+	public async play(): Promise<boolean> {
 		if (!this.current) return false;
-		if (input && input.nextSong && input.requestedBy)
-			await this.tts({ nextSong: input.nextSong, requestedBy: input.requestedBy });
 		return await this.playVideo(this.current);
 	}
 
@@ -33,11 +31,7 @@ export default class Server extends VoiceConnection {
 
 		const result: { success: boolean; addedToQueue: boolean } = this.add(video);
 
-		if (result.success && !this.isPlaying)
-			this.play({
-				nextSong: this.current?.title,
-				requestedBy: this.current?.requestedBy
-			});
+		if (result.success && !this.isPlaying) this.play();
 
 		return result;
 	}

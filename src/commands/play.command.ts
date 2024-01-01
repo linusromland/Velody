@@ -52,7 +52,10 @@ export class PlayCommand extends Command {
 
 			if (server.connectedChannelId !== channel.id) server.join(channel);
 			try {
-				const results: Video[] | void = await youtubeSearch(interaction.options.getString('query') as string);
+				const results: Video[] | void = await youtubeSearch(
+					interaction.options.getString('query') as string,
+					interaction.guildId as string
+				);
 
 				if (results) {
 					let success: boolean = true;
@@ -60,7 +63,8 @@ export class PlayCommand extends Command {
 
 					// Add requested by
 					for (const [index, result] of results.entries()) {
-						result.requestedBy = getUser(interaction);
+						result.userId = interaction.user.id;
+						result.username = getUser(interaction);
 						const added: {
 							success: boolean;
 							addedToQueue: boolean;

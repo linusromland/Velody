@@ -52,12 +52,16 @@ export class PlayCommand extends Command {
 
 			if (server.connectedChannelId !== channel.id) server.join(channel);
 
-			const results: Video[] | void = await youtubeSearch(interaction.options.getString('query') as string, false);
+			const results: Video[] | void = await youtubeSearch(
+				interaction.options.getString('query') as string,
+				interaction.guildId as string,
+				false
+			);
 
 			if (results) {
 				const result: Video = results[0];
-
-				result.requestedBy = getUser(interaction);
+				result.userId = interaction.user.id;
+				result.username = getUser(interaction);
 				const added: {
 					success: boolean;
 					addedToQueue: boolean;

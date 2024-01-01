@@ -7,6 +7,7 @@ declare global {
 			OPENAI_MODEL?: string;
 			OPENAI_TTS_MODEL?: string;
 			OPENAI_TTS_VOICE?: string;
+			MONGODB_URI?: string;
 		}
 	}
 }
