@@ -49,4 +49,12 @@ export default class Database {
 		});
 		await newHistory.save();
 	}
+
+	public async getVideos(videoIds?: string[]) {
+		if (!this.isActivated) return;
+
+		if (!videoIds) return await VideoModel.find();
+
+		return await VideoModel.find({ _id: { $in: videoIds } }).sort({ lastPlayed: 1 });
+	}
 }

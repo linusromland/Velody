@@ -22,6 +22,8 @@ import { createPrompt, gpt3 } from '../utils/gpt3';
 import { ChatCompletionMessageParam } from 'openai/resources';
 import { setDefaultStatus, setPlayingStatus } from '../utils/status';
 import Database from './Database';
+import { getCacheFileName } from '../utils/getCacheFileName';
+import cacheCleanup from '../utils/cacheCleanup';
 
 export default class VoiceConnection extends Queue {
 	private _connection: DiscordVoiceConnection | null = null;
@@ -32,6 +34,7 @@ export default class VoiceConnection extends Queue {
 	private _voicePresenter: boolean = true;
 	private _gpt3: boolean = true;
 	private _database: Database;
+	private _previousSong: Video | undefined;
 
 	public constructor(channel: VoiceBasedChannel) {
 		super();
@@ -55,16 +58,26 @@ export default class VoiceConnection extends Queue {
 	public async playVideo(video: Video | Readable): Promise<boolean> {
 		if (!this._connection) return false;
 
-		let toPlay: Readable;
+		const promises = [];
+
+		if (this.current && this.current.title && this.current.username)
+			promises.push(
+				this.tts({
+					previousSong: this._previousSong?.title,
+					nextSong: this.current.title,
+					requestedBy: this.current.username
+				})
+			);
+
+		let toPlay: Readable | null = null;
 
 		//Check if video is of type Readable
 		if (video instanceof Readable) {
 			toPlay = video;
 		} else {
-			// Save to cache dir. Cache dir is ./cache
-			const cacheDir: string = `${process.cwd()}/cache`;
-			if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir);
-			const cacheFile: string = `${cacheDir}/${video.videoId}.mp3`;
+			this._database.addHistory(video);
+
+			const cacheFile = getCacheFileName(video.videoId);
 
 			if (!fs.existsSync(cacheFile)) {
 				const stream: ExecaChildProcess = ytdlexec(
@@ -82,13 +95,27 @@ export default class VoiceConnection extends Queue {
 				const writeStream: fs.WriteStream = fs.createWriteStream(cacheFile);
 				stream.stdout?.pipe(writeStream);
 
-				await new Promise((resolve) => {
-					stream.on('close', resolve);
-				});
+				promises.push(
+					new Promise((resolve) => {
+						stream.on('close', () => {
+							cacheCleanup(this._database);
+							resolve(true);
+						});
+					})
+				);
 			}
+		}
 
+		this._playing = true;
+
+		await Promise.all(promises);
+
+		if (!toPlay && !(video instanceof Readable)) {
+			const cacheFile = getCacheFileName(video.videoId);
 			toPlay = fs.createReadStream(cacheFile);
 		}
+
+		if (!toPlay) return false;
 
 		this._player = createAudioPlayer();
 
@@ -96,27 +123,20 @@ export default class VoiceConnection extends Queue {
 
 		this._player.play(createAudioResource(toPlay));
 
-		this._playing = true;
-
 		if (!(video instanceof Readable)) {
 			setPlayingStatus(container.client, video);
-			this._database.addHistory(video);
 		}
 
 		this._player.on('stateChange', async (_: AudioPlayerState, newState: AudioPlayerState) => {
 			if (newState.status === 'idle') {
 				const previousSong: Video | undefined = this.current as Video | undefined;
+				this._previousSong = previousSong;
+
 				if (!this._loop && this._loopQueue) this.add(this.current as Video);
 				if (!this._loop) this.removeFirst();
 				this._playing = false;
 
 				if (this.current && this.current?.title && this.current.username) {
-					await this.tts({
-						previousSong: previousSong?.title,
-						nextSong: this.current.title,
-						requestedBy: this.current.username
-					});
-
 					return this.playVideo(this.current as Video);
 				} else {
 					await this.tts('Queue is empty. Goodbye');
