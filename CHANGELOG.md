@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.1 (2024-01-01)
+
+- Fixed issue where no commands worked for production build.
+
 ## 2.4.0 (2023-12-30)
 
 - Currently playing song is now displayed in the bot's status.

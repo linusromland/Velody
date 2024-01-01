@@ -1,10 +1,10 @@
 {
 	"name": "velody",
-	"version": "2.4.0",
+	"version": "2.4.1",
 	"description": "Velody is a discord music bot!",
 	"main": "src/main.ts",
 	"scripts": {
-		"start": "node dist/main.js",
+		"start": "ts-node src/main.ts",
 		"build": "tsc",
 		"dev": "nodemon -r dotenv/config src/main.ts dotenv_config_path=.env",
 		"lint": "eslint src --ext .ts",
