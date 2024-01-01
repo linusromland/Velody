@@ -20,6 +20,7 @@ import playTTS from '../utils/tts';
 import { createPrompt, gpt3 } from '../utils/gpt3';
 import { ChatCompletionMessageParam } from 'openai/resources';
 import { setDefaultStatus, setPlayingStatus } from '../utils/status';
+import Database from './Database';
 
 export default class VoiceConnection extends Queue {
 	private _connection: DiscordVoiceConnection | null = null;
@@ -29,10 +30,12 @@ export default class VoiceConnection extends Queue {
 	private _loopQueue: boolean = false;
 	private _voicePresenter: boolean = true;
 	private _gpt3: boolean = true;
+	private _database: Database;
 
 	public constructor(channel: VoiceBasedChannel) {
 		super();
 		this.join(channel);
+		this._database = new Database();
 	}
 
 	public async join(channel: VoiceBasedChannel): Promise<boolean> {
@@ -82,6 +85,7 @@ export default class VoiceConnection extends Queue {
 
 		if (!(video instanceof Readable)) {
 			setPlayingStatus(container.client, video);
+			this._database.addHistory(video);
 		}
 
 		this._player.on('stateChange', async (_: AudioPlayerState, newState: AudioPlayerState) => {
@@ -91,11 +95,11 @@ export default class VoiceConnection extends Queue {
 				if (!this._loop) this.removeFirst();
 				this._playing = false;
 
-				if (this.current && this.current?.title && this.current.requestedBy) {
+				if (this.current && this.current?.title && this.current.username) {
 					await this.tts({
 						previousSong: previousSong?.title,
 						nextSong: this.current.title,
-						requestedBy: this.current.requestedBy
+						requestedBy: this.current.username
 					});
 
 					return this.playVideo(this.current as Video);

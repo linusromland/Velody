@@ -142,6 +142,7 @@ docker run -d --name velody ghcr.io/linusromland/velody:latest -e BOT_TOKEN=your
 | OPENAI_MODEL     | The OpenAI model.                  | No       | gpt-3.5-turbo |
 | OPENAI_TTS_MODEL | The OpenAI TTS model.              | No       | tts-1         |
 | OPENAI_TTS_VOICE | The OpenAI TTS voice.              | No       | echo          |
+| MONGODB_URI      | The MongoDB URI.                   | No       |               |
 
 ## 📝 Contact
 

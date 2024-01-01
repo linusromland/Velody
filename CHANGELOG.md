@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.0 (2024-01-01)
+
+- Added the ability to save history in MongoDB.
+
 ## 2.4.1 (2024-01-01)
 
 - Fixed issue where no commands worked for production build.

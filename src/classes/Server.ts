@@ -36,7 +36,7 @@ export default class Server extends VoiceConnection {
 		if (result.success && !this.isPlaying)
 			this.play({
 				nextSong: this.current?.title,
-				requestedBy: this.current?.requestedBy
+				requestedBy: this.current?.username
 			});
 
 		return result;

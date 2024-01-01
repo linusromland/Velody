@@ -13,7 +13,11 @@ const youtube = google.youtube({
 	auth: process.env.YOUTUBE_API_KEY
 });
 
-const youtubeSearch = async (query: string, allowPlaylist: boolean = true): Promise<Video[] | void> => {
+const youtubeSearch = async (
+	query: string,
+	serverId: string,
+	allowPlaylist: boolean = true
+): Promise<Video[] | void> => {
 	const isUrl: boolean = validUrl(query);
 
 	if (!isUrl && !query) return;
@@ -24,13 +28,13 @@ const youtubeSearch = async (query: string, allowPlaylist: boolean = true): Prom
 		const playListId: string | null = url.searchParams.get('list');
 
 		if (playListId && allowPlaylist) {
-			return await getPlaylist(playListId);
+			return await getPlaylist(playListId, serverId);
 		} else if (playListId && !allowPlaylist) {
 			return;
 		}
 	}
 
-	const video: Video | void = isUrl ? await getFromUrl(query) : await getFromQuery(query);
+	const video: Video | void = isUrl ? await getFromUrl(query, serverId) : await getFromQuery(query, serverId);
 
 	if (!video) return;
 
@@ -43,26 +47,28 @@ const validUrl = (url: string): boolean => {
 	);
 };
 
-const getFromUrl = async (url: string): Promise<Video | void> => {
+const getFromUrl = async (url: string, serverId: string): Promise<Video | void> => {
 	try {
 		const info: ytdl.videoInfo = await ytdl.getInfo(url);
 
 		if (!info.videoDetails) return;
 
 		return {
+			videoId: info.videoDetails.videoId,
 			title: info.videoDetails.title,
 			url: info.videoDetails.video_url,
 			thumbnail:
 				info.videoDetails.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url ||
 				null,
-			length: Number(info.videoDetails.lengthSeconds)
+			length: Number(info.videoDetails.lengthSeconds),
+			serverId: serverId
 		};
 	} catch (e) {
 		return;
 	}
 };
 
-const getFromQuery = async (query: string): Promise<Video | void> => {
+const getFromQuery = async (query: string, serverId: string): Promise<Video | void> => {
 	const result = await youtubeApiSearch(query);
 
 	if (!result) return;
@@ -78,22 +84,26 @@ const getFromQuery = async (query: string): Promise<Video | void> => {
 	const video = await youtubeApiVideo(videoId);
 
 	return {
+		videoId,
 		title: resultItem.snippet?.title ?? '',
 		url: `https://www.youtube.com/watch?v=${videoId}`,
 		thumbnail: resultItem.snippet?.thumbnails?.default?.url ?? '',
-		length: convertDurationToSeconds(video?.items?.[0].contentDetails?.duration ?? '0')
+		length: convertDurationToSeconds(video?.items?.[0].contentDetails?.duration ?? '0'),
+		serverId: serverId
 	};
 };
 
-const getPlaylist = async (id: string) => {
+const getPlaylist = async (id: string, serverId: string) => {
 	try {
 		const playlist: ytpl.Result = await ytpl(id);
 		return playlist.items.map((item: ytpl.Item) => ({
+			videoId: item.id,
 			title: item.title,
 			url: item.shortUrl,
 			thumbnail:
 				item.thumbnails?.sort((a: { width: number }, b: { width: number }) => b.width - a.width)[0]?.url || null,
-			length: Number(item.durationSec)
+			length: Number(item.durationSec),
+			serverId: serverId
 		}));
 	} catch (e) {
 		return;
