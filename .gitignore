@@ -13,3 +13,6 @@ dist/
 
 # Google Service Account
 service_account.json
+
+# Cache
+cache/

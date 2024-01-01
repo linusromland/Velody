@@ -12,6 +12,7 @@ import { Readable } from 'stream';
 import { exec as ytdlexec } from 'youtube-dl-exec';
 import { ExecaChildProcess } from 'execa';
 import { container } from '@sapphire/framework';
+import fs from 'fs';
 
 //Internal dependencies
 import Queue from './Queue';
@@ -60,19 +61,33 @@ export default class VoiceConnection extends Queue {
 		if (video instanceof Readable) {
 			toPlay = video;
 		} else {
-			const stream: ExecaChildProcess = ytdlexec(
-				video.url,
-				{
-					output: '-',
-					format: 'bestaudio',
-					limitRate: '1M',
-					rmCacheDir: true,
-					verbose: true
-				},
-				{ stdio: ['ignore', 'pipe', 'pipe'] }
-			);
+			// Save to cache dir. Cache dir is ./cache
+			const cacheDir: string = `${process.cwd()}/cache`;
+			if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir);
+			const cacheFile: string = `${cacheDir}/${video.videoId}.mp3`;
 
-			toPlay = stream.stdout as Readable;
+			if (!fs.existsSync(cacheFile)) {
+				const stream: ExecaChildProcess = ytdlexec(
+					video.url,
+					{
+						output: '-',
+						format: 'bestaudio',
+						limitRate: '1M',
+						rmCacheDir: true,
+						verbose: true
+					},
+					{ stdio: ['ignore', 'pipe', 'pipe'] }
+				);
+
+				const writeStream: fs.WriteStream = fs.createWriteStream(cacheFile);
+				stream.stdout?.pipe(writeStream);
+
+				await new Promise((resolve) => {
+					stream.on('close', resolve);
+				});
+			}
+
+			toPlay = fs.createReadStream(cacheFile);
 		}
 
 		this._player = createAudioPlayer();
