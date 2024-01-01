@@ -40,6 +40,9 @@ export default class Database {
 			});
 
 			await newVideo.save();
+		} else {
+			videoFromDB.lastPlayed = new Date();
+			await videoFromDB.save();
 		}
 
 		const newHistory = new HistoryModel({
