@@ -3,6 +3,9 @@
 ## 2.5.0 (2024-01-01)
 
 - Added the ability to save history in MongoDB.
+- Implemented cache for videos, with a custom cache size.
+- Fixed bug where TTS would speak twice when play command was used close to each other.
+- Song is now downloaded during TTS to speed up the process.
 
 ## 2.4.1 (2024-01-01)
 
