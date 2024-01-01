@@ -1,5 +1,5 @@
 // External dependencies
-import { connection, connect } from 'mongoose';
+import { connect } from 'mongoose';
 import { container } from '@sapphire/framework';
 
 // Internal dependencies
