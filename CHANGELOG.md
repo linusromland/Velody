@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.6.0 (2024-01-03)
+
+- Upgraded Sapphire Framework to v5.
+- Added support to pass server guild id for easier development.
+- Caches TTS audio files to save on API calls.
+- Added `/getLastTTSMessage` command to get the last TTS message.
+
 ## 2.5.0 (2024-01-01)
 
 - Added the ability to save history in MongoDB.
