@@ -1,10 +1,12 @@
 // External dependencies
 import { connect } from 'mongoose';
 import { container } from '@sapphire/framework';
+import fs from 'fs';
 
 // Internal dependencies
 import HistoryModel from '../models/History';
 import VideoModel from '../models/Video';
+import TTSCacheModel from '../models/TTSCache';
 import Video from '../interfaces/Video';
 
 export default class Database {
@@ -60,4 +62,44 @@ export default class Database {
 
 		return await VideoModel.find({ _id: { $in: videoIds } }).sort({ lastPlayed: 1 });
 	}
+
+	public async createTTSCache(buffer: Buffer, text: string, permanent = false, videoId?: string) {
+		if (!this.isActivated) return;
+
+		if (await TTSCacheModel.exists({ _id: text })) return;
+
+		if (!(await VideoModel.exists({ _id: videoId })) && videoId) return;
+
+		const newTTSCache = new TTSCacheModel({
+			_id: text,
+			buffer,
+			permanent,
+			video: videoId
+		});
+
+		await newTTSCache.save();
+
+		this.cleanTTSCache();
+
+		return newTTSCache;
+	}
+
+	public async getCachedTTS(text: string) {
+		const ttsCache = await TTSCacheModel.findOne({ _id: text });
+
+		if (ttsCache) {
+			ttsCache.lastPlayed = new Date();
+			await ttsCache.save();
+		}
+
+		return ttsCache;
+	}
+
+	private async cleanTTSCache() {
+		const count = await TTSCacheModel.countDocuments({ permanent: false });
+		if (count < 25) return;
+
+		await TTSCacheModel.findOneAndDelete({ permanent: false }, { sort: { lastPlayed: 1 } });
+	}
+
 }

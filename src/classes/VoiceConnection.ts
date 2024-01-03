@@ -65,7 +65,8 @@ export default class VoiceConnection extends Queue {
 				this.tts({
 					previousSong: this._previousSong?.title,
 					nextSong: this.current.title,
-					requestedBy: this.current.username
+					requestedBy: this.current.username,
+					videoId: this.current.videoId
 				})
 			);
 
@@ -183,20 +184,25 @@ export default class VoiceConnection extends Queue {
 		return false;
 	}
 
-	public async tts(input: { previousSong?: string; nextSong: string; requestedBy: string } | string) {
+	public async tts(input: { previousSong?: string; nextSong: string; requestedBy: string; videoId: string } | string) {
 		try {
 			if (!this._connection || !this._voicePresenter) return false;
-			if (typeof input === 'string') return playTTS(input, this._connection as DiscordVoiceConnection);
+			if (typeof input === 'string')
+				return playTTS(input, this._connection as DiscordVoiceConnection, this._database, true);
 
 			if (!this._gpt3 || !process.env.OPENAI_API_KEY) {
 				if (!input.previousSong)
 					return playTTS(
 						`Playing ${input.nextSong}. Requested by ${input.requestedBy}`,
-						this._connection as DiscordVoiceConnection
+						this._connection as DiscordVoiceConnection,
+						this._database,
+						true
 					);
 				return playTTS(
 					`Next up is ${input.nextSong} requested by ${input.requestedBy}. Previously played ${input.previousSong}`,
-					this._connection as DiscordVoiceConnection
+					this._connection as DiscordVoiceConnection,
+					this._database,
+					true
 				);
 			}
 
@@ -209,9 +215,10 @@ export default class VoiceConnection extends Queue {
 
 				const text: string | undefined = await gpt3(prompt);
 
-				if (!text) return playTTS('Something went wrong', this._connection as DiscordVoiceConnection);
+				if (!text)
+					return playTTS('Something went wrong', this._connection as DiscordVoiceConnection, this._database, true);
 
-				return playTTS(text, this._connection as DiscordVoiceConnection);
+				return playTTS(text, this._connection as DiscordVoiceConnection, this._database, false, input.videoId);
 			} catch (error) {
 				container.logger.error('Error while using GPT-3', error);
 				return;
@@ -219,6 +226,10 @@ export default class VoiceConnection extends Queue {
 		} catch (error) {
 			console.error(error);
 		}
+	}
+
+	public async getLastTTSMessage() {
+		return await this._database.getLastTTSMessage();
 	}
 
 	get connectedChannelId(): string | null {
@@ -277,9 +288,9 @@ export default class VoiceConnection extends Queue {
 
 		if (value) {
 			this._gpt3 = value;
-			this.tts(`GPT3 enabled`);
+			this.tts(`G P T 3 enabled`);
 		} else {
-			this.tts(`GPT3 disabled`);
+			this.tts(`G P T 3 disabled`);
 			this._gpt3 = value;
 		}
 	}

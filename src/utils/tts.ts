@@ -10,10 +10,17 @@ import { Readable } from 'stream';
 import OpenAI from 'openai';
 import { container } from '@sapphire/framework';
 import { SpeechCreateParams } from 'openai/resources/audio/speech';
+import Database from '../classes/Database';
 
 let openai: OpenAI;
 
-const playTTS = (text: string, connection: VoiceConnection) => {
+const playTTS = (
+	text: string,
+	connection: VoiceConnection,
+	database: Database,
+	staticText = false,
+	videoId?: string
+) => {
 	const { OPENAI_API_KEY } = process.env;
 
 	if (!OPENAI_API_KEY) return;
@@ -42,15 +49,21 @@ const playTTS = (text: string, connection: VoiceConnection) => {
 				container.logger.info(`Using OpenAI voice ${voice}`);
 			}
 
-			const response = await openai.audio.speech.create({
-				model,
-				voice: voice as SpeechCreateParams['voice'],
-				input: text
-			});
+			let buffer = (await database.getCachedTTS(text))?.buffer;
 
-			const ArrayBuffer: ArrayBuffer = await response.arrayBuffer();
+			if (!buffer) {
+				const response = await openai.audio.speech.create({
+					model,
+					voice: voice as SpeechCreateParams['voice'],
+					input: text
+				});
 
-			const buffer: Buffer = Buffer.from(ArrayBuffer);
+				const ArrayBuffer: ArrayBuffer = await response.arrayBuffer();
+
+				buffer = Buffer.from(ArrayBuffer);
+
+				await database.createTTSCache(buffer, text, staticText, videoId);
+			}
 
 			// convert buffer to Readable stream
 			const stream: Readable = Readable.from(buffer, { objectMode: false });

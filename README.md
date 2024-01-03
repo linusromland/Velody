@@ -21,10 +21,12 @@
 | `/playtop <video>`    | Adds a video to the top of the queue.                                               |
 | `/queue`              | View the queue.                                                                     |
 | `/remove <position?>` | Removes from queue at location. If position is not passed, will clear entire queue. |
+| `/clear`              | Clears the queue.                                                                   |
 | `/shuffle`            | Shuffles the queue.                                                                 |
 | `/skip`               | Skips the currently playing video.                                                  |
 | `/voicePresenter`     | Enables or disables the Voice Presenter temporarily.                                |
 | `/gpt3`               | Enables or disables the GPT-3 for the bot.                                          |
+| `/getLastTTSMessage`  | Gets the last TTS message from within the last 5 minutes.                           |
 
 ## ⚡️ Setup
 
@@ -134,16 +136,16 @@ docker run -d --name velody ghcr.io/linusromland/velody:latest -e BOT_TOKEN=your
 
 ## 📦 Environment variables
 
-| Variable             | Description                                         | Required | Default value |
-| -------------------- | --------------------------------------------------- | -------- | ------------- |
-| BOT_TOKEN            | The bot token of your Discord bot.                  | Yes      | -             |
-| YOUTUBE_API_KEY      | The YouTube API key.                                | Yes      | -             |
-| OPENAI_API_KEY       | The OpenAI API key.                                 | No       | -             |
-| OPENAI_MODEL         | The OpenAI model.                                   | No       | gpt-3.5-turbo |
-| OPENAI_TTS_MODEL     | The OpenAI TTS model.                               | No       | tts-1         |
-| OPENAI_TTS_VOICE     | The OpenAI TTS voice.                               | No       | echo          |
-| MONGODB_URI          | The MongoDB URI.                                    | No       |               |
-| CACHE_MAX_SIZE_IN_MB | The maximum size of the cache in MB. (Min of 500mb) | No       | 1000          |
+| Variable             | Description                                                                                                               | Required | Default value |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------- | -------- | ------------- |
+| BOT_TOKEN            | The bot token of your Discord bot.                                                                                        | Yes      | -             |
+| YOUTUBE_API_KEY      | The YouTube API key.                                                                                                      | Yes      | -             |
+| OPENAI_API_KEY       | The OpenAI API key.                                                                                                       | No       | -             |
+| OPENAI_MODEL         | The OpenAI model.                                                                                                         | No       | gpt-3.5-turbo |
+| OPENAI_TTS_MODEL     | The OpenAI TTS model.                                                                                                     | No       | tts-1         |
+| OPENAI_TTS_VOICE     | The OpenAI TTS voice.                                                                                                     | No       | echo          |
+| MONGODB_URI          | The MongoDB URI.                                                                                                          | No       | -             |
+| CACHE_MAX_SIZE_IN_MB | The maximum size of the cache in MB. (Min of 500mb)                                                                       | No       | 1000          |
 | SERVER_GUILD_ID      | The ID of the server to use. Used for development to enable faster reloading of slash commands. Not needed in production. | No       | -             |
 
 ## 📝 Contact
