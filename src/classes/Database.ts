@@ -102,4 +102,28 @@ export default class Database {
 		await TTSCacheModel.findOneAndDelete({ permanent: false }, { sort: { lastPlayed: 1 } });
 	}
 
+	public async getLastTTSMessage(): Promise<
+		| {
+				video?: Video;
+				text: string;
+		  }
+		| undefined
+	> {
+		const ttsCache = await TTSCacheModel.findOne({
+			permanent: false,
+			lastPlayed: {
+				$gte: new Date(new Date().getTime() - 5 * 60000)
+			},
+			video: { $exists: true }
+		})
+			.sort({ lastPlayed: -1 })
+			.populate('video');
+
+		if (!ttsCache) return;
+
+		return {
+			video: ttsCache.video ? (ttsCache.video as unknown as Video) : undefined,
+			text: ttsCache._id
+		};
+	}
 }
