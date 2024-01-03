@@ -1,6 +1,6 @@
 // External dependencies
 import '@sapphire/plugin-logger/register';
-import { SapphireClient, container } from '@sapphire/framework';
+import { ApplicationCommandRegistries, SapphireClient, container } from '@sapphire/framework';
 import { VoiceState, GatewayIntentBits } from 'discord.js';
 
 // Internal dependencies
@@ -11,6 +11,10 @@ import { setDefaultStatus } from './utils/status';
 const client: SapphireClient<boolean> = new SapphireClient({
 	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildVoiceStates]
 });
+
+if (process.env.SERVER_GUILD_ID) {
+	ApplicationCommandRegistries.setDefaultGuildIds([process.env.SERVER_GUILD_ID]);
+}
 
 client.login(BOT_TOKEN);
 

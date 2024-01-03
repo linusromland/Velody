@@ -144,6 +144,7 @@ docker run -d --name velody ghcr.io/linusromland/velody:latest -e BOT_TOKEN=your
 | OPENAI_TTS_VOICE     | The OpenAI TTS voice.                               | No       | echo          |
 | MONGODB_URI          | The MongoDB URI.                                    | No       |               |
 | CACHE_MAX_SIZE_IN_MB | The maximum size of the cache in MB. (Min of 500mb) | No       | 1000          |
+| SERVER_GUILD_ID      | The ID of the server to use. Used for development to enable faster reloading of slash commands. Not needed in production. | No       | -             |
 
 ## 📝 Contact
 
