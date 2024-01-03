@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.1 (2024-01-03)
+
+- Added `/history` command to get the last played song.
+
 ## 2.6.0 (2024-01-03)
 
 - Upgraded Sapphire Framework to v5.

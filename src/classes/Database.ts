@@ -1,7 +1,6 @@
 // External dependencies
 import { connect } from 'mongoose';
 import { container } from '@sapphire/framework';
-import fs from 'fs';
 
 // Internal dependencies
 import HistoryModel from '../models/History';
@@ -10,7 +9,7 @@ import TTSCacheModel from '../models/TTSCache';
 import Video from '../interfaces/Video';
 
 export default class Database {
-	private isActivated: boolean;
+	public isActivated: boolean;
 
 	public constructor() {
 		const MONGODB_URI = process.env.MONGODB_URI;
@@ -53,6 +52,33 @@ export default class Database {
 			video: video.videoId
 		});
 		await newHistory.save();
+	}
+
+	public async getHistory(input: { guildId: string; userId?: string; skip: number; limit: number }) {
+		if (!this.isActivated) return;
+
+		const { guildId, userId, limit, skip } = input;
+
+		const history = await HistoryModel.find({ guildId, ...(userId ? { userId } : {}) })
+			.sort({ createdAt: -1 })
+			.skip(skip)
+			.limit(limit)
+			.populate('video');
+
+		return history as unknown as {
+			guildId: string;
+			userId: string;
+			video: Video;
+			createdAt: Date;
+		}[];
+	}
+
+	public async getHistoryLength(input: { guildId: string; userId?: string }) {
+		if (!this.isActivated) return;
+
+		const { guildId, userId } = input;
+
+		return await HistoryModel.countDocuments({ guildId, ...(userId ? { userId } : {}) });
 	}
 
 	public async getVideos(videoIds?: string[]) {

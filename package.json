@@ -1,6 +1,6 @@
 {
 	"name": "velody",
-	"version": "2.6.0",
+	"version": "2.6.1",
 	"description": "Velody is a discord music bot!",
 	"main": "src/main.ts",
 	"scripts": {
@@ -41,6 +41,7 @@
 		"@discordjs/voice": "^0.16.0",
 		"@sapphire/framework": "^5.0.5",
 		"@sapphire/plugin-logger": "^4.0.1",
+		"dayjs": "^1.11.10",
 		"discord.js": "^14.11.0",
 		"dotenv": "^16.0.3",
 		"googleapis": "^128.0.0",

@@ -37,7 +37,7 @@ export class HelpCommand extends Command {
 
 			for (const command of commands.values()) {
 				if (command.name !== 'help') {
-					embed.addField(`/${command.name}`, command.description, false);
+					embed.addField({ name: `/${command.name}`, value: command.description, inline: false });
 				}
 			}
 

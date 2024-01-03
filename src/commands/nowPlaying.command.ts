@@ -71,7 +71,7 @@ export class NowPlayingCommand extends Command {
 				)[0];
 				description += `${progress}\n \`${formatTime(current.length, duration)}\`\n`;
 			}
-			if (current.username) description += `Requested by: \`${current.username}\``;
+			if (current.username) description += `Requested by: <@${current.userId}>`;
 			embed.setDescription(description);
 			embed.setURL(current.url);
 			embed.addLoopSymbols(server.loop, server.loopQueue, server.voicePresenter);

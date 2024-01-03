@@ -49,8 +49,8 @@ export default class Embed {
 		return this;
 	}
 
-	addField(name: string, value: string, inline: boolean): Embed {
-		this._embed.addFields({ name, value, inline });
+	addField(...fields: { name: string; value: string; inline: boolean }[]): Embed {
+		this._embed.addFields(fields);
 		return this;
 	}
 
@@ -66,6 +66,11 @@ export default class Embed {
 				loopQueueEnabled ? '✅' : '❌'
 			}\nVoice Presenter: ${voicePresenter}`
 		});
+		return this;
+	}
+
+	setFooter(text: string): Embed {
+		this._embed.setFooter({ text });
 		return this;
 	}
 }
