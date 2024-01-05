@@ -1,12 +1,14 @@
 // External dependencies
 import { connect } from 'mongoose';
-import { container } from '@sapphire/framework';
+import { Command, container } from '@sapphire/framework';
 
 // Internal dependencies
 import HistoryModel from '../models/History';
 import VideoModel from '../models/Video';
 import TTSCacheModel from '../models/TTSCache';
+import CommandModel from '../models/Command';
 import Video from '../interfaces/Video';
+import { ButtonInteraction } from 'discord.js';
 
 export default class Database {
 	public isActivated: boolean;
@@ -151,5 +153,42 @@ export default class Database {
 			video: ttsCache.video ? (ttsCache.video as unknown as Video) : undefined,
 			text: ttsCache._id
 		};
+	}
+
+	public addCommand(
+		interaction: Command.ChatInputCommandInteraction | ButtonInteraction,
+		command: string,
+		data?: unknown
+	) {
+		if (!this.isActivated) return;
+
+		const userId = interaction.member?.user.id as string;
+		const guildId = interaction.guildId as string;
+
+		const newCommand = new CommandModel({
+			command,
+			userId,
+			guildId,
+			data
+		});
+
+		newCommand.save();
+	}
+
+	public async isTimeouted(userId: string, guildId: string): Promise<number | undefined> {
+		if (!this.isActivated) return;
+
+		const timeout = new Date(new Date().getTime() - 60000);
+
+		const documents = await CommandModel.find({
+			userId,
+			guildId,
+			createdAt: { $gte: timeout }
+		});
+
+		if (documents.length < 5) return;
+
+		// Returns the time in ms until the timeout is over
+		return documents[documents.length - 1].createdAt.getTime() - timeout.getTime();
 	}
 }

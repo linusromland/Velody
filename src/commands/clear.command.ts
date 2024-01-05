@@ -1,13 +1,13 @@
 // External dependencies
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import { ChatInputCommand, Command } from '@sapphire/framework';
-import { GuildMember, Message, VoiceBasedChannel } from 'discord.js';
+import { GuildMember, VoiceBasedChannel } from 'discord.js';
 
 // Internal dependencies
 import Server from '../classes/Server';
 import servers from '../utils/servers';
 import Embed from '../classes/Embed';
+import Database from '../classes/Database';
 
 export class ClearQueueCommand extends Command {
 	public constructor(context: Command.Context, options: Command.Options) {
@@ -26,15 +26,11 @@ export class ClearQueueCommand extends Command {
 
 	public async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
 		const embed: Embed = new Embed();
-		embed.loading();
-		const msg: Message<boolean> = (await interaction.reply({
-			embeds: [embed.embed],
-			fetchReply: true
-		})) as Message;
+		if (!(await embed.initMessage(interaction))) return;
+
+		new Database().addCommand(interaction, this.name);
 
 		const channel: VoiceBasedChannel | null = (interaction?.member as GuildMember)?.voice?.channel;
-
-		if (!isMessageInstance(msg)) return;
 
 		if (channel) {
 			const server: Server = servers.get(interaction.guildId as string) as Server;
@@ -42,7 +38,7 @@ export class ClearQueueCommand extends Command {
 			if (!server) {
 				embed.setTitle('Not connected to a voice channel');
 				embed.setDescription('Use `/join` to connect to a voice channel');
-				return msg.edit({ embeds: [embed.embed] });
+				return embed.updateMessage();
 			}
 
 			const success: boolean = server.clearQueue();
@@ -50,16 +46,16 @@ export class ClearQueueCommand extends Command {
 			if (!success) {
 				embed.setTitle('Error');
 				embed.setDescription('Could not clear the queue');
-				return msg.edit({ embeds: [embed.embed] });
+				return embed.updateMessage();
 			}
 
 			embed.setTitle('Cleared the queue');
 			embed.setDescription('Use `/queue` to see the updated queue');
-			msg.edit({ embeds: [embed.embed] });
+			embed.updateMessage();
 		} else {
 			embed.setTitle('You are not connected to a voice channel');
 			embed.setDescription('Join a voice channel and try again');
-			msg.edit({ embeds: [embed.embed] });
+			embed.updateMessage();
 		}
 
 		this.container.logger.info(

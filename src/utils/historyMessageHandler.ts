@@ -1,6 +1,6 @@
 // External dependencies
 import { container } from '@sapphire/framework';
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Message, User } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, User } from 'discord.js';
 
 // Internal dependencies
 import getTableSongRow from './getTableSongRow';
@@ -8,15 +8,13 @@ import Embed from '../classes/Embed';
 import Database from '../classes/Database';
 
 async function handleHistory(
-	msg: Message,
+	embed: Embed,
 	serverId: string,
 	serverName: string,
 	page: number,
 	interactionUser?: User,
 	user?: User
 ) {
-	const embed: Embed = new Embed();
-
 	const database = new Database();
 
 	const limit = 10;
@@ -24,13 +22,13 @@ async function handleHistory(
 	if (!database.isActivated) {
 		embed.setTitle('History is not activated');
 		embed.setDescription('To activate history the bot hoster needs to set a MongoDB URI');
-		return msg.edit({ embeds: [embed.embed] });
+		return embed.updateMessage();
 	}
 
 	if (!serverId) {
 		embed.setTitle('You are not connected to a server');
 		embed.setDescription('Join a server and try again');
-		return msg.edit({ embeds: [embed.embed] });
+		return embed.updateMessage();
 	}
 
 	const history = await database.getHistory({
@@ -48,7 +46,7 @@ async function handleHistory(
 	if (!history || history.length === 0) {
 		embed.setTitle('No history found');
 		embed.setDescription('Play some songs and try again');
-		return msg.edit({ embeds: [embed.embed] });
+		return embed.updateMessage();
 	}
 
 	const resultFor = user ? user.username : serverName;
@@ -84,10 +82,10 @@ async function handleHistory(
 
 		const row = new ActionRowBuilder().addComponents(previousButton, nextButton);
 
-		// @ts-expect-error - This is a bug in the library
-		msg.edit({ embeds: [embed.embed], components: [row] });
+		embed.addComponents(row);
+		embed.updateMessage();
 	} else {
-		msg.edit({ embeds: [embed.embed] });
+		embed.updateMessage();
 	}
 
 	container.logger.info(
