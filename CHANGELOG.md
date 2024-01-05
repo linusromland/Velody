@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.0 (2024-01-05)
+
+- Added timeout to commands. If more than 5 commands are used within 1 minute, the user will be timed out for 1 minute.
+
 ## 2.6.1 (2024-01-03)
 
 - Added `/history` command to get the last played song.
