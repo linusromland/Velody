@@ -66,7 +66,7 @@ Velody requires the following permissions to function properly:
 
 3. Slash Command Permissions:
 
-- ENsure the bot has the necessary permissions to create slash commands in the specified guilds.
+- Ensure the bot has the necessary permissions to create slash commands in the specified guilds.
 
 ### Running natively
 
