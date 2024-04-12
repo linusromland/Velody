@@ -6,10 +6,12 @@ namespace Velody
     {  
         private static readonly ILogger _logger = Logger.CreateLogger();
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            _logger.Information("Starting Velody");
+            _logger.Information("Starting Velody...");
+            _ = new Bot();
 
+            await Task.Delay(-1);
         }
     }
 }

@@ -12,28 +12,29 @@ namespace Velody
         private CommandsNextExtension _commands;
         private static readonly ILogger _logger = Logger.CreateLogger();
 
-        public async Task RunAsync()
+        public Bot()
         {
             _client = new DiscordClient(new DiscordConfiguration
             {
                 Token = Settings.DiscordBotToken,
                 TokenType = TokenType.Bot,
-                Intents = DiscordIntents.AllUnprivileged
+                Intents = DiscordIntents.AllUnprivileged,
+                LoggerFactory = Logger.CreateLoggerFactory()
             });
 
             _client.Ready += (_, _) =>
-            {
-                _logger.Information("Bot is ready");
-                return Task.CompletedTask;
+           {
+               _logger.Information("Bot is ready");
+               return Task.CompletedTask;
             };
 
             _commands = _client.UseCommandsNext(new CommandsNextConfiguration
             {
-                StringPrefixes = new[] { "!" }
+                StringPrefixes = ["!"]
             });
 
-            await _client.ConnectAsync();
-            await Task.Delay(-1);
-        }   
+            _client.ConnectAsync();
+        }
+
     }
 }
