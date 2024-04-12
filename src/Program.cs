@@ -3,8 +3,8 @@
 namespace Velody
 {
     internal class Program
-    {  
-        private static readonly ILogger _logger = Logger.CreateLogger();
+    {
+        private static readonly ILogger _logger = Logger.CreateLogger("Main");
 
         static async Task Main(string[] args)
         {

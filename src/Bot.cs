@@ -8,7 +8,7 @@ namespace Velody
     internal class Bot
     {
         private DiscordClient _client;
-        private static readonly ILogger _logger = Logger.CreateLogger();
+        private static readonly ILogger _logger = Logger.CreateLogger("Bot");
         private readonly SlashCommandsExtension _slashCommands;
 
         public Bot()

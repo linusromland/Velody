@@ -8,7 +8,7 @@ namespace Velody.Commands
     public class CommandHandler(SlashCommandsExtension slashCommands)
     {
         private readonly SlashCommandsExtension _slashCommands = slashCommands;
-        private static readonly ILogger _logger = Logger.CreateLogger();
+        private static readonly ILogger _logger = Logger.CreateLogger("CommandHandler");
 
         public void RegisterCommands()
         {
