@@ -1,16 +1,16 @@
-﻿using DSharpPlus;
+﻿using System.Reflection;
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.SlashCommands;
 using Serilog;
-using System;
-using System.Threading.Tasks;
 
 namespace Velody
 {
     internal class Bot
     {
         private DiscordClient _client;
-        private CommandsNextExtension _commands;
         private static readonly ILogger _logger = Logger.CreateLogger();
+        private readonly SlashCommandsExtension _slashCommands;
 
         public Bot()
         {
@@ -18,23 +18,22 @@ namespace Velody
             {
                 Token = Settings.DiscordBotToken,
                 TokenType = TokenType.Bot,
-                Intents = DiscordIntents.AllUnprivileged,
+                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents,
                 LoggerFactory = Logger.CreateLoggerFactory()
             });
 
-            _client.Ready += (_, _) =>
+            _client.Ready += (sender, _) =>
            {
-               _logger.Information("Bot is ready");
+               _logger.Information("Connected to Discord as {BotName}", sender.CurrentUser.Username);
                return Task.CompletedTask;
             };
 
-            _commands = _client.UseCommandsNext(new CommandsNextConfiguration
-            {
-                StringPrefixes = ["!"]
-            });
+            _slashCommands = _client.UseSlashCommands(new SlashCommandsConfiguration { });
+            _slashCommands.RegisterCommands(Assembly.GetExecutingAssembly(), Settings.DiscordGuildId);
 
             _client.ConnectAsync();
         }
+
 
     }
 }
