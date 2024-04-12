@@ -1,8 +1,7 @@
-﻿using System.Reflection;
-using DSharpPlus;
-using DSharpPlus.CommandsNext;
+﻿using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using Serilog;
+using Velody.Commands;
 
 namespace Velody
 {
@@ -29,7 +28,7 @@ namespace Velody
             };
 
             _slashCommands = _client.UseSlashCommands(new SlashCommandsConfiguration { });
-            _slashCommands.RegisterCommands(Assembly.GetExecutingAssembly(), Settings.DiscordGuildId);
+            new CommandHandler(_slashCommands).RegisterCommands();
 
             _client.ConnectAsync();
         }

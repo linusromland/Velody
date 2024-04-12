@@ -2,7 +2,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 
-namespace Velody
+namespace Velody.Commands.CommandModules
 {
     public class PingCommand : ApplicationCommandModule
     {
