@@ -1,17 +1,15 @@
-﻿using DSharpPlus;
-using DSharpPlus.SlashCommands;
+﻿using Serilog;
 
 namespace Velody
 {
-	class Program
-	{
-		static async Task Main(string[] args)
-		{
-			Config.AppSettings appSettings = Config.GetConfigSettings();
+    internal class Program
+    {  
+        private static readonly ILogger _logger = Logger.CreateLogger();
 
-			new DiscordBot(appSettings);
+        static void Main(string[] args)
+        {
+            _logger.Information("Starting Velody");
 
-			await Task.Delay(-1);
-		}
-	}
+        }
+    }
 }
