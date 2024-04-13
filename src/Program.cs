@@ -42,11 +42,13 @@ namespace Velody
                     return client;
                 })
                 .AddSingleton<JoinCommand>()
+                .AddSingleton<PlayCommand>()
                 .AddSingleton(provider =>
                 {
                     return new List<ApplicationCommandModule>
                     {
-                provider.GetRequiredService<JoinCommand>()
+                        provider.GetRequiredService<JoinCommand>(),
+                        provider.GetRequiredService<PlayCommand>()
                     };
                 })
                 .AddSingleton(provider =>
@@ -54,7 +56,7 @@ namespace Velody
                     DiscordClient client = provider.GetRequiredService<DiscordClient>();
                     SlashCommandsExtension slashCommands = client.UseSlashCommands(new SlashCommandsConfiguration
                     {
-                        Services = provider,
+                        Services = provider
                     });
                     return slashCommands;
                 })

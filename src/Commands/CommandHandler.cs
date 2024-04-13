@@ -35,7 +35,7 @@ namespace Velody
             foreach (ApplicationCommandModule commandModule in _commandModules)
             {
                 _logger.Information("Registering command module {CommandModule}", commandModule.GetType().Name);
-                _slashCommands.RegisterCommands(commandModule.GetType().GetTypeInfo());
+                _slashCommands.RegisterCommands(commandModule.GetType().GetTypeInfo(), Settings.DiscordGuildId);
             }
         }
 

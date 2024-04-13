@@ -38,7 +38,6 @@ namespace Velody
 
             try
             {
-
                 await server.VoiceManager.JoinVoiceChannelAsync(channel);
             }
             catch (Exception e)
