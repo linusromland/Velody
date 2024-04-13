@@ -27,6 +27,7 @@ namespace Velody
         private static ServiceProvider ConfigureServices()
         {
             ServiceProvider services = new ServiceCollection()
+                .AddSingleton<Counter>()
                 .AddSingleton(provider =>
                 {
                     return new DiscordClient(new DiscordConfiguration
@@ -48,7 +49,10 @@ namespace Velody
                 .AddSingleton(provider =>
                 {
                     DiscordClient client = provider.GetRequiredService<DiscordClient>();
-                    SlashCommandsExtension slashCommands = client.UseSlashCommands(new SlashCommandsConfiguration { });
+                    SlashCommandsExtension slashCommands = client.UseSlashCommands(new SlashCommandsConfiguration
+                    {
+                        Services = provider,
+                    });
                     return slashCommands;
                 })
                 .AddSingleton<CommandHandler>()
