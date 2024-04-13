@@ -2,6 +2,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.VoiceNext;
+using Serilog;
 using System;
 using System.Threading.Tasks;
 
@@ -9,6 +10,9 @@ namespace Velody
 {
 	public class VoiceManager
 	{
+
+		private readonly ILogger _logger = Logger.CreateLogger("VoiceManager");
+
 		private readonly DiscordClient _client;
 
 		private VoiceNextConnection? _vnc;
@@ -42,6 +46,7 @@ namespace Velody
 			}
 
 			_vnc = await vnext.ConnectAsync(voiceChannel);
+
 		}
 
 		public async Task PlayAudioAsync(string path)
@@ -59,7 +64,15 @@ namespace Velody
 				throw new InvalidOperationException("Failed to get file stream.");
 			}
 
-			await fileStream.CopyToAsync(_vnc.GetTransmitSink());
+			_logger.Information("Playing audio from {Path}", path);
+
+			VoiceTransmitSink transmit = _vnc.GetTransmitSink();
+			await fileStream.CopyToAsync(transmit);
+			await fileStream.DisposeAsync();
+
+			_logger.Information("Finished playing audio from {Path}", path);
+
+			await _vnc.SendSpeakingAsync(false);
 		}
 
 		public void LeaveVoiceChannel()

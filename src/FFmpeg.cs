@@ -15,9 +15,9 @@ namespace Velody
 			Process? ffmpeg = Process.Start(new ProcessStartInfo
 			{
 				FileName = "ffmpeg",
-				Arguments = $"-i {path} -f s16le -ar 48000 -ac 2 pipe:1",
-				UseShellExecute = false,
-				RedirectStandardOutput = true
+				Arguments = $@"-i ""{path}"" -ac 2 -f s16le -ar 48000 pipe:1",
+				RedirectStandardOutput = true,
+				UseShellExecute = false
 			});
 
 			if (ffmpeg == null)

@@ -11,7 +11,7 @@ namespace Velody
         private readonly ServerManager _serverManager = serverManager;
 
         [SlashCommand("play", "Plays a song.")]
-        public async Task Play(InteractionContext ctx, [Option("video", "video to play")] string video)
+        public async Task Play(InteractionContext ctx, [Option("video", "video to play")] string searchString)
         {
 
             Server? server = _serverManager.GetServer(ctx.Guild.Id);
@@ -44,10 +44,23 @@ namespace Velody
                 }
             }
 
-            // Play the audio
-            _ = server.VoiceManager.PlayAudioAsync(video);
+            VideoHandler youtubeHandler = new VideoHandler(VideoService.Youtube);
+            VideoInfo[] videos = await youtubeHandler.GetVideoInfo(searchString);
 
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Playing {video}"));
+            if (videos.Length == 0)
+            {
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("No videos found."));
+                return;
+            }
+
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Playing {videos[0].Title}"));
+
+            string videoPath = await youtubeHandler.DownloadVideoAsync(videos[0].Url);
+
+            // Play the audio
+            _ = server.VoiceManager.PlayAudioAsync(videoPath);
+
+
 
         }
     }
