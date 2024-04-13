@@ -26,8 +26,8 @@ namespace Velody
 
         private static ServiceProvider ConfigureServices()
         {
-            ServiceProvider services = new ServiceCollection()
-                .AddSingleton<Counter>()
+            // Discord-related services
+            ServiceProvider discordServices = new ServiceCollection()
                 .AddSingleton(provider =>
                 {
                     return new DiscordClient(new DiscordConfiguration
@@ -43,7 +43,7 @@ namespace Velody
                 {
                     return new List<ApplicationCommandModule>
                     {
-                        provider.GetRequiredService<PingCommand>()
+                provider.GetRequiredService<PingCommand>()
                     };
                 })
                 .AddSingleton(provider =>
@@ -55,8 +55,19 @@ namespace Velody
                     });
                     return slashCommands;
                 })
+                .BuildServiceProvider();
+
+            // Application-specific services
+            ServiceProvider appServices = new ServiceCollection()
+                .AddSingleton<Counter>()
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<Bot>()
+                .BuildServiceProvider();
+
+            // Merge Discord-related and application-specific services
+            ServiceProvider services = new ServiceCollection()
+                .AddSingleton(discordServices)
+                .AddSingleton(appServices)
                 .BuildServiceProvider();
 
             return services;
