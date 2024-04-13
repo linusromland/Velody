@@ -2,7 +2,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 
-namespace Velody.Commands.CommandModules
+namespace Velody
 {
     public class PingCommand(DiscordClient client, Counter counter) : ApplicationCommandModule
     {

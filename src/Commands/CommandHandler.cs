@@ -3,7 +3,7 @@ using DSharpPlus.SlashCommands;
 using Serilog;
 using System.Reflection;
 
-namespace Velody.Commands
+namespace Velody
 {
     internal class CommandHandler
     {

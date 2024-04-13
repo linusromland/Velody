@@ -1,9 +1,8 @@
 ﻿using DSharpPlus;
 using DSharpPlus.SlashCommands;
+using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using Velody.Commands;
-using Velody.Commands.CommandModules;
 
 namespace Velody
 {
@@ -26,24 +25,28 @@ namespace Velody
 
         private static ServiceProvider ConfigureServices()
         {
-            // Discord-related services
-            ServiceProvider discordServices = new ServiceCollection()
+            ServiceProvider services = new ServiceCollection()
                 .AddSingleton(provider =>
                 {
-                    return new DiscordClient(new DiscordConfiguration
+                    DiscordClient client = new DiscordClient(new DiscordConfiguration
                     {
                         Token = Settings.DiscordBotToken,
                         TokenType = TokenType.Bot,
                         Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents,
                         LoggerFactory = Logger.CreateLoggerFactory()
                     });
+
+                    // Enable voice
+                    client.UseVoiceNext();
+
+                    return client;
                 })
-                .AddSingleton<PingCommand>()
+                .AddSingleton<JoinCommand>()
                 .AddSingleton(provider =>
                 {
                     return new List<ApplicationCommandModule>
                     {
-                provider.GetRequiredService<PingCommand>()
+                provider.GetRequiredService<JoinCommand>()
                     };
                 })
                 .AddSingleton(provider =>
@@ -55,20 +58,12 @@ namespace Velody
                     });
                     return slashCommands;
                 })
-                .BuildServiceProvider();
-
-            // Application-specific services
-            ServiceProvider appServices = new ServiceCollection()
                 .AddSingleton<Counter>()
                 .AddSingleton<CommandHandler>()
+                .AddSingleton<ServerManager>()
                 .AddSingleton<Bot>()
                 .BuildServiceProvider();
 
-            // Merge Discord-related and application-specific services
-            ServiceProvider services = new ServiceCollection()
-                .AddSingleton(discordServices)
-                .AddSingleton(appServices)
-                .BuildServiceProvider();
 
             return services;
         }
