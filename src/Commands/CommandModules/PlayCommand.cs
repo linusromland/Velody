@@ -66,11 +66,7 @@ namespace Velody
                     embed.WithImage(video.Thumbnail);
                 }
                 await embed.Send();
-
-                string videoPath = await youtubeHandler.DownloadVideoAsync(videos[0].Url);
-
-                // Play the audio
-                _ = server.VoiceManager.PlayAudioAsync(videoPath);
+                await server.Queue.AddToQueueAsync(video);
             }
             catch (Exception e)
             {

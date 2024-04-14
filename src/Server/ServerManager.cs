@@ -5,11 +5,13 @@ using Serilog;
 
 namespace Velody
 {
-	public class ServerManager(DiscordClient client)
+	public class ServerManager(DiscordClient client, VideoHandler videoHandler)
 	{
 		private readonly ILogger _logger = Logger.CreateLogger("ServerManager");
 
 		private readonly DiscordClient _client = client;
+
+		private readonly VideoHandler _videoHandler = videoHandler;
 
 		private Dictionary<ulong, Server> _servers = new Dictionary<ulong, Server>();
 
@@ -25,7 +27,7 @@ namespace Velody
 
 				if (guild != null)
 				{
-					Server server = new Server(_client, guild.Name, guildId);
+					Server server = new Server(_client, guild.Name, guildId, _videoHandler);
 					_servers.Add(guildId, server);
 					return server;
 				}
