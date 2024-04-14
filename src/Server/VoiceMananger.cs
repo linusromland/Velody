@@ -17,8 +17,6 @@ namespace Velody
 
 		private VoiceNextConnection? _vnc;
 
-		public event Func<Task>? PlaybackFinished;
-
 		public VoiceManager(DiscordClient client)
 		{
 			_client = client;

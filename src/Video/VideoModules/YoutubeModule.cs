@@ -2,14 +2,11 @@ using System.Diagnostics;
 using System.Web;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
-using Serilog;
 
 namespace Velody
 {
 	public class YoutubeModule : BaseVideoModule
 	{
-
-		private readonly ILogger _logger = Logger.CreateLogger("YoutubeModule");
 
 		private readonly YouTubeService _youTubeService;
 
