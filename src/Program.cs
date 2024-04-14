@@ -41,13 +41,11 @@ namespace Velody
 
                     return client;
                 })
-                .AddSingleton<JoinCommand>()
                 .AddSingleton<PlayCommand>()
                 .AddSingleton(provider =>
                 {
                     return new List<ApplicationCommandModule>
                     {
-                        provider.GetRequiredService<JoinCommand>(),
                         provider.GetRequiredService<PlayCommand>()
                     };
                 })
@@ -60,10 +58,10 @@ namespace Velody
                     });
                     return slashCommands;
                 })
-                .AddSingleton<Counter>()
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<ServerManager>()
                 .AddSingleton<Bot>()
+                .AddSingleton<VideoHandler>()
                 .BuildServiceProvider();
 
 

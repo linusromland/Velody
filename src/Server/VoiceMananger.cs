@@ -29,24 +29,60 @@ namespace Velody
 			}
 		}
 
-
-		public async Task JoinVoiceChannelAsync(DiscordChannel voiceChannel)
+		public static DiscordChannel? GetVoiceChannel(DiscordVoiceState? voiceState)
 		{
-			if (voiceChannel.Type != ChannelType.Voice)
+			try
 			{
-				throw new ArgumentException("Specified channel is not a voice channel.");
+				DiscordChannel? voiceChannel = voiceState?.Channel;
+
+				if (voiceChannel == null || voiceChannel.Type != ChannelType.Voice)
+				{
+					return null;
+				}
+
+				return voiceChannel;
+			}
+			catch (System.Exception)
+			{
+				return null;
+			}
+		}
+
+		public enum JoinVoiceChannelResponseCode
+		{
+			Success,
+			AlreadyConnected,
+			UnknownError
+		}
+
+		public class JoinVoiceResponse
+		{
+			public JoinVoiceChannelResponseCode Code { get; set; }
+			public string? VoiceChannelName { get; set; }
+		}
+
+		public async Task<JoinVoiceResponse> JoinVoiceChannelAsync(DiscordChannel voiceChannel)
+		{
+			try
+			{
+				VoiceNextExtension vnext = _client.GetVoiceNext();
+				_vnc = vnext.GetConnection(voiceChannel.Guild);
+
+				if (_vnc != null)
+				{
+					return new JoinVoiceResponse { Code = JoinVoiceChannelResponseCode.AlreadyConnected, VoiceChannelName = voiceChannel.Name };
+
+				}
+
+				_vnc = await vnext.ConnectAsync(voiceChannel);
+				return new JoinVoiceResponse { Code = JoinVoiceChannelResponseCode.Success, VoiceChannelName = voiceChannel.Name };
 			}
 
-			VoiceNextExtension vnext = _client.GetVoiceNext();
-			_vnc = vnext.GetConnection(voiceChannel.Guild);
-
-			if (_vnc != null)
+			catch (System.Exception)
 			{
-				throw new InvalidOperationException("Already connected to a voice channel in this guild.");
+
+				return new JoinVoiceResponse { Code = JoinVoiceChannelResponseCode.UnknownError };
 			}
-
-			_vnc = await vnext.ConnectAsync(voiceChannel);
-
 		}
 
 		public async Task PlayAudioAsync(string path)

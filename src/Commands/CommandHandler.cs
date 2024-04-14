@@ -5,6 +5,14 @@ using System.Reflection;
 
 namespace Velody
 {
+    public class CommandResponse
+    {
+        public required bool error = true;
+        public string? message { get; set; }
+        public VideoInfo[]? videos { get; set; }
+        // TODO: Add current video info that would be VideoInfo but also include the current location in the video
+    }
+
     internal class CommandHandler
     {
         private readonly SlashCommandsExtension _slashCommands;

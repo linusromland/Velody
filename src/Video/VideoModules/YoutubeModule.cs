@@ -86,7 +86,7 @@ namespace Velody
 					Title = videoSnippet.Title,
 					Duration = 0,
 					Url = $"https://www.youtube.com/watch?v={videoId}",
-					Thumbnail = videoSnippet.Thumbnails.Default__.Url,
+					Thumbnail = videoSnippet.Thumbnails.Maxres?.Url ?? videoSnippet.Thumbnails.Default__.Url,
 					Service = VideoService.Youtube
 				};
 			}

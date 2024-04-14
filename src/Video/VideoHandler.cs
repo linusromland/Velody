@@ -1,5 +1,3 @@
-using Serilog;
-
 namespace Velody
 {
 	public enum VideoService
@@ -26,32 +24,11 @@ namespace Velody
 
 	public class VideoHandler
 	{
-		private static readonly ILogger _logger = Logger.CreateLogger("VideoHandler");
+		private readonly YoutubeModule _youtubeModule = new YoutubeModule();
 
-		private readonly BaseVideoModule _videoModule;
-
-		public VideoHandler(VideoService videoService)
+		public YoutubeModule GetYoutubeModule()
 		{
-			_videoModule = videoService switch
-			{
-				VideoService.Youtube => new YoutubeModule(),
-				_ => throw new NotImplementedException()
-			};
-		}
-
-		public async Task<VideoInfo[]> GetVideoInfo(string searchStringOrUrl)
-		{
-			_logger.Information("Getting video info for {SearchStringOrUrl}", searchStringOrUrl);
-			VideoInfo[] videos = await _videoModule.GetVideoInfo(searchStringOrUrl);
-			return videos;
-		}
-
-		public async Task<string> DownloadVideoAsync(string searchStringOrUrl)
-		{
-			_logger.Information("Downloading video for {SearchStringOrUrl}", searchStringOrUrl);
-			string filePath = await _videoModule.DownloadVideoAsync(searchStringOrUrl);
-			_logger.Information("Downloaded video for {SearchStringOrUrl}", searchStringOrUrl);
-			return filePath;
+			return _youtubeModule;
 		}
 	}
 }

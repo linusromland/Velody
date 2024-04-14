@@ -26,7 +26,6 @@ namespace Velody
 
 			VoiceManager = new VoiceManager(_client);
 			_logger.Information($"Server {_name} initialized with ID {_guildId}");
-
 		}
 	}
 }
