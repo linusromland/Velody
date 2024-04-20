@@ -8,15 +8,10 @@ namespace Velody
 	public class ServerManager(DiscordClient client, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository)
 	{
 		private readonly ILogger _logger = Logger.CreateLogger("ServerManager");
-
 		private readonly DiscordClient _client = client;
-
 		private readonly VideoHandler _videoHandler = videoHandler;
-
 		private readonly HistoryRepository _historyRepository = historyRepository;
-
 		private readonly VideoRepository _videoRepository = videoRepository;
-
 		private Dictionary<ulong, Server> _servers = new Dictionary<ulong, Server>();
 
 		public Server? GetServer(ulong guildId)

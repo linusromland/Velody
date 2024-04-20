@@ -15,11 +15,9 @@ namespace Velody
 
     internal class CommandHandler
     {
-        private readonly SlashCommandsExtension _slashCommands;
         private readonly ILogger _logger = Logger.CreateLogger("CommandHandler");
-
+        private readonly SlashCommandsExtension _slashCommands;
         private readonly List<ApplicationCommandModule> _commandModules;
-
         public CommandHandler(SlashCommandsExtension slashCommands, List<ApplicationCommandModule> commandModules)
         {
             _slashCommands = slashCommands;

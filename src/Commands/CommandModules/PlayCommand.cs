@@ -10,9 +10,7 @@ namespace Velody
     public class PlayCommand(ServerManager serverManager, VideoHandler videoHandler) : ApplicationCommandModule
     {
         private readonly ILogger _logger = Logger.CreateLogger("PlayCommand");
-
         private readonly ServerManager _serverManager = serverManager;
-
         private readonly VideoHandler _videoHandler = videoHandler;
 
         [SlashCommand("play", "Plays a video with the given search string or URL.")]

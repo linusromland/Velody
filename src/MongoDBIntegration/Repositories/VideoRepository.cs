@@ -36,6 +36,7 @@ namespace Velody
 				await _videoCollection.InsertOneAsync(video);
 			}
 		}
+
 		public async Task InsertVideo(VideoInfo[] videoInfos)
 		{
 			foreach (VideoInfo videoInfo in videoInfos)

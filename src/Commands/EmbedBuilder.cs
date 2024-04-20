@@ -7,7 +7,6 @@ namespace Velody
 	internal class EmbedBuilder
 	{
 		private readonly DiscordEmbedBuilder _builder = new DiscordEmbedBuilder();
-
 		private readonly InteractionContext _ctx;
 
 		public EmbedBuilder(InteractionContext ctx)
@@ -35,6 +34,7 @@ namespace Velody
 			_builder.ImageUrl = url;
 			return this;
 		}
+
 		public async Task SendUnkownErrorAsync()
 		{
 			_builder.WithTitle("Error");
