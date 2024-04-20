@@ -10,9 +10,7 @@ namespace Velody
     public class PlayCommand(ServerManager serverManager, VideoHandler videoHandler) : ApplicationCommandModule
     {
         private readonly ILogger _logger = Logger.CreateLogger("PlayCommand");
-
         private readonly ServerManager _serverManager = serverManager;
-
         private readonly VideoHandler _videoHandler = videoHandler;
 
         [SlashCommand("play", "Plays a video with the given search string or URL.")]
@@ -47,9 +45,10 @@ namespace Velody
                     await embed.SendUnkownErrorAsync();
                     return;
                 }
-
-                YoutubeModule youtubeHandler = _videoHandler.GetYoutubeModule();
-                VideoInfo[] videos = await youtubeHandler.GetVideoInfo(searchString);
+                string GuildId = ctx.Guild.Id.ToString();
+                string UserId = ctx.User.Id.ToString();
+                // TODO: add support here to not always be youtube (Default should still be youtube though)
+                VideoInfo[] videos = await _videoHandler.GetVideoInfo(VideoService.Youtube, searchString, GuildId, UserId);
 
                 if (videos.Length == 0)
                 {

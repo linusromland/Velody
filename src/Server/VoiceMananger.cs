@@ -12,9 +12,7 @@ namespace Velody
 	{
 
 		private readonly ILogger _logger = Logger.CreateLogger("VoiceManager");
-
 		private readonly DiscordClient _client;
-
 		private VoiceNextConnection? _vnc;
 
 		public VoiceManager(DiscordClient client)

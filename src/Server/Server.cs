@@ -8,18 +8,13 @@ namespace Velody
 	public class Server
 	{
 		private readonly ILogger _logger;
-
 		private readonly ulong _guildId;
-
 		private readonly string _name;
-
 		private readonly DiscordClient _client;
-
 		public VoiceManager VoiceManager { get; }
-
 		public Queue Queue { get; }
 
-		public Server(DiscordClient client, string name, ulong guildId, VideoHandler videoHandler)
+		public Server(DiscordClient client, string name, ulong guildId, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository)
 		{
 			_client = client;
 			_name = name;
@@ -28,7 +23,7 @@ namespace Velody
 			_logger = Logger.CreateLogger($"Server-{_name}(ID: {_guildId})");
 
 			VoiceManager = new VoiceManager(_client);
-			Queue = new Queue(_name, videoHandler);
+			Queue = new Queue(_name, videoHandler, historyRepository, videoRepository);
 			Queue.PlaySong += async (videoPath) =>
 			{
 				await VoiceManager.PlayAudioAsync(videoPath);
