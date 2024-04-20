@@ -22,22 +22,12 @@ namespace Velody
 			_youTubeService.HttpClient.MessageHandler.IsLoggingEnabled = false;
 		}
 
-		public override Task<string> DownloadVideoAsync(string url)
+		public override Task<string> DownloadVideoAsync(string videoId, string path)
 		{
-			string cachePath = "./cache/youtube";
-			string? VideoId = UrlToId(url);
-
-			string fullPath = $"{cachePath}/{VideoId}.mp3";
-
-			if (File.Exists(fullPath))
-			{
-				return Task.FromResult(fullPath);
-			}
-
 			Process? ytDlp = Process.Start(new ProcessStartInfo
 			{
 				FileName = "yt-dlp",
-				Arguments = $@"-o ""{fullPath}"" --audio-format mp3 --extract-audio --audio-quality 0 {url}",
+				Arguments = $@"-o ""{path}"" --audio-format mp3 --extract-audio --audio-quality 0 {IdToURL(videoId)}",
 				RedirectStandardOutput = true,
 				UseShellExecute = false
 			});
@@ -48,23 +38,27 @@ namespace Velody
 			}
 
 			ytDlp.WaitForExit();
-			return Task.FromResult(fullPath);
+			return Task.FromResult(path);
 		}
 
-		public override async Task<VideoInfo[]> GetVideoInfo(string searchStringOrUrl)
+		public override async Task<VideoInfo[]> GetVideoInfo(string searchStringOrUrl, string guildId, string userId)
 		{
 			if (IsYoutubePlaylistUrl(searchStringOrUrl))
 			{
-				return await GetPlaylistVideos(searchStringOrUrl);
+				return await GetPlaylistVideos(searchStringOrUrl, guildId, userId);
 			}
 			else
 			{
-				VideoInfo? videoInfo = await GetSingleVideoInfo(searchStringOrUrl);
-				return videoInfo != null ? new VideoInfo[] { videoInfo } : Array.Empty<VideoInfo>();
+				VideoInfo? videoInfo = await GetSingleVideoInfo(searchStringOrUrl, guildId, userId);
+				if (videoInfo != null)
+				{
+					return new VideoInfo[] { videoInfo };
+				}
+				return Array.Empty<VideoInfo>();
 			}
 		}
 
-		private async Task<VideoInfo?> GetSingleVideoInfo(string searchString)
+		private async Task<VideoInfo?> GetSingleVideoInfo(string searchString, string guildId, string userId)
 		{
 			var searchListRequest = _youTubeService.Search.List("snippet");
 			searchListRequest.Q = searchString;
@@ -79,19 +73,21 @@ namespace Velody
 
 				return new VideoInfo
 				{
-					Id = videoId,
+					VideoId = videoId,
 					Title = videoSnippet.Title,
 					Duration = 0,
 					Url = $"https://www.youtube.com/watch?v={videoId}",
 					Thumbnail = videoSnippet.Thumbnails.Maxres?.Url ?? videoSnippet.Thumbnails.Default__.Url,
-					Service = VideoService.Youtube
+					Service = VideoService.Youtube,
+					GuildId = guildId,
+					UserId = userId
 				};
 			}
 
 			return null;
 		}
 
-		private async Task<VideoInfo[]> GetPlaylistVideos(string playlistUrl)
+		private async Task<VideoInfo[]> GetPlaylistVideos(string playlistUrl, string guildId, string userId)
 		{
 			var playlistId = GetPlaylistIdFromUrl(playlistUrl);
 			var playlistItemsListRequest = _youTubeService.PlaylistItems.List("snippet");
@@ -108,12 +104,14 @@ namespace Velody
 
 				var videoInfo = new VideoInfo
 				{
-					Id = videoId,
+					VideoId = videoId,
 					Title = videoSnippet.Title,
 					Duration = 0,
 					Url = $"https://www.youtube.com/watch?v={videoId}",
 					Thumbnail = videoSnippet.Thumbnails.Default__.Url,
-					Service = VideoService.Youtube
+					Service = VideoService.Youtube,
+					GuildId = guildId,
+					UserId = userId
 				};
 
 				videos.Add(videoInfo);
@@ -134,11 +132,9 @@ namespace Velody
 			return query["list"];
 		}
 
-		private static string? UrlToId(string url)
+		private static string? IdToURL(string id)
 		{
-			var uri = new Uri(url);
-			var query = HttpUtility.ParseQueryString(uri.Query);
-			return query["v"];
+			return $"https://www.youtube.com/watch?v={id}";
 		}
 	}
 }

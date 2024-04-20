@@ -47,9 +47,10 @@ namespace Velody
                     await embed.SendUnkownErrorAsync();
                     return;
                 }
-
-                YoutubeModule youtubeHandler = _videoHandler.GetYoutubeModule();
-                VideoInfo[] videos = await youtubeHandler.GetVideoInfo(searchString);
+                string GuildId = ctx.Guild.Id.ToString();
+                string UserId = ctx.User.Id.ToString();
+                // TODO: add support here to not always be youtube (Default should still be youtube though)
+                VideoInfo[] videos = await _videoHandler.GetVideoInfo(VideoService.Youtube, searchString, GuildId, UserId);
 
                 if (videos.Length == 0)
                 {

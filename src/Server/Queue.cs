@@ -8,12 +8,14 @@ using System.Threading.Tasks;
 
 namespace Velody
 {
-	public class Queue(string serverName, VideoHandler videoHandler)
+	public class Queue(string serverName, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository)
 	{
 		private readonly string _serverName = serverName;
 		private readonly VideoHandler _videoHandler = videoHandler;
 		private readonly ILogger _logger = Logger.CreateLogger("Queue");
 		private List<VideoInfo> _queue = new List<VideoInfo>();
+		private HistoryRepository _historyRepository = historyRepository;
+		private VideoRepository _videoRepository = videoRepository;
 		private Dictionary<string, string> _videoPaths = new Dictionary<string, string>();
 		public event Func<string, Task>? PlaySong;
 
@@ -27,7 +29,7 @@ namespace Velody
 			if (_queue.Count == 1)
 			{
 				await DownloadVideoAsync(videoInfo);
-				if (_videoPaths.ContainsKey(videoInfo.Id))
+				if (_videoPaths.ContainsKey(videoInfo.VideoId))
 				{
 					_ = PlayNextSongAsync();
 				}
@@ -53,38 +55,41 @@ namespace Velody
 		{
 			VideoInfo videoInfo = _queue[0];
 
-			if (!_videoPaths.ContainsKey(videoInfo.Id))
+			if (!_videoPaths.ContainsKey(videoInfo.VideoId))
 			{
 				_logger.Information("Downloading video {VideoTitle} to play next", videoInfo.Title);
 				await DownloadVideoAsync(videoInfo);
 			}
 
-			if (_queue.Count > 1 && !_videoPaths.ContainsKey(_queue[1].Id))
+			if (_queue.Count > 1 && !_videoPaths.ContainsKey(_queue[1].VideoId))
 			{
 				_logger.Information("Downloading next video in queue {VideoTitle}", _queue[1].Title);
 				_ = DownloadVideoAsync(_queue[1]);
 			}
 
-			PlaySong?.Invoke(_videoPaths[videoInfo.Id]);
+			Video? video = await _videoRepository.GetVideo(videoInfo.VideoId, videoInfo.Service);
+			if (video != null)
+			{
+				// TODO: Add support for announcment here
+				await _historyRepository.InsertHistory(video.Id, videoInfo.GuildId, videoInfo.UserId, false, null);
+				_logger.Information("Inserted history for video {VideoId}", video.Id);
+			}
+
+			_logger.Information("Playing next song in queue {VideoTitle}", videoInfo.Title);
+			PlaySong?.Invoke(_videoPaths[videoInfo.VideoId]);
 		}
 
 		private async Task DownloadVideoAsync(VideoInfo videoInfo)
 		{
-			BaseVideoModule? videoModule;
-
-			switch (videoInfo.Service)
+			string? videoPath = await _videoHandler.DownloadVideoAsync(videoInfo.Service, videoInfo.VideoId);
+			if (videoPath == null)
 			{
-				case VideoService.Youtube:
-					videoModule = _videoHandler.GetYoutubeModule();
-					break;
-				default:
-					_logger.Error("Video service {VideoService} not supported", videoInfo.Service);
-					return;
+				_logger.Error("Failed to download video {VideoTitle}", videoInfo.Title);
+				return;
 			}
 
-			string videoPath = await videoModule.DownloadVideoAsync(videoInfo.Url);
 			_logger.Information("Downloaded video {VideoTitle} to {VideoPath}", videoInfo.Title, videoPath);
-			_videoPaths[videoInfo.Id] = videoPath;
+			_videoPaths[videoInfo.VideoId] = videoPath;
 		}
 	}
 }
