@@ -62,6 +62,7 @@ namespace Velody
                 .AddSingleton<ServerManager>()
                 .AddSingleton<Bot>()
                 .AddSingleton<VideoHandler>()
+                .AddSingleton(provider => new MongoDBHelper(Settings.MongoDBConnectionString, Settings.MongoDBDatabaseName))
                 .BuildServiceProvider();
 
 
