@@ -1,9 +1,9 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Velody
+namespace Velody.MongoDBIntegration.Models
 {
-	public class History
+	public class HistoryModel
 	{
 		[BsonId]
 		public ObjectId Id { get; set; }

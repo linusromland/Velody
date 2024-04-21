@@ -1,6 +1,6 @@
 ﻿using System.Configuration;
 
-namespace Velody
+namespace Velody.Utils
 {
     internal class Settings
     {

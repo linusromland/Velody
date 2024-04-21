@@ -1,31 +1,11 @@
 using Serilog;
+using Velody.MongoDBIntegration.Models;
+using Velody.MongoDBIntegration.Repositories;
+using Velody.Utils;
+using Velody.Video.VideoModules;
 
-namespace Velody
+namespace Velody.Video
 {
-	public enum VideoService
-	{
-		Youtube
-	}
-
-	public class VideoInfo
-	{
-		public required string VideoId { get; set; }
-		public required string Title { get; set; }
-		public required int Duration { get; set; }
-		public required string Url { get; set; }
-		public required string Thumbnail { get; set; }
-		public required VideoService Service { get; set; }
-		public required string GuildId { get; set; }
-		public required string UserId { get; set; }
-	}
-
-	public abstract class BaseVideoModule
-	{
-		public abstract Task<VideoInfo[]> GetVideoInfo(string searchStringOrUrl, string guildId, string userId);
-
-		public abstract Task<string> DownloadVideoAsync(string videoId, string path);
-	}
-
 	public class VideoHandler(VideoRepository videoRepository, CacheRepository cacheRepository)
 	{
 		private readonly ILogger _logger = Logger.CreateLogger("VideoHandler");
@@ -54,7 +34,7 @@ namespace Velody
 
 		public async Task<string?> DownloadVideoAsync(VideoService VideoService, string videoId)
 		{
-			Video? video = await _videoRepository.GetVideo(videoId, VideoService);
+			VideoModel? video = await _videoRepository.GetVideo(videoId, VideoService);
 			if (video == null)
 			{
 				_logger.Error("Video {VideoId} not found in the database", videoId);

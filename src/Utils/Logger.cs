@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Serilog;
 
-namespace Velody
+namespace Velody.Utils
 {
     internal class Logger
     {

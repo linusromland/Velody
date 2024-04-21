@@ -2,8 +2,11 @@
 using DSharpPlus;
 using Google.Apis.YouTube.v3.Data;
 using Serilog;
+using Velody.MongoDBIntegration.Repositories;
+using Velody.Utils;
+using Velody.Video;
 
-namespace Velody
+namespace Velody.Server
 {
 	public class Server
 	{

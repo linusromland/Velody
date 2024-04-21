@@ -5,8 +5,12 @@ using DSharpPlus.VoiceNext;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using Velody.MongoDBIntegration.Models;
+using Velody.MongoDBIntegration.Repositories;
+using Velody.Utils;
+using Velody.Video;
 
-namespace Velody
+namespace Velody.Server
 {
 	public class Queue(string serverName, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository)
 	{
@@ -67,7 +71,7 @@ namespace Velody
 				_ = DownloadVideoAsync(_queue[1]);
 			}
 
-			Video? video = await _videoRepository.GetVideo(videoInfo.VideoId, videoInfo.Service);
+			VideoModel? video = await _videoRepository.GetVideo(videoInfo.VideoId, videoInfo.Service);
 			if (video != null)
 			{
 				// TODO: Add support for announcment here

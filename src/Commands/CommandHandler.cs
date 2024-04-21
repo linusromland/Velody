@@ -2,6 +2,8 @@ using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using Serilog;
 using System.Reflection;
+using Velody.Utils;
+using Velody.Video;
 
 namespace Velody
 {

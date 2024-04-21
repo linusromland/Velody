@@ -3,6 +3,11 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using Velody.MongoDBIntegration;
+using Velody.MongoDBIntegration.Repositories;
+using Velody.Server;
+using Velody.Utils;
+using Velody.Video;
 
 namespace Velody
 {

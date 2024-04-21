@@ -1,9 +1,10 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Velody.Video;
 
-namespace Velody
+namespace Velody.MongoDBIntegration.Models
 {
-	public class Video
+	public class VideoModel
 	{
 		[BsonId]
 		public ObjectId Id { get; set; }

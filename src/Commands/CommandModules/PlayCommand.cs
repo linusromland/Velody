@@ -3,7 +3,10 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Serilog;
-using static Velody.VoiceManager;
+using Velody.Server;
+using Velody.Utils;
+using Velody.Video;
+using static Velody.Server.VoiceManager;
 
 namespace Velody
 {
@@ -19,7 +22,7 @@ namespace Velody
             EmbedBuilder embed = new EmbedBuilder(ctx);
             try
             {
-                Server? server = _serverManager.GetServer(ctx.Guild.Id);
+                Server.Server? server = _serverManager.GetServer(ctx.Guild.Id);
 
                 if (server == null)
                 {

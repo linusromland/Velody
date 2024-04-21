@@ -3,7 +3,7 @@ using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using Serilog;
 
-namespace Velody
+namespace Velody.Utils
 {
 	internal class FFmpeg
 	{

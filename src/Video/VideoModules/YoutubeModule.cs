@@ -2,8 +2,9 @@ using System.Diagnostics;
 using System.Web;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
+using Velody.Utils;
 
-namespace Velody
+namespace Velody.Video.VideoModules
 {
 	public class YoutubeModule : BaseVideoModule
 	{

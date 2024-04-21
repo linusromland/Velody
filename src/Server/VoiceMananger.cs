@@ -5,8 +5,9 @@ using DSharpPlus.VoiceNext;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using Velody.Utils;
 
-namespace Velody
+namespace Velody.Server
 {
 	public class VoiceManager
 	{

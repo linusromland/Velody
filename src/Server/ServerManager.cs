@@ -2,8 +2,11 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Serilog;
+using Velody.MongoDBIntegration.Repositories;
+using Velody.Utils;
+using Velody.Video;
 
-namespace Velody
+namespace Velody.Server
 {
 	public class ServerManager(DiscordClient client, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository)
 	{

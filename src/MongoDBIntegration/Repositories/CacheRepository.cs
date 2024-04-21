@@ -2,23 +2,24 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Velody.MongoDBIntegration.Models;
 
-namespace Velody
+namespace Velody.MongoDBIntegration.Repositories
 {
 	public class CacheRepository
 	{
-		private readonly IMongoCollection<Cache> _cacheCollection;
+		private readonly IMongoCollection<CacheModel> _cacheCollection;
 
 		public CacheRepository(MongoDBHelper mongoDBHelper)
 		{
-			_cacheCollection = mongoDBHelper.GetCollection<Cache>("cache");
+			_cacheCollection = mongoDBHelper.GetCollection<CacheModel>("cache");
 		}
 
 		public async Task InsertCache(ObjectId videoId, string path)
 		{
 			// TODO: Add videoId validation
 
-			Cache cache = new Cache
+			CacheModel cache = new CacheModel
 			{
 				DownloadedAt = DateTime.UtcNow,
 				VideoId = videoId,
@@ -30,14 +31,14 @@ namespace Velody
 
 		public async Task<string?> GetPath(ObjectId videoId)
 		{
-			List<Cache> caches = await _cacheCollection.Find(c => c.VideoId == videoId && c.IsRemoved == false).Limit(1).ToListAsync();
+			List<CacheModel> caches = await _cacheCollection.Find(c => c.VideoId == videoId && c.IsRemoved == false).Limit(1).ToListAsync();
 
 			return caches.Count > 0 ? caches[0].Path : null;
 		}
 
 		public async Task RemoveCache(ObjectId videoId)
 		{
-			await _cacheCollection.UpdateOneAsync(c => c.VideoId == videoId, Builders<Cache>.Update.Set(c => c.IsRemoved, true).Set(c => c.RemovedAt, DateTime.UtcNow));
+			await _cacheCollection.UpdateOneAsync(c => c.VideoId == videoId, Builders<CacheModel>.Update.Set(c => c.IsRemoved, true).Set(c => c.RemovedAt, DateTime.UtcNow));
 		}
 	}
 }

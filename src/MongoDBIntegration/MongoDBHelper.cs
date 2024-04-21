@@ -1,6 +1,6 @@
 using MongoDB.Driver;
 
-namespace Velody
+namespace Velody.MongoDBIntegration
 {
 	public class MongoDBHelper
 	{

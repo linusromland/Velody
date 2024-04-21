@@ -1,6 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using Serilog;
+using Velody.Utils;
 
 namespace Velody
 {
