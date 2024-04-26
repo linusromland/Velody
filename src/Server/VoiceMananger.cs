@@ -75,9 +75,9 @@ namespace Velody.Server
 				return new JoinVoiceResponse { Code = JoinVoiceChannelResponseCode.Success, VoiceChannelName = voiceChannel.Name };
 			}
 
-			catch (System.Exception)
+			catch (System.Exception e)
 			{
-
+				_logger.Error(e, "An unknown error occurred while trying to join the voice channel {VoiceChannelName}", voiceChannel.Name);
 				return new JoinVoiceResponse { Code = JoinVoiceChannelResponseCode.UnknownError };
 			}
 		}

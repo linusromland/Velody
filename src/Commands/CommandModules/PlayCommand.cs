@@ -45,6 +45,7 @@ namespace Velody
 
                 if (joinResponse.Code == JoinVoiceChannelResponseCode.UnknownError)
                 {
+                    _logger.Error("An unknown error occurred while trying to join the voice channel {VoiceChannelName} in guild {GuildName}", voiceChannel.Name, ctx.Guild.Name);
                     await embed.SendUnkownErrorAsync();
                     return;
                 }
