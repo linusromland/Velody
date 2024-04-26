@@ -30,6 +30,12 @@ namespace Velody.Server
 				if (guild != null)
 				{
 					Server server = new Server(_client, guild.Name, guildId, _videoHandler, _historyRepository, _videoRepository);
+					server.Dispose += (id) =>
+					{
+						_servers.Remove(id);
+						_logger.Information("Server with ID {GuildId} disposed", id);
+						return Task.CompletedTask;
+					};
 					_servers.Add(guildId, server);
 					return server;
 				}

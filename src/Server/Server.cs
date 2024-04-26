@@ -17,6 +17,8 @@ namespace Velody.Server
 		public VoiceManager VoiceManager { get; }
 		public Queue Queue { get; }
 
+		public event Func<ulong, Task>? Dispose;
+
 		public Server(DiscordClient client, string name, ulong guildId, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository)
 		{
 			_client = client;
@@ -35,7 +37,7 @@ namespace Velody.Server
 				{
 					_logger.Information("Queue is empty, stopping playback");
 					VoiceManager.LeaveVoiceChannel();
-					// TODO: Dispose the Server object
+					Dispose?.Invoke(_guildId);
 				}
 				else
 				{
