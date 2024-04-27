@@ -23,8 +23,6 @@ namespace Velody.Server
 		private Dictionary<string, string> _videoPaths = new Dictionary<string, string>();
 		public event Func<string, Task>? PlaySong;
 
-		// TODO: Make the download ahead configurable (e.g. download 2 videos ahead)
-		// TODO: Add support for playlist
 		public async Task AddToQueueAsync(VideoInfo videoInfo)
 		{
 			_queue.Add(videoInfo);
@@ -38,9 +36,18 @@ namespace Velody.Server
 					_ = PlayNextSongAsync();
 				}
 			}
-			else if (_queue.Count == 2)
+
+
+			if (_queue.Count == 2)
 			{
 				_ = DownloadVideoAsync(videoInfo);
+			}
+		}
+		public async Task AddToQueueAsync(VideoInfo[] videoInfos)
+		{
+			foreach (VideoInfo videoInfo in videoInfos)
+			{
+				await AddToQueueAsync(videoInfo);
 			}
 		}
 

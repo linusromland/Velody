@@ -63,13 +63,26 @@ namespace Velody
                 }
 
                 VideoInfo video = videos[0];
-                embed.WithTitle($"Playing `{video.Title}`");
+                bool isQueueEmpty = server.Queue.IsQueueEmpty();
+                await server.Queue.AddToQueueAsync(videos);
+                if (isQueueEmpty)
+                {
+                    embed.WithTitle($"Now playing: {video.Title}");
+                }
+                else
+                {
+                    embed.WithTitle($"Added to queue: {video.Title}");
+                }
+                if (videos.Length > 1)
+                {
+                    embed.WithDescription($"Added {videos.Length - 1} other videos to the queue.");
+                }
+
                 if (video.Thumbnail != null)
                 {
                     embed.WithImage(video.Thumbnail);
                 }
                 await embed.Send();
-                await server.Queue.AddToQueueAsync(video);
             }
             catch (Exception e)
             {
