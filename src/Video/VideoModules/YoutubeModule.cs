@@ -90,20 +90,21 @@ namespace Velody.Video.VideoModules
 
 		private async Task<VideoInfo[]> GetPlaylistVideos(string playlistUrl, string guildId, string userId)
 		{
-			var playlistId = GetPlaylistIdFromUrl(playlistUrl);
-			var playlistItemsListRequest = _youTubeService.PlaylistItems.List("snippet");
+			string? playlistId = GetPlaylistIdFromUrl(playlistUrl);
+			PlaylistItemsResource.ListRequest? playlistItemsListRequest = _youTubeService.PlaylistItems.List("snippet");
 			playlistItemsListRequest.PlaylistId = playlistId;
 			playlistItemsListRequest.MaxResults = 50;
 
-			var playlistItemsListResponse = await playlistItemsListRequest.ExecuteAsync();
-			var videos = new List<VideoInfo>();
+			Google.Apis.YouTube.v3.Data.PlaylistItemListResponse? playlistItemsListResponse = await playlistItemsListRequest.ExecuteAsync();
+			List<VideoInfo>? videos = new List<VideoInfo>();
 
-			foreach (var playlistItem in playlistItemsListResponse.Items)
+			foreach (Google.Apis.YouTube.v3.Data.PlaylistItem? playlistItem in playlistItemsListResponse.Items)
 			{
-				var videoId = playlistItem.Snippet.ResourceId.VideoId;
-				var videoSnippet = playlistItem.Snippet;
+				string? videoId = playlistItem.Snippet.ResourceId.VideoId;
+				Google.Apis.YouTube.v3.Data.PlaylistItemSnippet? videoSnippet = playlistItem.Snippet;
+				int duration = playlistItem.ContentDetails.DurationInSeconds ?? 0;
 
-				var videoInfo = new VideoInfo
+				VideoInfo videoInfo = new VideoInfo
 				{
 					VideoId = videoId,
 					Title = videoSnippet.Title,
