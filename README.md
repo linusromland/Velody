@@ -8,6 +8,12 @@
 <a href="https://github.com/linusromland/Velody/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge&logo=none" alt="license" /></a>
 </p>
 
+<!-- title for development -->
+
+## 🚀 Development
+
+Project is using app secrets, read more [here](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-8.0&tabs=windows).
+
 ## 📝 Contact
 
 If you have any questions, feel free to contact me on Discord: `linusromland#1012`
@@ -16,7 +22,7 @@ If you have any questions, feel free to contact me on Discord: `linusromland#101
 
 If you want to say **thank you** or/and support active development of `Velody`:
 
-- Add a [GitHub Star](https://github.com/linusromland/velody) to the project.
+-   Add a [GitHub Star](https://github.com/linusromland/velody) to the project.
 
 ## ⚠️ License
 
