@@ -8,8 +8,6 @@
 <a href="https://github.com/linusromland/Velody/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge&logo=none" alt="license" /></a>
 </p>
 
-<!-- title for development -->
-
 ## 🚀 Development
 
 Project is using app secrets, read more [here](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-8.0&tabs=windows).
