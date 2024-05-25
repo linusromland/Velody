@@ -61,23 +61,30 @@ namespace Velody.Video.VideoModules
 
 		private async Task<VideoInfo?> GetSingleVideoInfo(string searchString, string guildId, string userId)
 		{
-			var searchListRequest = _youTubeService.Search.List("snippet");
-			searchListRequest.Q = searchString;
+			bool isUrl = Uri.TryCreate(searchString, UriKind.Absolute, out Uri? uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+			string? extractedId = isUrl && uriResult != null ? HttpUtility.ParseQueryString(uriResult.Query).Get("v") : searchString;
+			if (isUrl && extractedId == null)
+			{
+				return null;
+			}
+
+			SearchResource.ListRequest? searchListRequest = _youTubeService.Search.List("snippet");
+			searchListRequest.Q = isUrl ? extractedId : searchString;
 			searchListRequest.MaxResults = 1;
 
-			var searchListResponse = await searchListRequest.ExecuteAsync();
+			Google.Apis.YouTube.v3.Data.SearchListResponse? searchListResponse = await searchListRequest.ExecuteAsync();
 
 			if (searchListResponse.Items.Count > 0)
 			{
-				var videoId = searchListResponse.Items[0].Id.VideoId;
-				var videoSnippet = searchListResponse.Items[0].Snippet;
+				string? videoId = searchListResponse.Items[0].Id.VideoId;
+				Google.Apis.YouTube.v3.Data.SearchResultSnippet? videoSnippet = searchListResponse.Items[0].Snippet;
 
 				return new VideoInfo
 				{
 					VideoId = videoId,
 					Title = videoSnippet.Title,
 					Duration = 0,
-					Url = $"https://www.youtube.com/watch?v={videoId}",
+					Url = IdToURL(videoId),
 					Thumbnail = videoSnippet.Thumbnails.Maxres?.Url ?? videoSnippet.Thumbnails.Default__.Url,
 					Service = VideoService.Youtube,
 					GuildId = guildId,
@@ -102,7 +109,6 @@ namespace Velody.Video.VideoModules
 			{
 				string? videoId = playlistItem.Snippet.ResourceId.VideoId;
 				Google.Apis.YouTube.v3.Data.PlaylistItemSnippet? videoSnippet = playlistItem.Snippet;
-				int duration = playlistItem.ContentDetails.DurationInSeconds ?? 0;
 
 				VideoInfo videoInfo = new VideoInfo
 				{
@@ -122,6 +128,11 @@ namespace Velody.Video.VideoModules
 			return videos.ToArray();
 		}
 
+		private static bool IsYoutubeUrl(string url)
+		{
+			return url.Contains("youtube.com");
+		}
+
 		private static bool IsYoutubePlaylistUrl(string url)
 		{
 			return url.Contains("playlist");
@@ -134,7 +145,7 @@ namespace Velody.Video.VideoModules
 			return query["list"];
 		}
 
-		private static string? IdToURL(string id)
+		private static string IdToURL(string id)
 		{
 			return $"https://www.youtube.com/watch?v={id}";
 		}
