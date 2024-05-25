@@ -82,6 +82,9 @@ namespace Velody
                 {
                     embed.WithImage(video.Thumbnail);
                 }
+
+                embed.WithURL(video.Url);
+
                 await embed.Send();
             }
             catch (Exception e)

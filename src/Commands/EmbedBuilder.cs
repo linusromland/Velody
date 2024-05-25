@@ -35,6 +35,12 @@ namespace Velody
 			return this;
 		}
 
+		public EmbedBuilder WithURL(string url)
+		{
+			_builder.Url = url;
+			return this;
+		}
+
 		public async Task SendUnkownErrorAsync()
 		{
 			_builder.WithTitle("Error");
