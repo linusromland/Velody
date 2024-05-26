@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Web;
+using System.Xml;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Velody.Utils;
@@ -68,7 +69,7 @@ namespace Velody.Video.VideoModules
 				return null;
 			}
 
-			SearchResource.ListRequest? searchListRequest = _youTubeService.Search.List("snippet");
+			SearchResource.ListRequest? searchListRequest = _youTubeService.Search.List("id");
 			searchListRequest.Q = isUrl ? extractedId : searchString;
 			searchListRequest.MaxResults = 1;
 
@@ -77,15 +78,19 @@ namespace Velody.Video.VideoModules
 			if (searchListResponse.Items.Count > 0)
 			{
 				string? videoId = searchListResponse.Items[0].Id.VideoId;
-				Google.Apis.YouTube.v3.Data.SearchResultSnippet? videoSnippet = searchListResponse.Items[0].Snippet;
+
+				VideosResource.ListRequest videoListRequest = _youTubeService.Videos.List("contentDetails,snippet");
+				videoListRequest.Id = videoId;
+				Google.Apis.YouTube.v3.Data.VideoListResponse videoListResponse = await videoListRequest.ExecuteAsync();
+				Google.Apis.YouTube.v3.Data.Video video = videoListResponse.Items[0];
 
 				return new VideoInfo
 				{
 					VideoId = videoId,
-					Title = videoSnippet.Title,
-					Duration = 0,
+					Title = video.Snippet.Title,
+					Duration = (int)XmlConvert.ToTimeSpan(video.ContentDetails.Duration).TotalSeconds,
 					Url = IdToURL(videoId),
-					Thumbnail = videoSnippet.Thumbnails.Maxres?.Url ?? videoSnippet.Thumbnails.Default__.Url,
+					Thumbnail = video.Snippet.Thumbnails.Maxres?.Url ?? video.Snippet.Thumbnails.Default__.Url,
 					Service = VideoService.Youtube,
 					GuildId = guildId,
 					UserId = userId
@@ -98,25 +103,30 @@ namespace Velody.Video.VideoModules
 		private async Task<VideoInfo[]> GetPlaylistVideos(string playlistUrl, string guildId, string userId)
 		{
 			string? playlistId = GetPlaylistIdFromUrl(playlistUrl);
-			PlaylistItemsResource.ListRequest? playlistItemsListRequest = _youTubeService.PlaylistItems.List("snippet");
+			PlaylistItemsResource.ListRequest? playlistItemsListRequest = _youTubeService.PlaylistItems.List("id");
 			playlistItemsListRequest.PlaylistId = playlistId;
 			playlistItemsListRequest.MaxResults = 50;
 
 			Google.Apis.YouTube.v3.Data.PlaylistItemListResponse? playlistItemsListResponse = await playlistItemsListRequest.ExecuteAsync();
 			List<VideoInfo>? videos = new List<VideoInfo>();
+			List<string> videoIds = playlistItemsListResponse.Items.Select(playlistItem => playlistItem.Snippet.ResourceId.VideoId).ToList();
 
-			foreach (Google.Apis.YouTube.v3.Data.PlaylistItem? playlistItem in playlistItemsListResponse.Items)
+			VideosResource.ListRequest videoListRequest = _youTubeService.Videos.List("contentDetails,snippet");
+			videoListRequest.Id = string.Join(",", videoIds);
+			Google.Apis.YouTube.v3.Data.VideoListResponse videoListResponse = await videoListRequest.ExecuteAsync();
+
+			foreach (Google.Apis.YouTube.v3.Data.Video video in videoListResponse.Items)
 			{
-				string? videoId = playlistItem.Snippet.ResourceId.VideoId;
-				Google.Apis.YouTube.v3.Data.PlaylistItemSnippet? videoSnippet = playlistItem.Snippet;
+				string? videoId = video.Id;
+				Google.Apis.YouTube.v3.Data.VideoSnippet? videoSnippet = video.Snippet;
 
 				VideoInfo videoInfo = new VideoInfo
 				{
 					VideoId = videoId,
 					Title = videoSnippet.Title,
-					Duration = 0,
-					Url = $"https://www.youtube.com/watch?v={videoId}",
-					Thumbnail = videoSnippet.Thumbnails.Default__.Url,
+					Duration = (int)XmlConvert.ToTimeSpan(video.ContentDetails.Duration).TotalSeconds,
+					Url = IdToURL(videoId),
+					Thumbnail = videoSnippet.Thumbnails.Maxres?.Url ?? videoSnippet.Thumbnails.Default__.Url,
 					Service = VideoService.Youtube,
 					GuildId = guildId,
 					UserId = userId
@@ -125,12 +135,8 @@ namespace Velody.Video.VideoModules
 				videos.Add(videoInfo);
 			}
 
-			return videos.ToArray();
-		}
 
-		private static bool IsYoutubeUrl(string url)
-		{
-			return url.Contains("youtube.com");
+			return videos.ToArray();
 		}
 
 		private static bool IsYoutubePlaylistUrl(string url)
