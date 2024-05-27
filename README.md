@@ -14,7 +14,7 @@ Project is using app secrets, read more [here](https://learn.microsoft.com/en-us
 
 ## 📝 Contact
 
-If you have any questions, feel free to contact me on Discord: `linusromland#1012`
+If you have any questions, feel free to contact me on Discord: `linusromland`
 
 ## ⭐️ Project assistance
 
