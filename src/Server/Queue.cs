@@ -102,5 +102,13 @@ namespace Velody.Server
 			_logger.Information("Downloaded video {VideoTitle} to {VideoPath}", videoInfo.Title, videoPath);
 			_videoPaths[videoInfo.VideoId] = videoPath;
 		}
+
+		public VideoInfo CurrentlyPlaying
+		{
+			get
+			{
+				return _queue[0];
+			}
+		}
 	}
 }
