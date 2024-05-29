@@ -1,9 +1,9 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 using DSharpPlus.VoiceNext;
 using Serilog;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Velody.Utils;
 
@@ -11,10 +11,11 @@ namespace Velody.Server
 {
 	public class VoiceManager
 	{
-
 		private readonly ILogger _logger = Logger.CreateLogger("VoiceManager");
 		private readonly DiscordClient _client;
 		private VoiceNextConnection? _vnc;
+		private DateTime _playbackStartTime;
+		private bool _isPlaying;
 
 		public VoiceManager(DiscordClient client)
 		{
@@ -68,13 +69,11 @@ namespace Velody.Server
 				if (_vnc != null)
 				{
 					return new JoinVoiceResponse { Code = JoinVoiceChannelResponseCode.AlreadyConnected, VoiceChannelName = voiceChannel.Name };
-
 				}
 
 				_vnc = await vnext.ConnectAsync(voiceChannel);
 				return new JoinVoiceResponse { Code = JoinVoiceChannelResponseCode.Success, VoiceChannelName = voiceChannel.Name };
 			}
-
 			catch (System.Exception e)
 			{
 				_logger.Error(e, "An unknown error occurred while trying to join the voice channel {VoiceChannelName}", voiceChannel.Name);
@@ -97,6 +96,9 @@ namespace Velody.Server
 				throw new InvalidOperationException("Failed to get file stream.");
 			}
 
+			_playbackStartTime = DateTime.UtcNow;
+			_isPlaying = true;
+
 			_logger.Information("Playing audio from {Path}", path);
 
 			VoiceTransmitSink transmit = _vnc.GetTransmitSink();
@@ -106,6 +108,30 @@ namespace Velody.Server
 			_logger.Information("Finished playing audio from {Path}", path);
 
 			await _vnc.SendSpeakingAsync(false);
+			_isPlaying = false;
+		}
+
+		public void StopAudio()
+		{
+			if (_vnc == null)
+			{
+				throw new InvalidOperationException("Not connected to a voice channel.");
+			}
+
+			_vnc.GetTransmitSink().Dispose();
+			_isPlaying = false;
+
+			_logger.Information("Stopped audio playback.");
+		}
+
+		public TimeSpan GetPlaybackDuration()
+		{
+			if (!_isPlaying)
+			{
+				return TimeSpan.Zero;
+			}
+
+			return DateTime.UtcNow - _playbackStartTime;
 		}
 
 		public void LeaveVoiceChannel()
@@ -117,11 +143,11 @@ namespace Velody.Server
 
 			_vnc.Disconnect();
 			_vnc = null;
+			_isPlaying = false;
 		}
 
 		public bool IsConnectedToVoice()
 		{
-
 			return _vnc != null;
 		}
 	}
