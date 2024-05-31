@@ -41,7 +41,28 @@ namespace Velody
                     return;
                 }
 
-                embed.WithTitle($"Playing  `{server.Queue.CurrentlyPlaying.Title}`");
+                VideoInfo? currentlyPlaying = server.Queue.CurrentlyPlaying;
+                if (currentlyPlaying == null)
+                {
+                    embed.WithTitle("Error");
+                    embed.WithDescription("There is no video currently playing.");
+                    await embed.Send();
+                    return;
+                }
+
+
+                embed.WithTitle($"Playing  `{currentlyPlaying.Title}`");
+                embed.WithImage(currentlyPlaying.Thumbnail);
+                embed.WithURL(currentlyPlaying.Url);
+
+
+                TimeSpan currentPlayTime = server.VoiceManager.GetPlaybackDuration();
+                TimeSpan totalDuration = new TimeSpan(0, 0, currentlyPlaying.Duration);
+                string progressBar = CreateProgressBar(currentPlayTime, totalDuration, 15);
+                string timeString = $"`{currentPlayTime:mm\\:ss} / {totalDuration:mm\\:ss}`";
+                string requestedBy = $"Requested by <@{currentlyPlaying.UserId}>";
+                embed.WithDescription($"{progressBar}\n{timeString}\n{requestedBy}");
+
                 await embed.Send();
             }
             catch (Exception e)
@@ -50,6 +71,14 @@ namespace Velody
                 await embed.SendUnkownErrorAsync();
                 return;
             }
+        }
+
+        static string CreateProgressBar(TimeSpan currentPlayTime, TimeSpan totalDuration, int barLength)
+        {
+            double percentagePlayed = currentPlayTime.TotalSeconds / totalDuration.TotalSeconds;
+            int playedLength = (int)(percentagePlayed * barLength);
+
+            return $"{new string('▬', playedLength)}🔘{new string('▬', barLength - playedLength)}";
         }
     }
 }
