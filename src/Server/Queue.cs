@@ -103,10 +103,15 @@ namespace Velody.Server
 			_videoPaths[videoInfo.VideoId] = videoPath;
 		}
 
-		public VideoInfo CurrentlyPlaying
+		public VideoInfo? CurrentlyPlaying
 		{
 			get
 			{
+				if (_queue.Count == 0)
+				{
+					return null;
+				}
+
 				return _queue[0];
 			}
 		}
