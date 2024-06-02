@@ -17,6 +17,7 @@ namespace Velody.Utils
 				FileName = "ffmpeg",
 				Arguments = $@"-i ""{path}"" -ac 2 -f s16le -ar 48000 pipe:1",
 				RedirectStandardOutput = true,
+				RedirectStandardError = true,
 				UseShellExecute = false
 			});
 
