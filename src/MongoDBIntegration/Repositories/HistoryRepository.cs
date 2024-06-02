@@ -15,7 +15,7 @@ namespace Velody.MongoDBIntegration.Repositories
 			_historyCollection = mongoDBHelper.GetCollection<HistoryModel>("history");
 		}
 
-		public async Task InsertHistory(ObjectId videoId, string userId, string guildId, bool announced, ObjectId? announceMessageId)
+		public async Task<string> InsertHistory(ObjectId videoId, string userId, string guildId, bool announced, ObjectId? announceMessageId)
 		{
 			HistoryModel history = new HistoryModel
 			{
@@ -28,6 +28,14 @@ namespace Velody.MongoDBIntegration.Repositories
 			};
 
 			await _historyCollection.InsertOneAsync(history);
+			return history.Id.ToString();
+		}
+
+		public async Task SkippedHistory(string historyId, TimeSpan skippedAt)
+		{
+			HistoryModel history = await _historyCollection.Find(h => h.Id == ObjectId.Parse(historyId)).FirstOrDefaultAsync();
+			history.SkippedAt = (int)skippedAt.TotalSeconds;
+			await _historyCollection.ReplaceOneAsync(h => h.Id == ObjectId.Parse(historyId), history);
 		}
 	}
 }

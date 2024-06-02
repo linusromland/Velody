@@ -3,6 +3,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Serilog;
+using Velody.MongoDBIntegration.Repositories;
 using Velody.Server;
 using Velody.Utils;
 using Velody.Video;
@@ -10,11 +11,13 @@ using static Velody.Server.VoiceManager;
 
 namespace Velody
 {
-    public class SkipCommand(ServerManager serverManager, VideoHandler videoHandler) : ApplicationCommandModule
+    public class SkipCommand(ServerManager serverManager, HistoryRepository historyRepository) : ApplicationCommandModule
     {
         private readonly ILogger _logger = Logger.CreateLogger("SkipCommand");
+
         private readonly ServerManager _serverManager = serverManager;
-        private readonly VideoHandler _videoHandler = videoHandler;
+
+        private HistoryRepository _historyRepository = historyRepository;
 
         [SlashCommand("skip", "Skips the currently playing video.")]
         public async Task Play(InteractionContext ctx)
@@ -42,6 +45,7 @@ namespace Velody
                 }
 
                 VideoInfo? currentlyPlaying = server.Queue.CurrentlyPlaying;
+                TimeSpan currentPlayTime = server.VoiceManager.GetPlaybackDuration();
                 if (currentlyPlaying == null)
                 {
                     embed.WithTitle("Error");
@@ -53,6 +57,11 @@ namespace Velody
                 VideoInfo? nextVideo = server.Queue.GetNextVideo;
 
                 server.VoiceManager.StopAudio();
+                if (currentlyPlaying.HistoryId != null)
+                {
+                    await _historyRepository.SkippedHistory(currentlyPlaying.HistoryId, currentPlayTime);
+                }
+
                 embed.WithTitle($"Skipped `{currentlyPlaying.Title}`");
 
                 if (nextVideo != null)

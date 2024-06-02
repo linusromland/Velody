@@ -58,6 +58,11 @@ namespace Velody.Server
 
 		public void HandlePlaybackFinished()
 		{
+			if (_queue.Count == 0)
+			{
+				return;
+			}
+
 			_queue.RemoveAt(0);
 			_logger.Information("Removed video from queue, {QueueLength} videos left in queue", _queue.Count);
 		}
@@ -82,7 +87,8 @@ namespace Velody.Server
 			if (video != null)
 			{
 				// TODO: Add support for announcment here
-				await _historyRepository.InsertHistory(video.Id, videoInfo.GuildId, videoInfo.UserId, false, null);
+				string historyId = await _historyRepository.InsertHistory(video.Id, videoInfo.GuildId, videoInfo.UserId, false, null);
+				AddMongoIdToQueueEntry(videoInfo.VideoId, historyId);
 				_logger.Information("Inserted history for video {VideoId}", video.Id);
 			}
 
@@ -101,6 +107,12 @@ namespace Velody.Server
 
 			_logger.Information("Downloaded video {VideoTitle} to {VideoPath}", videoInfo.Title, videoPath);
 			_videoPaths[videoInfo.VideoId] = videoPath;
+		}
+
+		public void AddMongoIdToQueueEntry(string videoId, string mongoId)
+		{
+			_queue[0].HistoryId = mongoId;
+			_logger.Information("Added history ID {HistoryId} to video {VideoId}", mongoId, videoId);
 		}
 
 		public VideoInfo? CurrentlyPlaying

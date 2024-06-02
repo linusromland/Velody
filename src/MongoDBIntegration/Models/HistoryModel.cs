@@ -13,5 +13,6 @@ namespace Velody.MongoDBIntegration.Models
 		public required ObjectId VideoId { get; set; }
 		public required bool Announced { get; set; }
 		public ObjectId? AnnounceMessageId { get; set; }
+		public int? SkippedAt { get; set; }
 	}
 }
