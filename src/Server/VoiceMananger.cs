@@ -4,6 +4,7 @@ using DSharpPlus.VoiceNext;
 using Serilog;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Velody.Utils;
 
@@ -16,6 +17,10 @@ namespace Velody.Server
 		private VoiceNextConnection? _vnc;
 		private DateTime _playbackStartTime;
 		private bool _isPlaying;
+		private Thread? _playbackThread;
+		private Stream? _fileStream;
+		private CancellationTokenSource? _cancellationTokenSource;
+		public event Func<Task>? PlaybackFinished;
 
 		public VoiceManager(DiscordClient client)
 		{
@@ -40,7 +45,7 @@ namespace Velody.Server
 
 				return voiceChannel;
 			}
-			catch (System.Exception)
+			catch (Exception)
 			{
 				return null;
 			}
@@ -74,41 +79,64 @@ namespace Velody.Server
 				_vnc = await vnext.ConnectAsync(voiceChannel);
 				return new JoinVoiceResponse { Code = JoinVoiceChannelResponseCode.Success, VoiceChannelName = voiceChannel.Name };
 			}
-			catch (System.Exception e)
+			catch (Exception e)
 			{
 				_logger.Error(e, "An unknown error occurred while trying to join the voice channel {VoiceChannelName}", voiceChannel.Name);
 				return new JoinVoiceResponse { Code = JoinVoiceChannelResponseCode.UnknownError };
 			}
 		}
 
-		public async Task PlayAudioAsync(string path)
+		public void PlayAudio(string path)
 		{
 			if (_vnc == null)
 			{
 				throw new InvalidOperationException("Not connected to a voice channel.");
 			}
 
-			await _vnc.SendSpeakingAsync(true);
+			_cancellationTokenSource = new CancellationTokenSource();
+			_playbackThread = new Thread(() => PlayAudioInternal(path, _cancellationTokenSource.Token));
+			_playbackThread.Start();
+		}
 
-			Stream? fileStream = FFmpeg.GetFileStream(path);
-			if (fileStream == null)
+		private void PlayAudioInternal(string path, CancellationToken cancellationToken)
+		{
+			if (_vnc == null)
 			{
-				throw new InvalidOperationException("Failed to get file stream.");
+				throw new InvalidOperationException("Not connected to a voice channel.");
 			}
 
-			_playbackStartTime = DateTime.UtcNow;
-			_isPlaying = true;
+			try
+			{
+				_vnc.SendSpeakingAsync(true).GetAwaiter().GetResult();
 
-			_logger.Information("Playing audio from {Path}", path);
+				_fileStream = FFmpeg.GetFileStream(path);
+				if (_fileStream == null)
+				{
+					throw new InvalidOperationException("Failed to get file stream.");
+				}
 
-			VoiceTransmitSink transmit = _vnc.GetTransmitSink();
-			await fileStream.CopyToAsync(transmit);
-			await fileStream.DisposeAsync();
+				_playbackStartTime = DateTime.UtcNow;
+				_isPlaying = true;
 
-			_logger.Information("Finished playing audio from {Path}", path);
+				_logger.Information("Playing audio from {Path}", path);
 
-			await _vnc.SendSpeakingAsync(false);
-			_isPlaying = false;
+				VoiceTransmitSink transmit = _vnc.GetTransmitSink();
+				_fileStream.CopyToAsync(transmit, 81920, cancellationToken).GetAwaiter().GetResult();
+
+				_fileStream.Dispose();
+
+				PlaybackFinished?.Invoke();
+				_logger.Information("Finished playing audio from {Path}", path);
+			}
+			catch (Exception ex)
+			{
+				_logger.Error(ex, "An error occurred during audio playback.");
+			}
+			finally
+			{
+				_vnc.SendSpeakingAsync(false).GetAwaiter().GetResult();
+				_isPlaying = false;
+			}
 		}
 
 		public void StopAudio()
@@ -118,8 +146,18 @@ namespace Velody.Server
 				throw new InvalidOperationException("Not connected to a voice channel.");
 			}
 
+			_cancellationTokenSource?.Cancel();
+
+			if (_playbackThread != null && _playbackThread.IsAlive)
+			{
+				_playbackThread.Join();
+			}
+
 			_vnc.GetTransmitSink().Dispose();
+			_fileStream?.Dispose();
 			_isPlaying = false;
+
+			PlaybackFinished?.Invoke();
 
 			_logger.Information("Stopped audio playback.");
 		}
@@ -140,6 +178,8 @@ namespace Velody.Server
 			{
 				throw new InvalidOperationException("Not connected to a voice channel.");
 			}
+
+			StopAudio();
 
 			_vnc.Disconnect();
 			_vnc = null;

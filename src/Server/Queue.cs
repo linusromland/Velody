@@ -115,5 +115,17 @@ namespace Velody.Server
 				return _queue[0];
 			}
 		}
+		public VideoInfo? GetNextVideo
+		{
+			get
+			{
+				if (_queue.Count < 2)
+				{
+					return null;
+				}
+
+				return _queue[1];
+			}
+		}
 	}
 }

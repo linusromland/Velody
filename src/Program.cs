@@ -48,12 +48,14 @@ namespace Velody
                 })
                 .AddSingleton<PlayCommand>()
                 .AddSingleton<NowPlayingCommand>()
+                .AddSingleton<SkipCommand>()
                 .AddSingleton(provider =>
                 {
                     return new List<ApplicationCommandModule>
                     {
                         provider.GetRequiredService<PlayCommand>(),
-                        provider.GetRequiredService<NowPlayingCommand>()
+                        provider.GetRequiredService<NowPlayingCommand>(),
+                        provider.GetRequiredService<SkipCommand>(),
                     };
                 })
                 .AddSingleton(provider =>

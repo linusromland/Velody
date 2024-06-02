@@ -29,9 +29,14 @@ namespace Velody.Server
 
 			VoiceManager = new VoiceManager(_client);
 			Queue = new Queue(_name, videoHandler, historyRepository, videoRepository);
-			Queue.PlaySong += async (videoPath) =>
+			Queue.PlaySong += (videoPath) =>
 			{
-				await VoiceManager.PlayAudioAsync(videoPath);
+				VoiceManager.PlayAudio(videoPath);
+				return Task.CompletedTask;
+			};
+
+			VoiceManager.PlaybackFinished += async () =>
+			{
 				Queue.HandlePlaybackFinished();
 				if (Queue.IsQueueEmpty())
 				{
