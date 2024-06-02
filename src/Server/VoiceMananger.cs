@@ -153,7 +153,6 @@ namespace Velody.Server
 				_playbackThread.Join();
 			}
 
-			_vnc.GetTransmitSink().Dispose();
 			_fileStream?.Dispose();
 			_isPlaying = false;
 
