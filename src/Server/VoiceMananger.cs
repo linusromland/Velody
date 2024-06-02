@@ -139,7 +139,7 @@ namespace Velody.Server
 			}
 		}
 
-		public void StopAudio()
+		public void StopAudio(bool shouldInvokeFinished = true)
 		{
 			if (_vnc == null)
 			{
@@ -154,9 +154,13 @@ namespace Velody.Server
 			}
 
 			_fileStream?.Dispose();
+			_fileStream = null;
 			_isPlaying = false;
 
-			PlaybackFinished?.Invoke();
+			if (shouldInvokeFinished)
+			{
+				PlaybackFinished?.Invoke();
+			}
 
 			_logger.Information("Stopped audio playback.");
 		}
@@ -178,7 +182,7 @@ namespace Velody.Server
 				throw new InvalidOperationException("Not connected to a voice channel.");
 			}
 
-			StopAudio();
+			StopAudio(false);
 
 			_vnc.Disconnect();
 			_vnc = null;
