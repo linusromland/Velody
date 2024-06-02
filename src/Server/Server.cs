@@ -35,7 +35,7 @@ namespace Velody.Server
 				return Task.CompletedTask;
 			};
 
-			VoiceManager.PlaybackFinished += async () =>
+			VoiceManager.PlaybackFinished += () =>
 			{
 				Queue.HandlePlaybackFinished();
 				if (Queue.IsQueueEmpty())
@@ -49,6 +49,8 @@ namespace Velody.Server
 					_logger.Information("Playing next song in queue");
 					_ = Queue.PlayNextSongAsync();
 				}
+
+				return Task.CompletedTask;
 			};
 
 			_logger.Information($"Server {_name} initialized with ID {_guildId}");
