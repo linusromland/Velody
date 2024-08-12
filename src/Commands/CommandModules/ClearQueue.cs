@@ -10,16 +10,16 @@ using Velody.Video;
 
 namespace Velody
 {
-    public class SkipCommand(ServerManager serverManager, HistoryRepository historyRepository) : ApplicationCommandModule
+    public class ClearCommand(ServerManager serverManager, HistoryRepository historyRepository) : ApplicationCommandModule
     {
-        private readonly ILogger _logger = Logger.CreateLogger("SkipCommand");
+        private readonly ILogger _logger = Logger.CreateLogger("ClearCommand");
 
         private readonly ServerManager _serverManager = serverManager;
 
         private HistoryRepository _historyRepository = historyRepository;
 
-        [SlashCommand("skip", "Skips the currently playing video.")]
-        public async Task Play(InteractionContext ctx)
+        [SlashCommand("clear", "Clears the queue.")]
+        public async Task Clear(InteractionContext ctx)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);
             try
@@ -43,31 +43,26 @@ namespace Velody
                     return;
                 }
 
-                VideoInfo? currentlyPlaying = server.Queue.CurrentlyPlaying;
-                TimeSpan currentPlayTime = server.VoiceManager.GetPlaybackDuration();
-                if (currentlyPlaying == null)
+                List<VideoInfo> queue = server.Queue.GetQueue();
+                if (queue.Count <= 1)
                 {
                     embed.WithTitle("Error");
-                    embed.WithDescription("There is no video currently playing.");
+                    embed.WithDescription("The queue is already empty.");
                     await embed.Send();
                     return;
                 }
+                server.Queue.ClearQueue();
 
-                VideoInfo? nextVideo = server.Queue.GetNextVideo;
-
-                server.VoiceManager.StopAudio();
-                if (currentlyPlaying.HistoryId != null)
+                for (int i = 1; i < queue.Count; i++)
                 {
-                    await _historyRepository.SkippedHistory(currentlyPlaying.HistoryId, currentPlayTime);
+                    VideoInfo video = queue[i];
+                    if (video.HistoryId != null)
+                    {
+                        await _historyRepository.SkippedHistory(video.HistoryId, TimeSpan.Zero);
+                    }
                 }
 
-                embed.WithTitle($"Skipped `{currentlyPlaying.Title}`");
-
-                if (nextVideo != null)
-                {
-                    embed.WithDescription($"Up next `{nextVideo.Title}`");
-                }
-
+                embed.WithTitle("Queue Cleared");
                 await embed.Send();
             }
             catch (Exception e)

@@ -1,3 +1,4 @@
 {
-  "csharp.suppressDotnetDiagnostic": "IDE0001"
+  "csharp.suppressDotnetDiagnostic": "IDE0001",
+  "cSpell.words": ["Unkown", "Velody"]
 }

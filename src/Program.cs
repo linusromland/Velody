@@ -48,6 +48,7 @@ namespace Velody
                 })
                 .AddSingleton<PlayCommand>()
                 .AddSingleton<NowPlayingCommand>()
+                .AddSingleton<ClearCommand>()
                 .AddSingleton<SkipCommand>()
                 .AddSingleton(provider =>
                 {
@@ -55,7 +56,8 @@ namespace Velody
                     {
                         provider.GetRequiredService<PlayCommand>(),
                         provider.GetRequiredService<NowPlayingCommand>(),
-                        provider.GetRequiredService<SkipCommand>(),
+                        provider.GetRequiredService<ClearCommand>(),
+                        provider.GetRequiredService<SkipCommand>()
                     };
                 })
                 .AddSingleton(provider =>

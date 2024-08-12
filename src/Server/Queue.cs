@@ -115,6 +115,17 @@ namespace Velody.Server
 			_logger.Information("Added history ID {HistoryId} to video {VideoId}", mongoId, videoId);
 		}
 
+		public List<VideoInfo> GetQueue()
+		{
+			return _queue;
+		}
+
+		public void ClearQueue()
+		{
+			_queue.RemoveRange(1, _queue.Count - 1);
+			_logger.Information("Cleared queue for server {ServerName}", _serverName);
+		}
+
 		public VideoInfo? CurrentlyPlaying
 		{
 			get
