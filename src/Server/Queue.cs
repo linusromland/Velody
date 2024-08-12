@@ -126,6 +126,20 @@ namespace Velody.Server
 			_logger.Information("Cleared queue for server {ServerName}", _serverName);
 		}
 
+		public void ShuffleQueue()
+		{
+			Random random = new Random();
+			for (int i = 1; i < _queue.Count; i++)
+			{
+				int randomIndex = random.Next(i, _queue.Count);
+				VideoInfo temp = _queue[i];
+				_queue[i] = _queue[randomIndex];
+				_queue[randomIndex] = temp;
+			}
+
+			_logger.Information("Shuffled queue for server {ServerName}", _serverName);
+		}
+
 		public VideoInfo? CurrentlyPlaying
 		{
 			get
