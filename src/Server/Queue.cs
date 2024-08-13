@@ -23,10 +23,18 @@ namespace Velody.Server
 		private Dictionary<string, string> _videoPaths = new Dictionary<string, string>();
 		public event Func<string, Task>? PlaySong;
 
-		public async Task AddToQueueAsync(VideoInfo videoInfo)
+		public async Task AddToQueueAsync(VideoInfo videoInfo, bool addFirst = false)
 		{
-			_queue.Add(videoInfo);
-			_logger.Information("Added video {VideoTitle} to the queue for server {ServerName}", videoInfo.Title, _serverName);
+			if (addFirst && _queue.Count > 1)
+			{
+				_queue.Insert(2, videoInfo);
+				_logger.Information("Added video {VideoTitle} to the front of the queue for server {ServerName}", videoInfo.Title, _serverName);
+			}
+			else
+			{
+				_queue.Add(videoInfo);
+				_logger.Information("Added video {VideoTitle} to the queue for server {ServerName}", videoInfo.Title, _serverName);
+			}
 
 			if (_queue.Count == 1)
 			{
