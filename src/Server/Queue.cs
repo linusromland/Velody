@@ -120,6 +120,16 @@ namespace Velody.Server
 			return _queue;
 		}
 
+		public List<VideoInfo> GetQueue(int Limit, int Offset)
+		{
+			return _queue.Skip(Offset).Take(Limit).ToList();
+		}
+
+		public int GetQueueLength()
+		{
+			return _queue.Count;
+		}
+
 		public void ClearQueue()
 		{
 			_queue.RemoveRange(1, _queue.Count - 1);

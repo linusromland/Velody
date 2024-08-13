@@ -3,6 +3,7 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using Velody.InteractionHandlers;
 using Velody.MongoDBIntegration;
 using Velody.MongoDBIntegration.Repositories;
 using Velody.Server;
@@ -18,12 +19,13 @@ namespace Velody
         static async Task Main(string[] args)
         {
             _logger.Information("Starting Velody...");
-
             ServiceProvider serviceProvider = ConfigureServices();
+            _logger.Information("Configuration complete");
+
             Bot bot = serviceProvider.GetRequiredService<Bot>();
+
+            _logger.Information("Starting bot...");
             await bot.StartAsync();
-
-
 
             await Task.Delay(-1);
         }
@@ -41,6 +43,13 @@ namespace Velody
                         LoggerFactory = Logger.CreateLoggerFactory()
                     });
 
+                    // Enable interactions
+                    client.ComponentInteractionCreated += (client, e) =>
+                    {
+                        Task.Run(() => InteractionHandler.HandleInteraction(provider.GetRequiredService<ServerManager>(), client, e));
+                        return Task.CompletedTask;
+                    };
+
                     // Enable voice
                     client.UseVoiceNext();
 
@@ -48,16 +57,19 @@ namespace Velody
                 })
                 .AddSingleton<PlayCommand>()
                 .AddSingleton<NowPlayingCommand>()
-                .AddSingleton<ClearCommand>()
+                .AddSingleton<ClearQueueCommand>()
                 .AddSingleton<SkipCommand>()
+                .AddSingleton<QueueCommand>()
+                .AddSingleton<ClearQueueCommand>()
                 .AddSingleton(provider =>
                 {
                     return new List<ApplicationCommandModule>
                     {
                         provider.GetRequiredService<PlayCommand>(),
                         provider.GetRequiredService<NowPlayingCommand>(),
-                        provider.GetRequiredService<ClearCommand>(),
-                        provider.GetRequiredService<SkipCommand>()
+                        provider.GetRequiredService<SkipCommand>(),
+                        provider.GetRequiredService<QueueCommand>(),
+                        provider.GetRequiredService<ClearQueueCommand>(),
                     };
                 })
                 .AddSingleton(provider =>
@@ -79,6 +91,7 @@ namespace Velody
                 .AddSingleton<VideoRepository>()
                 .AddSingleton<HistoryRepository>()
                 .AddSingleton<CacheRepository>()
+
 
                 .BuildServiceProvider();
 

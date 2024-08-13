@@ -2,7 +2,10 @@ using System.Threading.Channels;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using Newtonsoft.Json.Linq;
 using Serilog;
+using Velody.Helpers;
+using Velody.InteractionHandlers;
 using Velody.MongoDBIntegration.Repositories;
 using Velody.Server;
 using Velody.Utils;
@@ -10,16 +13,16 @@ using Velody.Video;
 
 namespace Velody
 {
-    public class ClearQueueCommand(ServerManager serverManager, HistoryRepository historyRepository) : ApplicationCommandModule
+    public class QueueCommand(ServerManager serverManager, HistoryRepository historyRepository) : ApplicationCommandModule
     {
-        private readonly ILogger _logger = Logger.CreateLogger("ClearCommand");
+        private readonly ILogger _logger = Logger.CreateLogger("QueueCommand");
 
         private readonly ServerManager _serverManager = serverManager;
 
         private HistoryRepository _historyRepository = historyRepository;
 
-        [SlashCommand("clear", "Clears the queue.")]
-        public async Task ClearQueue(InteractionContext ctx)
+        [SlashCommand("queue", "Shows the queue.")]
+        public async Task Queue(InteractionContext ctx)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);
             try
@@ -44,30 +47,19 @@ namespace Velody
                 }
 
                 List<VideoInfo> queue = server.Queue.GetQueue();
-                if (queue.Count <= 1)
+                if (queue.Count == 0)
                 {
                     embed.WithTitle("Error");
-                    embed.WithDescription("The queue is already empty.");
+                    embed.WithDescription("Queue is empty.");
                     await embed.Send();
                     return;
                 }
-                server.Queue.ClearQueue();
 
-                for (int i = 1; i < queue.Count; i++)
-                {
-                    VideoInfo video = queue[i];
-                    if (video.HistoryId != null)
-                    {
-                        await _historyRepository.SkippedHistory(video.HistoryId, TimeSpan.Zero);
-                    }
-                }
-
-                embed.WithTitle("Queue Cleared");
-                await embed.Send();
+                QueueMessageHelper.HandleQueueMessage(embed, server.Queue, 0);
             }
             catch (Exception e)
             {
-                _logger.Error(e, "An error occurred while executing the skip command.");
+                _logger.Error(e, "An error occurred while executing the queue command.");
                 await embed.SendUnkownErrorAsync();
                 return;
             }
