@@ -8,7 +8,7 @@ namespace Velody.Helpers
     public class QueueMessageHelper
     {
 
-        public static int PAGE_SIZE = 10;
+        public const int PAGE_SIZE = 10;
 
         public static string formatVideo(VideoInfo video)
         {
@@ -22,8 +22,10 @@ namespace Velody.Helpers
         {
             int pageSize = page == 0 ? PAGE_SIZE + 1 : PAGE_SIZE;
             int offset = page == 0 ? 0 : page * PAGE_SIZE + 1;
-            List<VideoInfo> videos = queue.GetQueue(pageSize, offset);
             int queueLength = queue.GetQueueLength();
+            int totalPages = queueLength / PAGE_SIZE + 1;
+            List<VideoInfo> videos = queue.GetQueue(pageSize, offset);
+
 
             embed.WithTitle("Queue");
 
@@ -40,34 +42,38 @@ namespace Velody.Helpers
                 videos.RemoveAt(0);
             }
 
-            description += "__Up Next:__\n";
-            for (int i = 0; i < videos.Count; i++)
+            Console.WriteLine(videos.Count);
+
+            if (videos.Count > 0)
             {
-                description += $"`{i + 1 + page * PAGE_SIZE}.` {formatVideo(videos[i])}\n";
+                description += "__Up Next:__\n";
+                for (int i = 0; i < videos.Count; i++)
+                {
+                    description += $"`{i + 1 + page * PAGE_SIZE}.` {formatVideo(videos[i])}\n";
+                }
+
+                int queueDuration = queue.GetQueueDuration();
+                TimeSpan totalDuration = new TimeSpan(0, 0, queueDuration);
+                description += $"__Queue Length:__ {totalDuration:mm\\:ss}\n";
+
+                description += $"__Total:__ {queueLength} videos.\n";
             }
 
-            int queueDuration = queue.GetQueueDuration();
-            TimeSpan totalDuration = new TimeSpan(0, 0, queueDuration);
-            description += $"__Queue Length:__ {totalDuration:mm\\:ss}\n";
-
-            description += $"__Total:__ {queueLength} videos.\n";
-            description += $"\n__Page:__ {page + 1} / {queueLength / PAGE_SIZE + 1}";
-
-            embed.WithDescription(description);
-
             bool isFirstPage = page == 0;
-            bool isLastPage = page == queueLength / PAGE_SIZE;
+            bool isLastPage = page == totalPages - 1;
 
+            if (totalPages > 1)
+            {
+                description += $"\n__Page:__ {page + 1} / {totalPages}";
 
-            JObject data = new JObject();
-            data["page"] = isFirstPage ? 0 : page - 1;
+                JObject data = new JObject();
+                data["page"] = isFirstPage ? 0 : page - 1;
+                embed.WithActionButton("Previous", QueueInteractionHandler.ActionType, data, isFirstPage);
 
-
-            embed.WithActionButton("Previous", QueueInteractionHandler.ActionType, data, isFirstPage);
-
-            data["page"] = isLastPage ? page : page + 1;
-            embed.WithActionButton("Next", QueueInteractionHandler.ActionType, data, isLastPage);
-
+                data["page"] = isLastPage ? page : page + 1;
+                embed.WithActionButton("Next", QueueInteractionHandler.ActionType, data, isLastPage);
+            }
+            embed.WithDescription(description);
 
             await embed.Send();
         }
