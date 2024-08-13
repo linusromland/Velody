@@ -61,6 +61,7 @@ namespace Velody
                 .AddSingleton<SkipCommand>()
                 .AddSingleton<QueueCommand>()
                 .AddSingleton<ClearQueueCommand>()
+                .AddSingleton<ShuffleQueueCommand>()
                 .AddSingleton(provider =>
                 {
                     return new List<ApplicationCommandModule>
@@ -70,6 +71,7 @@ namespace Velody
                         provider.GetRequiredService<SkipCommand>(),
                         provider.GetRequiredService<QueueCommand>(),
                         provider.GetRequiredService<ClearQueueCommand>(),
+                        provider.GetRequiredService<ShuffleQueueCommand>()
                     };
                 })
                 .AddSingleton(provider =>
