@@ -125,6 +125,11 @@ namespace Velody.Server
 			return _queue.Skip(Offset).Take(Limit).ToList();
 		}
 
+		public int GetQueueDuration()
+		{
+			return _queue.Sum(video => video.Duration);
+		}
+
 		public int GetQueueLength()
 		{
 			return _queue.Count;

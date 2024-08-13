@@ -12,7 +12,10 @@ namespace Velody.Helpers
 
         public static string formatVideo(VideoInfo video)
         {
-            return $"[{video.Title}]({video.Url}) - {video.Duration}";
+            TimeSpan totalDuration = new TimeSpan(0, 0, video.Duration);
+            string timeString = $"`{totalDuration:mm\\:ss}`";
+
+            return $"[{video.Title}]({video.Url}) - {timeString}";
         }
 
         public static async void HandleQueueMessage(EmbedBuilder embed, Velody.Server.Queue queue, int page)
@@ -42,8 +45,12 @@ namespace Velody.Helpers
                 description += $"`{i + 1 + page * PAGE_SIZE}.` {formatVideo(videos[i])}\n";
             }
 
-            description += $"__Total:__ {queueLength} videos\n\n";
-            description += $"__Page:__ {page + 1} / {queueLength / PAGE_SIZE + 1}";
+            int queueDuration = queue.GetQueueDuration();
+            TimeSpan totalDuration = new TimeSpan(0, 0, queueDuration);
+            description += $"__Queue Length:__ {totalDuration:mm\\:ss}\n";
+
+            description += $"__Total:__ {queueLength} videos.\n";
+            description += $"\n__Page:__ {page + 1} / {queueLength / PAGE_SIZE + 1}";
 
             embed.WithDescription(description);
 
