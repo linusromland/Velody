@@ -13,13 +13,11 @@ using Velody.Video;
 
 namespace Velody
 {
-    public class QueueCommand(ServerManager serverManager, HistoryRepository historyRepository) : ApplicationCommandModule
+    public class QueueCommand(ServerManager serverManager) : ApplicationCommandModule
     {
         private readonly ILogger _logger = Logger.CreateLogger("QueueCommand");
 
         private readonly ServerManager _serverManager = serverManager;
-
-        private HistoryRepository _historyRepository = historyRepository;
 
         [SlashCommand("queue", "Shows the queue.")]
         public async Task Queue(InteractionContext ctx)
