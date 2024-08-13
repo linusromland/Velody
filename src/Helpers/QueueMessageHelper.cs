@@ -21,7 +21,8 @@ namespace Velody.Helpers
         public static async void HandleQueueMessage(EmbedBuilder embed, Velody.Server.Queue queue, int page)
         {
             int pageSize = page == 0 ? PAGE_SIZE + 1 : PAGE_SIZE;
-            List<VideoInfo> videos = queue.GetQueue(pageSize, page * PAGE_SIZE + 1);
+            int offset = page == 0 ? 0 : page * PAGE_SIZE + 1;
+            List<VideoInfo> videos = queue.GetQueue(pageSize, offset);
             int queueLength = queue.GetQueueLength();
 
             embed.WithTitle("Queue");
