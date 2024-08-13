@@ -23,14 +23,13 @@ namespace Velody.InteractionHandlers
 			}
 
 			int? page = data["page"]?.ToObject<int>();
-			int? direction = data["direction"]?.ToObject<int>();
 
-			if (page == null || direction == null)
+			if (page == null)
 			{
 				return;
 			}
 
-			QueueMessageHelper.HandleQueueMessage(embed, server.Queue, page.Value + direction.Value);
+			QueueMessageHelper.HandleQueueMessage(embed, server.Queue, page.Value);
 		}
 
 	}
