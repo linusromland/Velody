@@ -3,12 +3,16 @@ using System.Web;
 using System.Xml;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
+using MongoDB.Bson;
+using Serilog;
 using Velody.Utils;
 
 namespace Velody.Video.VideoModules
 {
 	public class YoutubeModule : BaseVideoModule
 	{
+
+		private static readonly ILogger _logger = Logger.CreateLogger("YoutubeModule");
 
 		private readonly YouTubeService _youTubeService;
 
@@ -45,6 +49,7 @@ namespace Velody.Video.VideoModules
 
 		public override async Task<VideoInfo[]> GetVideoInfo(string searchStringOrUrl, string guildId, string userId)
 		{
+
 			if (IsYoutubePlaylistUrl(searchStringOrUrl))
 			{
 				return await GetPlaylistVideos(searchStringOrUrl, guildId, userId);
@@ -70,6 +75,7 @@ namespace Velody.Video.VideoModules
 			}
 
 			SearchResource.ListRequest? searchListRequest = _youTubeService.Search.List("id");
+			searchListRequest.Type = "video";
 			searchListRequest.Q = isUrl ? extractedId : searchString;
 			searchListRequest.MaxResults = 1;
 
@@ -79,7 +85,7 @@ namespace Velody.Video.VideoModules
 			{
 				string? videoId = searchListResponse.Items[0].Id.VideoId;
 
-				VideosResource.ListRequest videoListRequest = _youTubeService.Videos.List("contentDetails,snippet");
+				VideosResource.ListRequest videoListRequest = _youTubeService.Videos.List("contentDetails,snippet,id");
 				videoListRequest.Id = videoId;
 				Google.Apis.YouTube.v3.Data.VideoListResponse videoListResponse = await videoListRequest.ExecuteAsync();
 				Google.Apis.YouTube.v3.Data.Video video = videoListResponse.Items[0];
@@ -93,7 +99,7 @@ namespace Velody.Video.VideoModules
 					Thumbnail = video.Snippet.Thumbnails.Maxres?.Url ?? video.Snippet.Thumbnails.Default__.Url,
 					Service = VideoService.Youtube,
 					GuildId = guildId,
-					UserId = userId
+					UserId = userId,
 				};
 			}
 
@@ -103,7 +109,7 @@ namespace Velody.Video.VideoModules
 		private async Task<VideoInfo[]> GetPlaylistVideos(string playlistUrl, string guildId, string userId)
 		{
 			string? playlistId = GetPlaylistIdFromUrl(playlistUrl);
-			PlaylistItemsResource.ListRequest? playlistItemsListRequest = _youTubeService.PlaylistItems.List("id");
+			PlaylistItemsResource.ListRequest? playlistItemsListRequest = _youTubeService.PlaylistItems.List("id,snippet");
 			playlistItemsListRequest.PlaylistId = playlistId;
 			playlistItemsListRequest.MaxResults = 50;
 
@@ -141,7 +147,7 @@ namespace Velody.Video.VideoModules
 
 		private static bool IsYoutubePlaylistUrl(string url)
 		{
-			return url.Contains("playlist");
+			return url.Contains("playlist") && url != String.Empty;
 		}
 
 		private static string? GetPlaylistIdFromUrl(string playlistUrl)
