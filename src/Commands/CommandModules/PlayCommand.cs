@@ -64,7 +64,8 @@ namespace Velody
 
                 VideoInfo video = videos[0];
                 bool isQueueEmpty = server.Queue.IsQueueEmpty();
-                await server.Queue.AddToQueueAsync(videos);
+                _ = server.Queue.AddToQueueAsync(videos);
+
                 if (isQueueEmpty)
                 {
                     embed.WithTitle($"Now playing: `{video.Title}`");

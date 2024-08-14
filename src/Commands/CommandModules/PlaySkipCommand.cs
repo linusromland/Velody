@@ -76,7 +76,7 @@ namespace Velody
                 VideoInfo video = videos[0];
                 VideoInfo? currentlyPlaying = server.Queue.CurrentlyPlaying;
                 TimeSpan currentPlayTime = server.VoiceManager.GetPlaybackDuration();
-                await server.Queue.AddToQueueAsync(video, true);
+                _ = server.Queue.AddToQueueAsync(video, true);
 
                 embed.WithTitle($"Now playing: `{video.Title}`");
 
