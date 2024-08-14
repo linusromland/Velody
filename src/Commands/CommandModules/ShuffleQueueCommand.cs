@@ -10,13 +10,11 @@ using Velody.Video;
 
 namespace Velody
 {
-    public class ShuffleQueueCommand(ServerManager serverManager, HistoryRepository historyRepository) : ApplicationCommandModule
+    public class ShuffleQueueCommand(ServerManager serverManager) : ApplicationCommandModule
     {
         private readonly ILogger _logger = Logger.CreateLogger("ShuffleQueueCommand");
 
         private readonly ServerManager _serverManager = serverManager;
-
-        private HistoryRepository _historyRepository = historyRepository;
 
         [SlashCommand("shuffle", "Shuffle the queue.")]
         public async Task ShuffleQueue(InteractionContext ctx)
