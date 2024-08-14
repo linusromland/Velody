@@ -49,6 +49,11 @@ namespace Velody.Video
 					_logger.Information("Video {VideoId} is already cached", videoId);
 					return cachePath;
 				}
+				else
+				{
+					_logger.Warning("Video {VideoId} is not cached, removing from cache", videoId);
+					await _cacheRepository.RemoveCache(video.Id);
+				}
 			}
 
 			// TODO: Add clear of cache here

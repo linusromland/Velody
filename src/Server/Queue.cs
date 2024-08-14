@@ -14,6 +14,7 @@ namespace Velody.Server
 {
 	public class Queue(string serverName, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository)
 	{
+		private const int DOWNLOAD_QUEUE_SIZE = 3;
 		private readonly string _serverName = serverName;
 		private readonly VideoHandler _videoHandler = videoHandler;
 		private readonly ILogger _logger = Logger.CreateLogger("Queue");
@@ -44,19 +45,28 @@ namespace Velody.Server
 					_ = PlayNextSongAsync();
 				}
 			}
+		}
 
-
-			if (_queue.Count == 2)
+		private async Task DownloadTopQueueAsync()
+		{
+			for (int i = 1; i < Math.Min(DOWNLOAD_QUEUE_SIZE, _queue.Count); i++)
 			{
-				_ = DownloadVideoAsync(videoInfo);
+				if (!_videoPaths.ContainsKey(_queue[i].VideoId))
+				{
+					_logger.Information("Downloading video {VideoTitle} to play next", _queue[i].Title);
+					await DownloadVideoAsync(_queue[i]);
+				}
 			}
 		}
+
 		public async Task AddToQueueAsync(VideoInfo[] videoInfos)
 		{
 			foreach (VideoInfo videoInfo in videoInfos)
 			{
 				await AddToQueueAsync(videoInfo);
 			}
+
+			_ = DownloadTopQueueAsync();
 		}
 
 		public bool IsQueueEmpty()
@@ -85,11 +95,7 @@ namespace Velody.Server
 				await DownloadVideoAsync(videoInfo);
 			}
 
-			if (_queue.Count > 1 && !_videoPaths.ContainsKey(_queue[1].VideoId))
-			{
-				_logger.Information("Downloading next video in queue {VideoTitle}", _queue[1].Title);
-				_ = DownloadVideoAsync(_queue[1]);
-			}
+			_ = DownloadTopQueueAsync();
 
 			VideoModel? video = await _videoRepository.GetVideo(videoInfo.VideoId, videoInfo.Service);
 			if (video != null)
