@@ -11,15 +11,13 @@ using static Velody.Server.VoiceManager;
 
 namespace Velody
 {
-    public class PlaySkipCommand(ServerManager serverManager, VideoHandler videoHandler, HistoryRepository historyRepository) : ApplicationCommandModule
+    public class PlayTopCommand(ServerManager serverManager, VideoHandler videoHandler) : ApplicationCommandModule
     {
         private readonly ILogger _logger = Logger.CreateLogger("PlaySkipCommand");
         private readonly ServerManager _serverManager = serverManager;
         private readonly VideoHandler _videoHandler = videoHandler;
-        private readonly HistoryRepository _historyRepository = historyRepository;
-
-        [SlashCommand("playSkip", "Plays a video with the given search string or URL. If there is a song playing, it will be skipped.")]
-        public async Task PlaySkip(InteractionContext ctx, [Option("video", "video to play")] string searchString)
+        [SlashCommand("playTop", "Plays a video with the given search string or URL. The video will be added to the top of the queue.")]
+        public async Task PlayTop(InteractionContext ctx, [Option("video", "video to play")] string searchString)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);
             try
@@ -77,16 +75,15 @@ namespace Velody
                 TimeSpan currentPlayTime = server.VoiceManager.GetPlaybackDuration();
                 _ = server.Queue.AddToQueueAsync(video, true);
 
-                embed.WithTitle($"Now playing: `{video.Title}`");
+
 
                 if (currentlyPlaying != null)
                 {
-                    server.VoiceManager.StopAudio();
-                    if (currentlyPlaying.HistoryId != null)
-                    {
-                        await _historyRepository.SkippedHistory(currentlyPlaying.HistoryId, currentPlayTime);
-                    }
-                    embed.WithDescription($"Skipped `{currentlyPlaying.Title}`");
+                    embed.WithTitle($"Added `{video.Title}` to the top of the queue.");
+                }
+                else
+                {
+                    embed.WithTitle($"Now playing: `{video.Title}`");
                 }
 
                 if (video.Thumbnail != null)
@@ -100,7 +97,7 @@ namespace Velody
             }
             catch (Exception e)
             {
-                _logger.Error(e, "An error occurred while executing the play skip command.");
+                _logger.Error(e, "An error occurred while executing the play top command.");
                 await embed.SendUnkownErrorAsync();
                 return;
             }

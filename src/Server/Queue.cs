@@ -27,7 +27,7 @@ namespace Velody.Server
 		{
 			if (addFirst && _queue.Count > 1)
 			{
-				_queue.Insert(2, videoInfo);
+				_queue.Insert(1, videoInfo);
 				_logger.Information("Added video {VideoTitle} to the front of the queue for server {ServerName}", videoInfo.Title, _serverName);
 			}
 			else
