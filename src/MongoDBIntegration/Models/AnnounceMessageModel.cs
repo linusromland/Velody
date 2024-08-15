@@ -11,6 +11,6 @@ namespace Velody.MongoDBIntegration.Models
 		public required string GuildId { get; set; }
 		public required ObjectId HistoryId { get; set; }
 		public required string Message { get; set; }
-		public required string AnnounceService { get; set; } // TODO: Change to enum
+		public required string AnnounceService { get; set; }
 	}
 }

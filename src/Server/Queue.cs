@@ -7,12 +7,13 @@ using System;
 using System.Threading.Tasks;
 using Velody.MongoDBIntegration.Models;
 using Velody.MongoDBIntegration.Repositories;
+using Velody.Presenters;
 using Velody.Utils;
 using Velody.Video;
 
 namespace Velody.Server
 {
-	public class Queue(string serverName, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository)
+	public class Queue(string serverName, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository, Presenter presenter)
 	{
 		private const int DOWNLOAD_QUEUE_SIZE = 3;
 		private readonly string _serverName = serverName;
@@ -21,7 +22,10 @@ namespace Velody.Server
 		private List<VideoInfo> _queue = new List<VideoInfo>();
 		private HistoryRepository _historyRepository = historyRepository;
 		private VideoRepository _videoRepository = videoRepository;
+		private Presenter _presenter = presenter;
 		private Dictionary<string, string> _videoPaths = new Dictionary<string, string>();
+		private string _isAnnouncementInProcess = string.Empty;
+		private bool _isAnnouncementEnabled = false;
 		public event Func<string, Task>? PlaySong;
 
 		public async Task AddToQueueAsync(VideoInfo videoInfo, bool addFirst = false)
@@ -76,7 +80,7 @@ namespace Velody.Server
 
 		public void HandlePlaybackFinished()
 		{
-			if (_queue.Count == 0)
+			if (_queue.Count == 0 || IsAnnouncementInProcess)
 			{
 				return;
 			}
@@ -98,13 +102,24 @@ namespace Velody.Server
 			_ = DownloadTopQueueAsync();
 
 			VideoModel? video = await _videoRepository.GetVideo(videoInfo.VideoId, videoInfo.Service);
-			if (video != null)
+			if (video != null && (!IsAnnouncementInProcess))
 			{
-				// TODO: Add support for announcment here
+				_isAnnouncementInProcess = videoInfo.VideoId;
+				_logger.Information("Announcing next song {VideoTitle}", videoInfo.Title);
+
 				string historyId = await _historyRepository.InsertHistory(video.Id, videoInfo.GuildId, videoInfo.UserId, false, null);
 				AddMongoIdToQueueEntry(videoInfo.VideoId, historyId);
 				_logger.Information("Inserted history for video {VideoId}", video.Id);
+
+				_ = _presenter.AnnounceNextSongAsync(videoInfo);
+
+				if (_isAnnouncementEnabled)
+				{
+					return;
+				}
 			}
+
+			_isAnnouncementInProcess = string.Empty;
 
 			_logger.Information("Playing next song in queue {VideoTitle}", videoInfo.Title);
 			PlaySong?.Invoke(_videoPaths[videoInfo.VideoId]);
@@ -192,6 +207,11 @@ namespace Velody.Server
 
 				return _queue[1];
 			}
+		}
+
+		public bool IsAnnouncementInProcess
+		{
+			get => _isAnnouncementInProcess == _queue[0].VideoId;
 		}
 	}
 }

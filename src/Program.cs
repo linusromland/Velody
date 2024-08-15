@@ -6,6 +6,9 @@ using Serilog;
 using Velody.InteractionHandlers;
 using Velody.MongoDBIntegration;
 using Velody.MongoDBIntegration.Repositories;
+using Velody.Presenters;
+using Velody.Presenters.TextGeneration;
+using Velody.Presenters.TTS;
 using Velody.Server;
 using Velody.Utils;
 using Velody.Video;
@@ -91,6 +94,11 @@ namespace Velody
                 .AddSingleton<ServerManager>()
                 .AddSingleton<Bot>()
                 .AddSingleton<VideoHandler>()
+
+                // Presenter
+                .AddSingleton<ITextGenerator, SimpleTextGenerator>()
+                .AddSingleton<ITTSProvider, GoogleTTS>()
+                .AddSingleton(presenter => new Presenter(presenter.GetRequiredService<ITTSProvider>(), presenter.GetRequiredService<ITextGenerator>()))
 
                 // Database connection and repositories
                 .AddSingleton(provider => new MongoDBHelper(Settings.MongoDBConnectionString, Settings.MongoDBDatabaseName))

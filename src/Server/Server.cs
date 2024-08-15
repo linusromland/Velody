@@ -3,6 +3,7 @@ using DSharpPlus;
 using Google.Apis.YouTube.v3.Data;
 using Serilog;
 using Velody.MongoDBIntegration.Repositories;
+using Velody.Presenters;
 using Velody.Utils;
 using Velody.Video;
 
@@ -19,7 +20,7 @@ namespace Velody.Server
 
 		public event Func<ulong, Task>? Dispose;
 
-		public Server(DiscordClient client, string name, ulong guildId, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository)
+		public Server(DiscordClient client, string name, ulong guildId, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository, Presenter presenter)
 		{
 			_client = client;
 			_name = name;
@@ -28,7 +29,7 @@ namespace Velody.Server
 			_logger = Logger.CreateLogger($"Server-{_name}(ID: {_guildId})");
 
 			VoiceManager = new VoiceManager(_client);
-			Queue = new Queue(_name, videoHandler, historyRepository, videoRepository);
+			Queue = new Queue(_name, videoHandler, historyRepository, videoRepository, presenter);
 			Queue.PlaySong += (videoPath) =>
 			{
 				VoiceManager.PlayAudio(videoPath);
