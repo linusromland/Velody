@@ -50,11 +50,16 @@ namespace Velody
                     return;
                 }
 
-
                 embed.WithTitle($"Playing  `{currentlyPlaying.Title}`");
                 embed.WithImage(currentlyPlaying.Thumbnail);
                 embed.WithURL(currentlyPlaying.Url);
 
+                if (server.Queue.IsAnnouncementInProcess)
+                {
+                    embed.WithDescription("An announcement is currently being made.");
+                    await embed.Send();
+                    return;
+                }
 
                 TimeSpan currentPlayTime = server.VoiceManager.GetPlaybackDuration();
                 TimeSpan totalDuration = new TimeSpan(0, 0, currentlyPlaying.Duration);

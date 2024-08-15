@@ -25,7 +25,7 @@ namespace Velody.Server
 		private Presenter _presenter = presenter;
 		private Dictionary<string, string> _videoPaths = new Dictionary<string, string>();
 		private string _isAnnouncementInProcess = string.Empty;
-		private bool _isAnnouncementEnabled = false;
+		private bool _isAnnouncementEnabled = true; // TODO: Add setting for this
 		public event Func<string, Task>? PlaySong;
 
 		public async Task AddToQueueAsync(VideoInfo videoInfo, bool addFirst = false)
@@ -104,17 +104,17 @@ namespace Velody.Server
 			VideoModel? video = await _videoRepository.GetVideo(videoInfo.VideoId, videoInfo.Service);
 			if (video != null && (!IsAnnouncementInProcess))
 			{
-				_isAnnouncementInProcess = videoInfo.VideoId;
-				_logger.Information("Announcing next song {VideoTitle}", videoInfo.Title);
-
 				string historyId = await _historyRepository.InsertHistory(video.Id, videoInfo.GuildId, videoInfo.UserId, false, null);
 				AddMongoIdToQueueEntry(videoInfo.VideoId, historyId);
 				_logger.Information("Inserted history for video {VideoId}", video.Id);
 
-				_ = _presenter.AnnounceNextSongAsync(videoInfo);
 
 				if (_isAnnouncementEnabled)
 				{
+					_isAnnouncementInProcess = videoInfo.VideoId;
+					_logger.Information("Announcing next song {VideoTitle}", videoInfo.Title);
+					_ = _presenter.AnnounceNextSongAsync(videoInfo);
+
 					return;
 				}
 			}

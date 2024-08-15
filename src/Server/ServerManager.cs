@@ -3,18 +3,20 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Serilog;
 using Velody.MongoDBIntegration.Repositories;
+using Velody.Presenters;
 using Velody.Utils;
 using Velody.Video;
 
 namespace Velody.Server
 {
-	public class ServerManager(DiscordClient client, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository)
+	public class ServerManager(DiscordClient client, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository, Presenter presenter)
 	{
 		private readonly ILogger _logger = Logger.CreateLogger("ServerManager");
 		private readonly DiscordClient _client = client;
 		private readonly VideoHandler _videoHandler = videoHandler;
 		private readonly HistoryRepository _historyRepository = historyRepository;
 		private readonly VideoRepository _videoRepository = videoRepository;
+		private readonly Presenter _presenter = presenter;
 		private Dictionary<ulong, Server> _servers = new Dictionary<ulong, Server>();
 
 		public Server? GetServer(ulong guildId)
@@ -29,7 +31,7 @@ namespace Velody.Server
 
 				if (guild != null)
 				{
-					Server server = new Server(_client, guild.Name, guildId, _videoHandler, _historyRepository, _videoRepository);
+					Server server = new Server(_client, guild.Name, guildId, _videoHandler, _historyRepository, _videoRepository, _presenter);
 					server.Dispose += (id) =>
 					{
 						_servers.Remove(id);
