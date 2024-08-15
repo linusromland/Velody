@@ -82,6 +82,7 @@ namespace Velody.Server
 		{
 			if (_queue.Count == 0 || IsAnnouncementInProcess)
 			{
+				Console.WriteLine("Queue is empty or announcement is in process");
 				return;
 			}
 

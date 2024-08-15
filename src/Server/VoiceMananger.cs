@@ -121,7 +121,7 @@ namespace Velody.Server
 				_logger.Information("Playing audio from {Path}", path);
 
 				VoiceTransmitSink transmit = _vnc.GetTransmitSink();
-				_fileStream.CopyToAsync(transmit, 81920, cancellationToken).GetAwaiter().GetResult();
+				_fileStream.CopyToAsync(transmit, null, cancellationToken).GetAwaiter().GetResult();
 
 				_fileStream.Dispose();
 
