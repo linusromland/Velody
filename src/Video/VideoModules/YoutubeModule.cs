@@ -20,7 +20,7 @@ namespace Velody.Video.VideoModules
 		{
 			_youTubeService = new YouTubeService(new BaseClientService.Initializer()
 			{
-				ApiKey = Settings.YoutubeApiKey,
+				ApiKey = Settings.GoogleApiKey,
 				ApplicationName = "Velody",
 			});
 

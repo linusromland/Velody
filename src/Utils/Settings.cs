@@ -9,7 +9,7 @@ namespace Velody.Utils
         public static readonly ulong? DiscordGuildId = ulong.TryParse(ConfigurationManager.AppSettings["DiscordGuildId"], out var guildId) ? guildId : null;
 
         // Youtube Configuration
-        public static readonly string? YoutubeApiKey = ConfigurationManager.AppSettings["YoutubeApiKey"];
+        public static readonly string? GoogleApiKey = ConfigurationManager.AppSettings["GoogleApiKey"];
 
         // MongoDB Configuration
         public static readonly string MongoDBConnectionString = ConfigurationManager.AppSettings["MongoDBConnectionString"] ?? "mongodb://localhost:27017";

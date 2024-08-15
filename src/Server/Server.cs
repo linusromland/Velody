@@ -32,6 +32,7 @@ namespace Velody.Server
 			Queue = new Queue(_name, videoHandler, historyRepository, videoRepository, presenter);
 			Queue.PlaySong += (videoPath) =>
 			{
+				_logger.Information("Playing audio from path {VideoPath}", videoPath);
 				VoiceManager.PlayAudio(videoPath);
 				return Task.CompletedTask;
 			};

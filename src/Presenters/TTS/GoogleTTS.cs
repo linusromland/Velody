@@ -1,13 +1,59 @@
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
+using Google.Apis.Texttospeech.v1;
+using Google.Apis.Texttospeech.v1.Data;
+using Serilog;
+using System.IO;
+using System.Threading.Tasks;
+using Velody.Utils;
+
 namespace Velody.Presenters.TTS
 {
     public class GoogleTTS : ITTSProvider
     {
+        private readonly ILogger _logger = Logger.CreateLogger("GoogleTTS");
+
         public string ServiceName => "GoogleTTS";
-        public Task SpeakAsync(string text)
+
+        public async Task DownloadTTSAsync(string text, string filePath)
         {
-            // TODO: Implement Google TTS.
-            Console.WriteLine($"GoogleTTS: {text}");
-            return Task.CompletedTask;
+
+            TexttospeechService textToSpeechService = new(new BaseClientService.Initializer
+            {
+                ApiKey = Settings.GoogleApiKey,
+                ApplicationName = ServiceName,
+            });
+
+            SynthesisInput? input = new SynthesisInput
+            {
+                Text = text
+            };
+
+            VoiceSelectionParams voice = new VoiceSelectionParams
+            {
+                LanguageCode = "en-US",
+                SsmlGender = "FEMALE"
+            };
+
+            AudioConfig? audioConfig = new AudioConfig
+            {
+                AudioEncoding = "MP3"
+            };
+
+            TextResource.SynthesizeRequest? request = textToSpeechService.Text.Synthesize(new SynthesizeSpeechRequest
+            {
+                Input = input,
+                Voice = voice,
+                AudioConfig = audioConfig
+            });
+
+            SynthesizeSpeechResponse? response = await request.ExecuteAsync();
+            _logger.Information("Generated TTS for text: {Text}", text);
+
+            byte[] audioBytes = Convert.FromBase64String(response.AudioContent);
+
+            await File.WriteAllBytesAsync(filePath, audioBytes);
+            _logger.Information("Saved TTS to file {FilePath}", filePath);
         }
     }
 }

@@ -113,7 +113,9 @@ namespace Velody.Server
 				{
 					_isAnnouncementInProcess = videoInfo.VideoId;
 					_logger.Information("Announcing next song {VideoTitle}", videoInfo.Title);
-					_ = _presenter.AnnounceNextSongAsync(videoInfo);
+					string announcementPath = await _presenter.DownloadNextAnnouncementAsync(videoInfo);
+					_logger.Information("Announcement downloaded for video {VideoTitle}", videoInfo.Title);
+					PlaySong?.Invoke(announcementPath);
 
 					return;
 				}

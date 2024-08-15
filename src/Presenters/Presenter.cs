@@ -1,5 +1,7 @@
+using Serilog;
 using Velody.Presenters.TextGeneration;
 using Velody.Presenters.TTS;
+using Velody.Utils;
 using Velody.Video;
 
 namespace Velody.Presenters
@@ -8,6 +10,7 @@ namespace Velody.Presenters
     {
         private readonly ITTSProvider _ttsProvider;
         private readonly ITextGenerator _textGenerator;
+        private readonly ILogger _logger = Logger.CreateLogger("Presenter");
 
         public Presenter(ITTSProvider ttsProvider, ITextGenerator textGenerator)
         {
@@ -15,11 +18,17 @@ namespace Velody.Presenters
             _textGenerator = textGenerator;
         }
 
-        public async Task AnnounceNextSongAsync(VideoInfo nextSong)
+        public async Task<string> DownloadNextAnnouncementAsync(VideoInfo nextSong)
         {
             string text = _textGenerator.GenerateTextForNextVideo(nextSong);
+
+            _logger.Information("Generating TTS for announcement: {Text}", text);
+
+            string filePath = "tmp.mp3"; // TODO: have announcement id or something here.
             // TODO: Save to mongo.
-            await _ttsProvider.SpeakAsync(text);
+            await _ttsProvider.DownloadTTSAsync(text, filePath);
+
+            return filePath;
         }
     }
 }
