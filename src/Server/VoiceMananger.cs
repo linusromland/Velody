@@ -86,7 +86,7 @@ namespace Velody.Server
 			}
 		}
 
-		public void PlayAudio(string path)
+		public void PlayAudio(string path, int volume)
 		{
 			if (_vnc == null)
 			{
@@ -94,11 +94,11 @@ namespace Velody.Server
 			}
 
 			_cancellationTokenSource = new CancellationTokenSource();
-			_playbackThread = new Thread(() => PlayAudioInternal(path, _cancellationTokenSource.Token));
+			_playbackThread = new Thread(() => PlayAudioInternal(path, _cancellationTokenSource.Token, volume));
 			_playbackThread.Start();
 		}
 
-		private async void PlayAudioInternal(string path, CancellationToken cancellationToken)
+		private async void PlayAudioInternal(string path, CancellationToken cancellationToken, int volume)
 		{
 			if (_vnc == null)
 			{
@@ -109,7 +109,7 @@ namespace Velody.Server
 			{
 				await _vnc.SendSpeakingAsync(true);
 
-				_fileStream = FFmpeg.GetFileStream(path);
+				_fileStream = FFmpeg.GetFileStream(path, volume);
 				if (_fileStream == null)
 				{
 					throw new InvalidOperationException("Failed to get file stream.");

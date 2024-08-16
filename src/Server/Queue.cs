@@ -26,7 +26,7 @@ namespace Velody.Server
 		private Dictionary<string, string> _videoPaths = new Dictionary<string, string>();
 		private string _isAnnouncementInProcess = string.Empty;
 		private bool _isAnnouncementEnabled = true; // TODO: Add setting for this
-		public event Func<string, Task>? PlaySong;
+		public event Func<string, int, Task>? PlaySong;
 
 		public async Task AddToQueueAsync(VideoInfo videoInfo, bool addFirst = false)
 		{
@@ -122,7 +122,7 @@ namespace Velody.Server
 					_logger.Information("Announcing next song {VideoTitle}", videoInfo.Title);
 					string announcementPath = await _presenter.DownloadNextAnnouncementAsync(videoInfo);
 					_logger.Information("Announcement downloaded for video {VideoTitle}", videoInfo.Title);
-					PlaySong?.Invoke(announcementPath);
+					PlaySong?.Invoke(announcementPath, 3);
 
 					return;
 				}
@@ -131,7 +131,7 @@ namespace Velody.Server
 			_isAnnouncementInProcess = string.Empty;
 
 			_logger.Information("Playing next song in queue {VideoTitle}", videoInfo.Title);
-			PlaySong?.Invoke(_videoPaths[videoInfo.VideoId]);
+			PlaySong?.Invoke(_videoPaths[videoInfo.VideoId], 1);
 		}
 
 		private async Task DownloadVideoAsync(VideoInfo videoInfo)

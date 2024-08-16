@@ -32,12 +32,15 @@ namespace Velody.Presenters.TTS
             VoiceSelectionParams voice = new VoiceSelectionParams
             {
                 LanguageCode = "en-US",
-                SsmlGender = "FEMALE"
+                Name = "en-US-Neural2-J"
             };
 
             AudioConfig? audioConfig = new AudioConfig
             {
-                AudioEncoding = "MP3"
+                AudioEncoding = "MP3",
+                Pitch = 0,
+                SpeakingRate = 1,
+                EffectsProfileId = new[] { "large-home-entertainment-class-device" }
             };
 
             TextResource.SynthesizeRequest? request = textToSpeechService.Text.Synthesize(new SynthesizeSpeechRequest
