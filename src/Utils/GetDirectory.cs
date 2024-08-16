@@ -9,7 +9,6 @@ namespace Velody.Utils
         {
             string fullPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "cache", path);
             CreateDirectoryIfNotExists(fullPath);
-            Console.WriteLine(fullPath);
             return fullPath;
         }
 

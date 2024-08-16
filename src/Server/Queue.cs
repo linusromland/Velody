@@ -80,9 +80,15 @@ namespace Velody.Server
 
 		public void HandlePlaybackFinished()
 		{
-			if (_queue.Count == 0 || IsAnnouncementInProcess)
+			if (IsAnnouncementInProcess)
 			{
-				Console.WriteLine("Queue is empty or announcement is in process");
+				_logger.Information("Announcement finished, playing next song");
+				return;
+			}
+
+			if (_queue.Count == 0)
+			{
+				_logger.Warning("Playback finished but queue is empty");
 				return;
 			}
 

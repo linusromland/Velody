@@ -26,7 +26,6 @@ namespace Velody.Presenters
 
             string directory = GetDirectory.GetCachePath($"tts/{_ttsProvider.ServiceName}");
             string filePath = $"{directory}/tts.mp3"; // TODO: have announcement id or something here.
-            Console.WriteLine(filePath);
             // TODO: Save to mongo.
             await _ttsProvider.DownloadTTSAsync(text, filePath);
 
