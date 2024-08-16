@@ -98,7 +98,7 @@ namespace Velody.Server
 			_playbackThread.Start();
 		}
 
-		private void PlayAudioInternal(string path, CancellationToken cancellationToken)
+		private async void PlayAudioInternal(string path, CancellationToken cancellationToken)
 		{
 			if (_vnc == null)
 			{
@@ -107,7 +107,7 @@ namespace Velody.Server
 
 			try
 			{
-				_vnc.SendSpeakingAsync(true).GetAwaiter().GetResult();
+				await _vnc.SendSpeakingAsync(true);
 
 				_fileStream = FFmpeg.GetFileStream(path);
 				if (_fileStream == null)
@@ -121,7 +121,9 @@ namespace Velody.Server
 				_logger.Information("Playing audio from {Path}", path);
 
 				VoiceTransmitSink transmit = _vnc.GetTransmitSink();
-				_fileStream.CopyToAsync(transmit, null, cancellationToken).GetAwaiter().GetResult();
+
+				await _fileStream.CopyToAsync(transmit, 1024, cancellationToken);
+				await transmit.FlushAsync(cancellationToken);
 
 				_fileStream.Dispose();
 
@@ -134,7 +136,7 @@ namespace Velody.Server
 			}
 			finally
 			{
-				_vnc.SendSpeakingAsync(false).GetAwaiter().GetResult();
+				await _vnc.SendSpeakingAsync(false);
 				_isPlaying = false;
 			}
 		}
