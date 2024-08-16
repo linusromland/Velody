@@ -122,8 +122,9 @@ namespace Velody.Server
 
 				VoiceTransmitSink transmit = _vnc.GetTransmitSink();
 
-				await _fileStream.CopyToAsync(transmit, 1024, cancellationToken);
+				await _fileStream.CopyToAsync(transmit, null, cancellationToken);
 				await transmit.FlushAsync(cancellationToken);
+				await _vnc.WaitForPlaybackFinishAsync();
 
 				_fileStream.Dispose();
 
@@ -136,7 +137,10 @@ namespace Velody.Server
 			}
 			finally
 			{
-				await _vnc.SendSpeakingAsync(false);
+				if (_vnc != null)
+				{
+					await _vnc.SendSpeakingAsync(false);
+				}
 				_isPlaying = false;
 			}
 		}
