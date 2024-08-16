@@ -78,9 +78,9 @@ namespace Velody.Server
 			return _queue.Count == 0;
 		}
 
-		public void HandlePlaybackFinished()
+		public void HandlePlaybackFinished(bool isSkip)
 		{
-			if (IsAnnouncementInProcess)
+			if (IsAnnouncementInProcess && !isSkip)
 			{
 				_logger.Information("Announcement finished, playing next song");
 				return;
@@ -90,6 +90,11 @@ namespace Velody.Server
 			{
 				_logger.Warning("Playback finished but queue is empty");
 				return;
+			}
+
+			if (isSkip)
+			{
+				_isAnnouncementInProcess = string.Empty;
 			}
 
 			_queue.RemoveAt(0);
