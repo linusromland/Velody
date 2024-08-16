@@ -96,9 +96,10 @@ namespace Velody
                 .AddSingleton<VideoHandler>()
 
                 // Presenter
-                .AddSingleton<ITextGenerator, SimpleTextGenerator>()
-                .AddSingleton<ITTSProvider, GoogleTTS>()
-                .AddSingleton(presenter => new Presenter(presenter.GetRequiredService<ITTSProvider>(), presenter.GetRequiredService<ITextGenerator>()))
+                .AddSingleton<SimpleTextGenerator>()
+                .AddSingleton<OpenAITextGenerator>()
+                .AddSingleton<GoogleTTS>()
+                .AddSingleton(presenter => new Presenter(presenter.GetRequiredService<GoogleTTS>(), presenter.GetRequiredService<OpenAITextGenerator>())) // TODO: Config here
 
                 // Database connection and repositories
                 .AddSingleton(provider => new MongoDBHelper(Settings.MongoDBConnectionString, Settings.MongoDBDatabaseName))
