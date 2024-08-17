@@ -43,6 +43,12 @@ namespace Velody.MongoDBIntegration.Repositories
 			FilterDefinition<AnnounceMessageModel> filter = Builders<AnnounceMessageModel>.Filter.Eq(a => a.Id, id);
 			return await _announceMessageCollection.Find(filter).FirstOrDefaultAsync();
 		}
+
+		public async Task<AnnounceMessageModel?> GetLastAnnouncementMessage(string serverGuild)
+		{
+			FilterDefinition<AnnounceMessageModel> filter = Builders<AnnounceMessageModel>.Filter.Eq(a => a.GuildId, serverGuild);
+			return await _announceMessageCollection.Find(filter).SortByDescending(a => a.PlayedAt).FirstOrDefaultAsync();
+		}
 	}
 }
 
