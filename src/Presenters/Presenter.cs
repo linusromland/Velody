@@ -30,9 +30,18 @@ namespace Velody.Presenters
 
         public async Task<string> DownloadNextAnnouncementAsync(VideoInfo nextSong, string sessionId, string historyId)
         {
-            PopulatedHistoryModel? previousVideo = await _historyRepository.GetHistory(sessionId);
+            List<PopulatedHistoryModel>? previousVideos = await _historyRepository.GetHistoryWithIgnore(sessionId, historyId);
 
-            string text = _textGenerator.GenerateTextForNextVideo(nextSong);
+            string text = String.Empty;
+
+            if (previousVideos == null || previousVideos.Count == 0)
+            {
+                text = _textGenerator.GenerateTextForFirstVideo(nextSong);
+            }
+            else
+            {
+                text = _textGenerator.GenerateTextForNextVideo(nextSong, previousVideos);
+            }
 
             _logger.Information("Generating TTS for announcement: {Text}", text);
 

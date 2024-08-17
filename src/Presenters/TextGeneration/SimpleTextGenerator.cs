@@ -1,4 +1,5 @@
 using DSharpPlus;
+using Velody.MongoDBIntegration.Models;
 using Velody.Utils;
 using Velody.Video;
 
@@ -16,11 +17,24 @@ namespace Velody.Presenters.TextGeneration
 
         public string ServiceName => "SimpleTextGenerator";
 
-        public string GenerateTextForNextVideo(VideoInfo nextVideo)
+        public string GenerateTextForFirstVideo(VideoInfo nextVideo)
         {
+
             string nickname = GetUser.GetNickname(_client, nextVideo);
 
-            return $"Next up is {nextVideo.Title}. Requested by {nickname}.";
+            return $"First up for this session is {nextVideo.Title}. Requested by {nickname}.";
+        }
+
+        public string GenerateTextForNextVideo(VideoInfo nextVideo, List<PopulatedHistoryModel> previousVideos)
+        {
+            PopulatedHistoryModel lastVideo = previousVideos[^1];
+
+            string nickname = GetUser.GetNickname(_client, nextVideo);
+
+            return $@"
+            That was {lastVideo.Video.Title}.
+            Next up is {nextVideo.Title}. Requested by {nickname}.
+            ";
         }
     }
 }

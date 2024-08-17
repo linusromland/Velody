@@ -32,6 +32,17 @@ namespace Velody.MongoDBIntegration.Repositories
 			await _announceMessageCollection.InsertOneAsync(announceMessage);
 			return announceMessage.Id;
 		}
+
+		public async Task<AnnounceMessageModel?> GetAnnounceMessage(ObjectId? id)
+		{
+			if (id == null)
+			{
+				return null;
+			}
+
+			FilterDefinition<AnnounceMessageModel> filter = Builders<AnnounceMessageModel>.Filter.Eq(a => a.Id, id);
+			return await _announceMessageCollection.Find(filter).FirstOrDefaultAsync();
+		}
 	}
 }
 
