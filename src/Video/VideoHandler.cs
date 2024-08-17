@@ -24,10 +24,10 @@ namespace Velody.Video
 			}
 		}
 
-		public async Task<VideoInfo[]> GetVideoInfo(VideoService VideoService, string searchStringOrUrl, string guildId, string userId)
+		public async Task<VideoInfo[]> GetVideoInfo(VideoService VideoService, string searchStringOrUrl, string guildId, string userId, string channelId)
 		{
 			BaseVideoModule videoModule = GetService(VideoService);
-			VideoInfo[] videoInfos = await videoModule.GetVideoInfo(searchStringOrUrl, guildId, userId);
+			VideoInfo[] videoInfos = await videoModule.GetVideoInfo(searchStringOrUrl, guildId, userId, channelId);
 			await _videoRepository.InsertVideo(videoInfos);
 			return videoInfos;
 		}
@@ -58,7 +58,10 @@ namespace Velody.Video
 
 			// TODO: Add clear of cache here
 			BaseVideoModule videoModule = GetService(VideoService);
-			string downloadedPath = await videoModule.DownloadVideoAsync(video.VideoId, $"./cache/{VideoService}/{videoId}.mp3");
+			string directory = GetDirectory.GetCachePath(VideoService.ToString());
+			string filePath = $"{directory}/{videoId}.mp3";
+
+			string downloadedPath = await videoModule.DownloadVideoAsync(video.VideoId, filePath);
 			await _cacheRepository.InsertCache(video.Id, downloadedPath);
 			return downloadedPath;
 		}

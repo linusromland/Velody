@@ -6,6 +6,9 @@ using Serilog;
 using Velody.InteractionHandlers;
 using Velody.MongoDBIntegration;
 using Velody.MongoDBIntegration.Repositories;
+using Velody.Presenters;
+using Velody.Presenters.TextGeneration;
+using Velody.Presenters.TTS;
 using Velody.Server;
 using Velody.Utils;
 using Velody.Video;
@@ -64,6 +67,7 @@ namespace Velody
                 .AddSingleton<QueueCommand>()
                 .AddSingleton<ClearQueueCommand>()
                 .AddSingleton<ShuffleQueueCommand>()
+                .AddSingleton<LastAnnouncementMessageCommand>()
                 .AddSingleton(provider =>
                 {
                     return new List<ApplicationCommandModule>
@@ -75,7 +79,8 @@ namespace Velody
                         provider.GetRequiredService<SkipCommand>(),
                         provider.GetRequiredService<QueueCommand>(),
                         provider.GetRequiredService<ClearQueueCommand>(),
-                        provider.GetRequiredService<ShuffleQueueCommand>()
+                        provider.GetRequiredService<ShuffleQueueCommand>(),
+                        provider.GetRequiredService<LastAnnouncementMessageCommand>()
                     };
                 })
                 .AddSingleton(provider =>
@@ -92,11 +97,15 @@ namespace Velody
                 .AddSingleton<Bot>()
                 .AddSingleton<VideoHandler>()
 
+                // Presenter
+                .AddSingleton<Presenter>()
+
                 // Database connection and repositories
                 .AddSingleton(provider => new MongoDBHelper(Settings.MongoDBConnectionString, Settings.MongoDBDatabaseName))
                 .AddSingleton<VideoRepository>()
                 .AddSingleton<HistoryRepository>()
                 .AddSingleton<CacheRepository>()
+                .AddSingleton<AnnounceMessageRepository>()
 
 
                 .BuildServiceProvider();

@@ -42,8 +42,6 @@ namespace Velody.Helpers
                 videos.RemoveAt(0);
             }
 
-            Console.WriteLine(videos.Count);
-
             if (videos.Count > 0)
             {
                 description += "__Up Next:__\n";

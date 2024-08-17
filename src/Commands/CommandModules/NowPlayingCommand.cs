@@ -10,11 +10,10 @@ using static Velody.Server.VoiceManager;
 
 namespace Velody
 {
-    public class NowPlayingCommand(ServerManager serverManager, VideoHandler videoHandler) : ApplicationCommandModule
+    public class NowPlayingCommand(ServerManager serverManager) : ApplicationCommandModule
     {
         private readonly ILogger _logger = Logger.CreateLogger("NowPlayingCommand");
         private readonly ServerManager _serverManager = serverManager;
-        private readonly VideoHandler _videoHandler = videoHandler;
 
         [SlashCommand("nowPlaying", "Shows the currently playing video.")]
         public async Task Play(InteractionContext ctx)
@@ -50,11 +49,16 @@ namespace Velody
                     return;
                 }
 
-
                 embed.WithTitle($"Playing  `{currentlyPlaying.Title}`");
                 embed.WithImage(currentlyPlaying.Thumbnail);
                 embed.WithURL(currentlyPlaying.Url);
 
+                if (server.Queue.IsAnnouncementInProcess)
+                {
+                    embed.WithDescription("An announcement is currently being made.");
+                    await embed.Send();
+                    return;
+                }
 
                 TimeSpan currentPlayTime = server.VoiceManager.GetPlaybackDuration();
                 TimeSpan totalDuration = new TimeSpan(0, 0, currentlyPlaying.Duration);

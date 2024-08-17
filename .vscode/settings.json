@@ -1,4 +1,15 @@
 {
   "csharp.suppressDotnetDiagnostic": "IDE0001",
-  "cSpell.words": ["Newtonsoft", "Unkown", "Velody"]
+  "cSpell.words": [
+    "Bson",
+    "ITTS",
+    "Maxres",
+    "Newtonsoft",
+    "openai",
+    "Ssml",
+    "Texttospeech",
+    "Unkown",
+    "Velody",
+    "vnext"
+  ]
 }

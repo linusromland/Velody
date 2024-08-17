@@ -20,7 +20,7 @@ namespace Velody.Server
 		private Thread? _playbackThread;
 		private Stream? _fileStream;
 		private CancellationTokenSource? _cancellationTokenSource;
-		public event Func<Task>? PlaybackFinished;
+		public event Func<bool, Task>? PlaybackFinished;
 
 		public VoiceManager(DiscordClient client)
 		{
@@ -86,7 +86,7 @@ namespace Velody.Server
 			}
 		}
 
-		public void PlayAudio(string path)
+		public void PlayAudio(string path, int volume)
 		{
 			if (_vnc == null)
 			{
@@ -94,11 +94,11 @@ namespace Velody.Server
 			}
 
 			_cancellationTokenSource = new CancellationTokenSource();
-			_playbackThread = new Thread(() => PlayAudioInternal(path, _cancellationTokenSource.Token));
+			_playbackThread = new Thread(() => PlayAudioInternal(path, _cancellationTokenSource.Token, volume));
 			_playbackThread.Start();
 		}
 
-		private void PlayAudioInternal(string path, CancellationToken cancellationToken)
+		private async void PlayAudioInternal(string path, CancellationToken cancellationToken, int volume)
 		{
 			if (_vnc == null)
 			{
@@ -107,9 +107,9 @@ namespace Velody.Server
 
 			try
 			{
-				_vnc.SendSpeakingAsync(true).GetAwaiter().GetResult();
+				await _vnc.SendSpeakingAsync(true);
 
-				_fileStream = FFmpeg.GetFileStream(path);
+				_fileStream = FFmpeg.GetFileStream(path, volume);
 				if (_fileStream == null)
 				{
 					throw new InvalidOperationException("Failed to get file stream.");
@@ -121,11 +121,14 @@ namespace Velody.Server
 				_logger.Information("Playing audio from {Path}", path);
 
 				VoiceTransmitSink transmit = _vnc.GetTransmitSink();
-				_fileStream.CopyToAsync(transmit, 81920, cancellationToken).GetAwaiter().GetResult();
+
+				await _fileStream.CopyToAsync(transmit, null, cancellationToken);
+				await transmit.FlushAsync(cancellationToken);
+				await _vnc.WaitForPlaybackFinishAsync();
 
 				_fileStream.Dispose();
 
-				PlaybackFinished?.Invoke();
+				PlaybackFinished?.Invoke(false);
 				_logger.Information("Finished playing audio from {Path}", path);
 			}
 			catch (Exception ex)
@@ -134,7 +137,10 @@ namespace Velody.Server
 			}
 			finally
 			{
-				_vnc.SendSpeakingAsync(false).GetAwaiter().GetResult();
+				if (_vnc != null)
+				{
+					await _vnc.SendSpeakingAsync(false);
+				}
 				_isPlaying = false;
 			}
 		}
@@ -159,7 +165,7 @@ namespace Velody.Server
 
 			if (shouldInvokeFinished)
 			{
-				PlaybackFinished?.Invoke();
+				PlaybackFinished?.Invoke(true);
 			}
 
 			_logger.Information("Stopped audio playback.");

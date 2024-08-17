@@ -9,23 +9,46 @@ namespace Velody.Utils
 	{
 		private static readonly ILogger _logger = Logger.CreateLogger("FFmpeg");
 
-		public static Stream GetFileStream(string path)
+		public static Stream GetFileStream(string path, int volume = 1)
 		{
 			_logger.Information("Getting file stream for {Path}", path);
-			Process? ffmpeg = Process.Start(new ProcessStartInfo
+			Process ffmpeg = new Process
 			{
-				FileName = "ffmpeg",
-				Arguments = $@"-i ""{path}"" -ac 2 -f s16le -ar 48000 pipe:1",
-				RedirectStandardOutput = true,
-				RedirectStandardError = true,
-				UseShellExecute = false
+				StartInfo = new ProcessStartInfo
+				{
+					FileName = "ffmpeg",
+					Arguments = $@"-i ""{path}"" -filter:a ""volume={volume}.0"" -ac 2 -f s16le -ar 48000 pipe:1",
+					RedirectStandardOutput = true,
+					RedirectStandardError = true,
+					UseShellExecute = false
+				}
+			};
+
+			ffmpeg.Start();
+
+			Task.Run(() =>
+			{
+				// Capture any error output for debugging
+				var error = ffmpeg.StandardError.ReadToEnd();
+				if (!string.IsNullOrEmpty(error))
+				{
+					_logger.Error("FFmpeg error: {Error}", error);
+				}
 			});
 
-			if (ffmpeg == null)
+			ffmpeg.EnableRaisingEvents = true;
+			ffmpeg.Exited += (sender, args) =>
 			{
-				_logger.Error("Failed to start FFmpeg process");
-				throw new Exception("Failed to start FFmpeg process");
-			}
+				if (ffmpeg.ExitCode != 0)
+				{
+					_logger.Error("FFmpeg process exited with code {ExitCode}", ffmpeg.ExitCode);
+				}
+				else
+				{
+					_logger.Information("FFmpeg process completed successfully.");
+				}
+				ffmpeg.Dispose();
+			};
 
 			return ffmpeg.StandardOutput.BaseStream;
 		}
