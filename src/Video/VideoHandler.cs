@@ -24,10 +24,10 @@ namespace Velody.Video
 			}
 		}
 
-		public async Task<VideoInfo[]> GetVideoInfo(VideoService VideoService, string searchStringOrUrl, string guildId, string userId)
+		public async Task<VideoInfo[]> GetVideoInfo(VideoService VideoService, string searchStringOrUrl, string guildId, string userId, string channelId)
 		{
 			BaseVideoModule videoModule = GetService(VideoService);
-			VideoInfo[] videoInfos = await videoModule.GetVideoInfo(searchStringOrUrl, guildId, userId);
+			VideoInfo[] videoInfos = await videoModule.GetVideoInfo(searchStringOrUrl, guildId, userId, channelId);
 			await _videoRepository.InsertVideo(videoInfos);
 			return videoInfos;
 		}

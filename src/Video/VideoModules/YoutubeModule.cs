@@ -47,16 +47,16 @@ namespace Velody.Video.VideoModules
 			return Task.FromResult(path);
 		}
 
-		public override async Task<VideoInfo[]> GetVideoInfo(string searchStringOrUrl, string guildId, string userId)
+		public override async Task<VideoInfo[]> GetVideoInfo(string searchStringOrUrl, string guildId, string userId, string channelId)
 		{
 
 			if (IsYoutubePlaylistUrl(searchStringOrUrl))
 			{
-				return await GetPlaylistVideos(searchStringOrUrl, guildId, userId);
+				return await GetPlaylistVideos(searchStringOrUrl, guildId, userId, channelId);
 			}
 			else
 			{
-				VideoInfo? videoInfo = await GetSingleVideoInfo(searchStringOrUrl, guildId, userId);
+				VideoInfo? videoInfo = await GetSingleVideoInfo(searchStringOrUrl, guildId, userId, channelId);
 				if (videoInfo != null)
 				{
 					return new VideoInfo[] { videoInfo };
@@ -65,7 +65,7 @@ namespace Velody.Video.VideoModules
 			}
 		}
 
-		private async Task<VideoInfo?> GetSingleVideoInfo(string searchString, string guildId, string userId)
+		private async Task<VideoInfo?> GetSingleVideoInfo(string searchString, string guildId, string userId, string channelId)
 		{
 			bool isUrl = Uri.TryCreate(searchString, UriKind.Absolute, out Uri? uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
 			string? extractedId = isUrl && uriResult != null ? HttpUtility.ParseQueryString(uriResult.Query).Get("v") : searchString;
@@ -100,13 +100,14 @@ namespace Velody.Video.VideoModules
 					Service = VideoService.Youtube,
 					GuildId = guildId,
 					UserId = userId,
+					ChannelId = channelId
 				};
 			}
 
 			return null;
 		}
 
-		private async Task<VideoInfo[]> GetPlaylistVideos(string playlistUrl, string guildId, string userId)
+		private async Task<VideoInfo[]> GetPlaylistVideos(string playlistUrl, string guildId, string userId, string channelId)
 		{
 			string? playlistId = GetPlaylistIdFromUrl(playlistUrl);
 			PlaylistItemsResource.ListRequest? playlistItemsListRequest = _youTubeService.PlaylistItems.List("id,snippet");
@@ -135,7 +136,8 @@ namespace Velody.Video.VideoModules
 					Thumbnail = videoSnippet.Thumbnails.Maxres?.Url ?? videoSnippet.Thumbnails.Default__.Url,
 					Service = VideoService.Youtube,
 					GuildId = guildId,
-					UserId = userId
+					UserId = userId,
+					ChannelId = channelId
 				};
 
 				videos.Add(videoInfo);

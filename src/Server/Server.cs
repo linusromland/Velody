@@ -12,6 +12,7 @@ namespace Velody.Server
 	public class Server
 	{
 		private readonly ILogger _logger;
+		private readonly string _sessionId;
 		private readonly ulong _guildId;
 		private readonly string _name;
 		private readonly DiscordClient _client;
@@ -26,10 +27,12 @@ namespace Velody.Server
 			_name = name;
 			_guildId = guildId;
 
+			_sessionId = Guid.NewGuid().ToString();
+
 			_logger = Logger.CreateLogger($"Server-{_name}(ID: {_guildId})");
 
 			VoiceManager = new VoiceManager(_client);
-			Queue = new Queue(_name, videoHandler, historyRepository, videoRepository, presenter);
+			Queue = new Queue(_name, videoHandler, historyRepository, videoRepository, presenter, _sessionId);
 			Queue.PlaySong += (videoPath, volume) =>
 			{
 				_logger.Information("Playing audio from path {VideoPath}", videoPath);

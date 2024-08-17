@@ -15,14 +15,21 @@ namespace Velody.MongoDBIntegration.Repositories
 			_historyCollection = mongoDBHelper.GetCollection<HistoryModel>("history");
 		}
 
-		public async Task<string> InsertHistory(ObjectId videoId, string userId, string guildId, bool announced, ObjectId? announceMessageId)
+		public async Task<string> InsertHistory(ObjectId videoId, string userId, string guildId, string channelId, string sessionId, bool announced, ObjectId? announceMessageId)
 		{
+			if (announced && !announceMessageId.HasValue)
+			{
+				throw new System.Exception("Announce message id is required if announced is true");
+			}
+
 			HistoryModel history = new HistoryModel
 			{
 				PlayedAt = DateTime.UtcNow,
 				UserId = userId,
 				GuildId = guildId,
 				VideoId = videoId,
+				ChannelId = channelId,
+				SessionId = sessionId,
 				Announced = announced,
 				AnnounceMessageId = announceMessageId
 			};

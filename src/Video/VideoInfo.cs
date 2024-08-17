@@ -15,6 +15,7 @@ namespace Velody.Video
 		public required VideoService Service { get; set; }
 		public required string GuildId { get; set; }
 		public required string UserId { get; set; }
+		public required string ChannelId { get; set; }
 		public string? HistoryId { get; set; }
 	}
 }

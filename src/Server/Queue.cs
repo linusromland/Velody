@@ -13,8 +13,9 @@ using Velody.Video;
 
 namespace Velody.Server
 {
-	public class Queue(string serverName, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository, Presenter presenter)
+	public class Queue(string serverName, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository, Presenter presenter, string sessionId)
 	{
+		private readonly string _sessionId = sessionId;
 		private const int DOWNLOAD_QUEUE_SIZE = 3;
 		private readonly string _serverName = serverName;
 		private readonly VideoHandler _videoHandler = videoHandler;
@@ -116,7 +117,7 @@ namespace Velody.Server
 			VideoModel? video = await _videoRepository.GetVideo(videoInfo.VideoId, videoInfo.Service);
 			if (video != null && (!IsAnnouncementInProcess))
 			{
-				string historyId = await _historyRepository.InsertHistory(video.Id, videoInfo.GuildId, videoInfo.UserId, false, null);
+				string historyId = await _historyRepository.InsertHistory(video.Id, videoInfo.GuildId, videoInfo.UserId, videoInfo.ChannelId, _sessionId, false, null);
 				AddMongoIdToQueueEntry(videoInfo.VideoId, historyId);
 				_logger.Information("Inserted history for video {VideoId}", video.Id);
 
