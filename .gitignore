@@ -2,6 +2,5 @@ obj/
 bin/
 .vs/
 logs/
-cache/**
-!cache/**/
-!cache/**/.gitkeep
+cache/
+
