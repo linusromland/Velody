@@ -22,7 +22,7 @@ namespace Velody.Presenters
         {
             // TODO: Add config here
             _ttsProvider = new GoogleTTS();
-            _textGenerator = new SimpleTextGenerator(client);
+            _textGenerator = new OpenAITextGenerator(client);
 
             _historyRepository = historyRepository;
             _announceMessageRepository = announceMessageRepository;
