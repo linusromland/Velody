@@ -10,11 +10,10 @@ using static Velody.Server.VoiceManager;
 
 namespace Velody
 {
-    public class NowPlayingCommand(ServerManager serverManager, VideoHandler videoHandler) : ApplicationCommandModule
+    public class NowPlayingCommand(ServerManager serverManager) : ApplicationCommandModule
     {
         private readonly ILogger _logger = Logger.CreateLogger("NowPlayingCommand");
         private readonly ServerManager _serverManager = serverManager;
-        private readonly VideoHandler _videoHandler = videoHandler;
 
         [SlashCommand("nowPlaying", "Shows the currently playing video.")]
         public async Task Play(InteractionContext ctx)
