@@ -53,6 +53,11 @@ namespace Velody.MongoDBIntegration.Repositories
 			FilterDefinition<VideoModel> filter = Builders<VideoModel>.Filter.Eq(v => v.VideoId, videoId) & Builders<VideoModel>.Filter.Eq(v => v.VideoService, videoService);
 			return await _videoCollection.Find(filter).FirstOrDefaultAsync();
 		}
+		public async Task<VideoModel?> GetVideo(ObjectId id)
+		{
+			FilterDefinition<VideoModel> filter = Builders<VideoModel>.Filter.Eq(v => v.Id, id);
+			return await _videoCollection.Find(filter).FirstOrDefaultAsync();
+		}
 	}
 }
 

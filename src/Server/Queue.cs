@@ -117,16 +117,18 @@ namespace Velody.Server
 			VideoModel? video = await _videoRepository.GetVideo(videoInfo.VideoId, videoInfo.Service);
 			if (video != null && (!IsAnnouncementInProcess))
 			{
-				string historyId = await _historyRepository.InsertHistory(video.Id, videoInfo.GuildId, videoInfo.UserId, videoInfo.ChannelId, _sessionId, false, null);
+				bool isAnnounced = _isAnnouncementEnabled; // TODO: maybe not present every time?
+
+				string historyId = await _historyRepository.InsertHistory(video.Id, videoInfo.GuildId, videoInfo.UserId, videoInfo.ChannelId, _sessionId, isAnnounced);
 				AddMongoIdToQueueEntry(videoInfo.VideoId, historyId);
 				_logger.Information("Inserted history for video {VideoId}", video.Id);
 
 
-				if (_isAnnouncementEnabled)
+				if (isAnnounced)
 				{
 					_isAnnouncementInProcess = videoInfo.VideoId;
 					_logger.Information("Announcing next song {VideoTitle}", videoInfo.Title);
-					string announcementPath = await _presenter.DownloadNextAnnouncementAsync(videoInfo);
+					string announcementPath = await _presenter.DownloadNextAnnouncementAsync(videoInfo, _sessionId, historyId);
 					_logger.Information("Announcement downloaded for video {VideoTitle}", videoInfo.Title);
 					PlaySong?.Invoke(announcementPath, 3);
 

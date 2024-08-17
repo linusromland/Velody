@@ -17,4 +17,9 @@ namespace Velody.MongoDBIntegration.Models
 		public ObjectId? AnnounceMessageId { get; set; }
 		public int? SkippedAt { get; set; }
 	}
+	public class PopulatedHistoryModel : HistoryModel
+	{
+		public required VideoModel Video { get; set; }
+		public AnnounceMessageModel? AnnounceMessage { get; set; }
+	}
 }

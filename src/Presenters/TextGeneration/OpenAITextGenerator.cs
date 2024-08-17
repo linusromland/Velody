@@ -26,11 +26,10 @@ namespace Velody.Presenters.TextGeneration
 
             ChatClient client = new(model: "gpt-4o-mini", Settings.OpenAIApiKey);
 
-            ulong userId = ulong.Parse(nextVideo.UserId);
-            string userName = _client.GetUserAsync(userId).Result.Username;
+            string nickname = GetUser.GetNickname(_client, nextVideo);
 
             string prompt = $@"
-            You are a DJ at a party. You are about to play the next song. The next song is {nextVideo.Title}. This was requested by {userName}.
+            You are a DJ at a party. You are about to play the next song. The next song is {nextVideo.Title}. This was requested by {nickname}.
             You are very enthusiastic. You want to make the party as fun as possible. You want to make sure everyone is having a great time. You do not use any emojis, only normal text. Max two sentences. 
             ";
 
