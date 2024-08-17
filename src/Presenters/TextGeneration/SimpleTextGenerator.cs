@@ -36,5 +36,12 @@ namespace Velody.Presenters.TextGeneration
             Next up is {nextVideo.Title}. Requested by {nickname}.
             ";
         }
+        public string GenerateTextForLastVideo(PopulatedHistoryModel lastVideo)
+        {
+            return $@"
+            That was {lastVideo.Video.Title}.
+            That's all for this session.
+            ";
+        }
     }
 }

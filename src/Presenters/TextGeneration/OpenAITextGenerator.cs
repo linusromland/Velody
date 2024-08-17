@@ -8,6 +8,10 @@ namespace Velody.Presenters.TextGeneration
 {
     public class OpenAITextGenerator : ITextGenerator
     {
+        private const string Model = "gpt-4o-mini";
+        private const string BasePrompt = @"
+            You are a DJ in a Discord voice channel. Your goal is to keep the chat lively and engaging while playing music. You want to ensure everyone in the channel is enjoying the music and having a good time. Speak with energy and enthusiasm, addressing the community by their usernames when appropriate. Do not use any emojis, only normal text. Max two sentences.
+        ";
 
         private readonly DiscordClient _discordClient;
         private readonly ChatClient _openaiClient;
@@ -20,7 +24,7 @@ namespace Velody.Presenters.TextGeneration
             }
 
             _discordClient = client;
-            _openaiClient = new ChatClient(model: "gpt-4o-mini", Settings.OpenAIApiKey);
+            _openaiClient = new ChatClient(model: Model, Settings.OpenAIApiKey);
         }
 
         public string ServiceName => "OpenAITextGenerator";
@@ -30,8 +34,8 @@ namespace Velody.Presenters.TextGeneration
             string nickname = GetUser.GetNickname(_discordClient, nextVideo);
 
             string prompt = $@"
-            You are a DJ at a party. You are about to play the first song of the session. The first song is {nextVideo.Title}. This was requested by {nickname}.
-            You are very enthusiastic. You want to make the party as fun as possible. You want to make sure everyone is having a great time. You do not use any emojis, only normal text. Max two sentences. 
+            {BasePrompt}
+            You are about to play the first song of the session. The first song is {nextVideo.Title}. This was requested by {nickname}.
             ";
 
             ChatCompletion completion = _openaiClient.CompleteChat(prompt);
@@ -46,8 +50,21 @@ namespace Velody.Presenters.TextGeneration
             string nickname = GetUser.GetNickname(_discordClient, nextVideo);
 
             string prompt = $@"
-            You are a DJ at a party. You have just played a song. The last song was {lastVideo.Video.Title}. The next song is {nextVideo.Title}. This was requested by {nickname}.
-            You are very enthusiastic. You want to make the party as fun as possible. You want to make sure everyone is having a great time. You do not use any emojis, only normal text. Max two sentences. 
+            {BasePrompt}
+            You have just played a song. The last song was {lastVideo.Video.Title}. The next song is {nextVideo.Title}. This was requested by {nickname}.
+            ";
+
+            ChatCompletion completion = _openaiClient.CompleteChat(prompt);
+
+            return completion.ToString();
+        }
+
+        public string GenerateTextForLastVideo(PopulatedHistoryModel lastVideo)
+        {
+            string prompt = $@"
+            {BasePrompt}
+            You have just played the last song of the session. The last song was {lastVideo.Video.Title}.
+            Always end with saying goodbye to the community and thanking them for joining the session.
             ";
 
             ChatCompletion completion = _openaiClient.CompleteChat(prompt);

@@ -26,7 +26,7 @@ namespace Velody.Server
 		private Presenter _presenter = presenter;
 		private Dictionary<string, string> _videoPaths = new Dictionary<string, string>();
 		private string _isAnnouncementInProcess = string.Empty;
-		private bool _isAnnouncementEnabled = true; // TODO: Add setting for this
+		public bool isAnnouncementEnabled = true; // TODO: Add setting for this
 		public event Func<string, int, Task>? PlaySong;
 
 		public async Task AddToQueueAsync(VideoInfo videoInfo, bool addFirst = false)
@@ -117,7 +117,7 @@ namespace Velody.Server
 			VideoModel? video = await _videoRepository.GetVideo(videoInfo.VideoId, videoInfo.Service);
 			if (video != null && (!IsAnnouncementInProcess))
 			{
-				bool isAnnounced = _isAnnouncementEnabled; // TODO: maybe not present every time?
+				bool isAnnounced = isAnnouncementEnabled; // TODO: maybe not present every time?
 
 				string historyId = await _historyRepository.InsertHistory(video.Id, videoInfo.GuildId, videoInfo.UserId, videoInfo.ChannelId, _sessionId, isAnnounced);
 				AddMongoIdToQueueEntry(videoInfo.VideoId, historyId);
@@ -140,6 +140,13 @@ namespace Velody.Server
 
 			_logger.Information("Playing next song in queue {VideoTitle}", videoInfo.Title);
 			PlaySong?.Invoke(_videoPaths[videoInfo.VideoId], 1);
+		}
+
+		public async Task PlayLeaveAnnouncementAsync()
+		{
+			_logger.Information("Announcing leave");
+			string announcementPath = await _presenter.DownloadLeaveAnnouncementAsync(_sessionId);
+			PlaySong?.Invoke(announcementPath, 3);
 		}
 
 		private async Task DownloadVideoAsync(VideoInfo videoInfo)
@@ -228,7 +235,7 @@ namespace Velody.Server
 
 		public bool IsAnnouncementInProcess
 		{
-			get => _isAnnouncementInProcess == _queue[0].VideoId;
+			get => _queue.Count > 0 && _isAnnouncementInProcess == _queue[0].VideoId;
 		}
 	}
 }

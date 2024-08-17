@@ -16,6 +16,7 @@ namespace Velody.Server
 		private readonly ulong _guildId;
 		private readonly string _name;
 		private readonly DiscordClient _client;
+		private bool _leaveAnnounced;
 		public VoiceManager VoiceManager { get; }
 		public Queue Queue { get; }
 
@@ -45,12 +46,27 @@ namespace Velody.Server
 				Queue.HandlePlaybackFinished(isSkip);
 				if (Queue.IsQueueEmpty())
 				{
-					_logger.Information("Queue is empty, stopping playback");
-					VoiceManager.LeaveVoiceChannel();
-					Dispose?.Invoke(_guildId);
+					if (_leaveAnnounced || !Queue.isAnnouncementEnabled)
+					{
+						_logger.Information("Queue is empty, stopping playback");
+						VoiceManager.LeaveVoiceChannel();
+						Dispose?.Invoke(_guildId);
+					}
+					else
+					{
+						_logger.Information("Queue is empty, announcing leave");
+						_leaveAnnounced = true;
+						_ = Queue.PlayLeaveAnnouncementAsync();
+					}
 				}
 				else
 				{
+					// If leave was announced, reset it
+					if (_leaveAnnounced == true)
+					{
+						_leaveAnnounced = false;
+					}
+
 					_logger.Information("Playing next song in queue");
 					_ = Queue.PlayNextSongAsync();
 				}

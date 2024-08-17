@@ -57,5 +57,27 @@ namespace Velody.Presenters
 
             return filePath;
         }
+
+        public async Task<string> DownloadLeaveAnnouncementAsync(string sessionId)
+        {
+            PopulatedHistoryModel? previousVideo = await _historyRepository.GetHistory(sessionId);
+            if (previousVideo == null)
+            {
+                _logger.Warning("No previous video found for leave announcement");
+                return "";
+            }
+
+            string text = _textGenerator.GenerateTextForLastVideo(previousVideo);
+
+            _logger.Information("Generating TTS for leave announcement: {Text}", text);
+
+            await _announceMessageRepository.InsertAnnounceMessage(DateTime.UtcNow, previousVideo.GuildId, previousVideo.ChannelId, sessionId, text, _textGenerator.ServiceName);
+
+            string directory = GetDirectory.GetCachePath($"tts/{_ttsProvider.ServiceName}");
+            string filePath = $"{directory}/leave.mp3";
+
+            await _ttsProvider.DownloadTTSAsync(text, filePath);
+            return filePath;
+        }
     }
 }

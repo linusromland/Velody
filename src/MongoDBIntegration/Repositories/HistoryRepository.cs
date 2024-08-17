@@ -88,6 +88,46 @@ namespace Velody.MongoDBIntegration.Repositories
 			return populatedHistoryItems;
 		}
 
+		public async Task<PopulatedHistoryModel?> GetHistory(string sessionId)
+		{
+			FilterDefinition<HistoryModel> filter = Builders<HistoryModel>.Filter.Eq(h => h.SessionId, sessionId);
+			HistoryModel? historyItem = await _historyCollection.Find(filter).SortByDescending(h => h.PlayedAt).FirstOrDefaultAsync();
+			if (historyItem == null)
+			{
+				return null;
+			}
+
+
+			VideoModel? video = await _videoRepository.GetVideo(historyItem.VideoId);
+			if (video == null)
+			{
+				return null;
+			}
+
+			AnnounceMessageModel? announceMessage = null;
+			if (historyItem.AnnounceMessageId != null)
+			{
+				announceMessage = await _announceMessageRepository.GetAnnounceMessage(historyItem.AnnounceMessageId);
+			}
+
+			return new PopulatedHistoryModel
+			{
+				Id = historyItem.Id,
+				PlayedAt = historyItem.PlayedAt,
+				GuildId = historyItem.GuildId,
+				UserId = historyItem.UserId,
+				VideoId = historyItem.VideoId,
+				ChannelId = historyItem.ChannelId,
+				SessionId = historyItem.SessionId,
+				Announced = historyItem.Announced,
+				AnnounceMessageId = historyItem.AnnounceMessageId,
+				SkippedAt = historyItem.SkippedAt,
+				Video = video,
+				AnnounceMessage = announceMessage
+			};
+		}
+
+
 		public async Task AmendAnnounceMessageId(string historyId, ObjectId announceMessageId)
 		{
 			HistoryModel history = await _historyCollection.Find(h => h.Id == ObjectId.Parse(historyId)).FirstOrDefaultAsync();

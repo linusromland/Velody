@@ -8,6 +8,6 @@ namespace Velody.Presenters.TextGeneration
         string ServiceName { get; }
         string GenerateTextForFirstVideo(VideoInfo nextVideo);
         string GenerateTextForNextVideo(VideoInfo nextVideo, List<PopulatedHistoryModel> previousVideos);
-        // TODO: add logic for generating text for last video
+        string GenerateTextForLastVideo(PopulatedHistoryModel previousVideo);
     }
 }
