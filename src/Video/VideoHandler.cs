@@ -56,9 +56,9 @@ namespace Velody.Video
 				}
 			}
 
-			// TODO: Add clear of cache here
 			BaseVideoModule videoModule = GetService(VideoService);
-			string directory = GetDirectory.GetCachePath(VideoService.ToString());
+			string directory = Utils.Directory.GetCachePath(VideoService.ToString());
+			Utils.Directory.DeleteOldFiles(directory, 1, _cacheRepository); // Keeps 1gb of cache
 			string filePath = $"{directory}/{videoId}.mp3";
 
 			string downloadedPath = await videoModule.DownloadVideoAsync(video.VideoId, filePath);

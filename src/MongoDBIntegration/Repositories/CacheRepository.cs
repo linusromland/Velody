@@ -38,6 +38,10 @@ namespace Velody.MongoDBIntegration.Repositories
 		{
 			await _cacheCollection.UpdateOneAsync(c => c.VideoId == videoId, Builders<CacheModel>.Update.Set(c => c.IsRemoved, true).Set(c => c.RemovedAt, DateTime.UtcNow));
 		}
+		public async Task RemoveCache(string filename)
+		{
+			await _cacheCollection.UpdateOneAsync(c => c.Path.Contains(filename), Builders<CacheModel>.Update.Set(c => c.IsRemoved, true).Set(c => c.RemovedAt, DateTime.UtcNow));
+		}
 	}
 }
 

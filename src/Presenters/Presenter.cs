@@ -67,10 +67,9 @@ namespace Velody.Presenters
             ObjectId announceMessageId = await _announceMessageRepository.InsertAnnounceMessage(DateTime.UtcNow, nextSong.GuildId, nextSong.ChannelId, sessionId, text, _textGenerator.ServiceName);
             await _historyRepository.AmendAnnounceMessageId(historyId, announceMessageId);
 
-            string directory = GetDirectory.GetCachePath($"tts/{_ttsProvider.ServiceName}");
+            string directory = Utils.Directory.GetCachePath($"tts/{_ttsProvider.ServiceName}");
+            Utils.Directory.DeleteOldFiles(directory, 0, null); // Keeps no cache for tts
             string filePath = $"{directory}/{announceMessageId}.mp3";
-
-            Console.WriteLine(filePath);
 
             await _ttsProvider.DownloadTTSAsync(text, filePath);
 
@@ -92,7 +91,8 @@ namespace Velody.Presenters
 
             await _announceMessageRepository.InsertAnnounceMessage(DateTime.UtcNow, previousVideo.GuildId, previousVideo.ChannelId, sessionId, text, _textGenerator.ServiceName);
 
-            string directory = GetDirectory.GetCachePath($"tts/{_ttsProvider.ServiceName}");
+            string directory = Utils.Directory.GetCachePath($"tts/{_ttsProvider.ServiceName}");
+            Utils.Directory.DeleteOldFiles(directory, 0, null); // Keeps no cache for tts
             string filePath = $"{directory}/leave.mp3";
 
             await _ttsProvider.DownloadTTSAsync(text, filePath);
