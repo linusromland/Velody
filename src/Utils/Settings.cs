@@ -18,5 +18,8 @@ namespace Velody.Utils
 
         // OpenAI Configuration
         public static readonly string? OpenAIApiKey = Environment.GetEnvironmentVariable("OpenAIApiKey");
+
+        // General Configuration
+        public static readonly bool PresenterEnabled = bool.TryParse(Environment.GetEnvironmentVariable("PresenterEnabled"), out var presenterEnabled) ? presenterEnabled : true;
     }
 }

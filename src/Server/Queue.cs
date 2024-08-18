@@ -44,7 +44,15 @@ namespace Velody.Server
 			_sessionId = sessionId;
 			_guildId = guildId;
 
-			ServerModel? server = _serverRepository.GetServer(guildId).GetAwaiter().GetResult();
+			if (!Settings.PresenterEnabled)
+			{
+				_logger.Warning("Presenter is disabled by the bot owner");
+				IsAnnouncementEnabled = false;
+			}
+			else
+			{
+
+				ServerModel? server = _serverRepository.GetServer(guildId).GetAwaiter().GetResult();
 			if (server != null)
 			{
 				IsAnnouncementEnabled = server.PresenterEnabled;
@@ -53,6 +61,7 @@ namespace Velody.Server
 			{
 				_logger.Warning("Server {ServerName} not found in database. Creating...", _serverName);
 				_ = _serverRepository.InsertServer(guildId, _isAnnouncementEnabled);
+				}
 			}
 		}
 

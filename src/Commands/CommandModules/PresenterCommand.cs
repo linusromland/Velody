@@ -22,6 +22,14 @@ namespace Velody
             EmbedBuilder embed = new EmbedBuilder(ctx);
             try
             {
+                if (!Settings.PresenterEnabled)
+                {
+                    embed.WithTitle("Error");
+                    embed.WithDescription("The presenter has been disabled by the bot owner.");
+                    await embed.Send();
+                    return;
+                }
+
                 Server.Server? server = _serverManager.GetServer(ctx.Guild.Id);
                 if (server == null)
                 {
