@@ -22,7 +22,7 @@ namespace Velody.Server
 
 		public event Func<ulong, Task>? Dispose;
 
-		public Server(DiscordClient client, string name, ulong guildId, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository, Presenter presenter)
+		public Server(DiscordClient client, string name, ulong guildId, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository, ServerRepository serverRepository, Presenter presenter)
 		{
 			_client = client;
 			_name = name;
@@ -33,7 +33,7 @@ namespace Velody.Server
 			_logger = Logger.CreateLogger($"Server-{_name}(ID: {_guildId})");
 
 			VoiceManager = new VoiceManager(_client);
-			Queue = new Queue(_name, videoHandler, historyRepository, videoRepository, presenter, _sessionId);
+			Queue = new Queue(_name, guildId.ToString(), videoHandler, historyRepository, videoRepository, serverRepository, presenter, _sessionId);
 			Queue.PlaySong += (videoPath, volume) =>
 			{
 				_logger.Information("Playing audio from path {VideoPath}", videoPath);
@@ -46,7 +46,7 @@ namespace Velody.Server
 				Queue.HandlePlaybackFinished(isSkip);
 				if (Queue.IsQueueEmpty())
 				{
-					if (_leaveAnnounced || !Queue.isAnnouncementEnabled)
+					if (_leaveAnnounced || !Queue.IsAnnouncementEnabled)
 					{
 						_logger.Information("Queue is empty, stopping playback");
 						VoiceManager.LeaveVoiceChannel();

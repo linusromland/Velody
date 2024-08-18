@@ -13,23 +13,48 @@ using Velody.Video;
 
 namespace Velody.Server
 {
-	public class Queue(string serverName, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository, Presenter presenter, string sessionId)
+	public class Queue
 	{
-		private readonly string _sessionId = sessionId;
+		private readonly string _sessionId;
 		private const int DOWNLOAD_QUEUE_SIZE = 3;
-		private readonly string _serverName = serverName;
-		private readonly VideoHandler _videoHandler = videoHandler;
+		private readonly string _serverName;
+		private readonly VideoHandler _videoHandler;
 		private readonly ILogger _logger = Logger.CreateLogger("Queue");
 		private List<VideoInfo> _queue = new List<VideoInfo>();
-		private HistoryRepository _historyRepository = historyRepository;
-		private VideoRepository _videoRepository = videoRepository;
-		private Presenter _presenter = presenter;
+		private HistoryRepository _historyRepository;
+		private VideoRepository _videoRepository;
+		private ServerRepository _serverRepository;
+		private Presenter _presenter;
 		private Dictionary<string, string> _videoPaths = new Dictionary<string, string>();
 		private string _isAnnouncementInProcess = string.Empty;
-		public bool isAnnouncementEnabled = true; // TODO: Add setting for this
+		private bool _isAnnouncementEnabled = true;
 		public bool Loop = false;
 		public bool LoopQueue = false;
 		public event Func<string, int, Task>? PlaySong;
+		private string _guildId;
+
+		public Queue(string serverName, string guildId, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository, ServerRepository serverRepository, Presenter presenter, string sessionId)
+		{
+			_serverName = serverName;
+			_videoHandler = videoHandler;
+			_historyRepository = historyRepository;
+			_videoRepository = videoRepository;
+			_serverRepository = serverRepository;
+			_presenter = presenter;
+			_sessionId = sessionId;
+			_guildId = guildId;
+
+			ServerModel? server = _serverRepository.GetServer(guildId).GetAwaiter().GetResult();
+			if (server != null)
+			{
+				IsAnnouncementEnabled = server.PresenterEnabled;
+			}
+			else
+			{
+				_logger.Warning("Server {ServerName} not found in database. Creating...", _serverName);
+				_ = _serverRepository.InsertServer(guildId, _isAnnouncementEnabled);
+			}
+		}
 
 		public async Task AddToQueueAsync(VideoInfo videoInfo, bool addFirst = false)
 		{
@@ -131,7 +156,7 @@ namespace Velody.Server
 			VideoModel? video = await _videoRepository.GetVideo(videoInfo.VideoId, videoInfo.Service);
 			if (video != null && (!IsAnnouncementInProcess))
 			{
-				bool isAnnounced = isAnnouncementEnabled; // TODO: maybe not present every time?
+				bool isAnnounced = IsAnnouncementEnabled; // TODO: maybe not present every time?
 
 				string historyId = await _historyRepository.InsertHistory(video.Id, videoInfo.GuildId, videoInfo.UserId, videoInfo.ChannelId, _sessionId, isAnnounced);
 				AddMongoIdToQueueEntry(videoInfo.VideoId, historyId);
@@ -263,6 +288,17 @@ namespace Velody.Server
 		public bool IsAnnouncementInProcess
 		{
 			get => _queue.Count > 0 && _isAnnouncementInProcess == _queue[0].VideoId;
+		}
+
+		public bool IsAnnouncementEnabled
+		{
+			get => _isAnnouncementEnabled; set
+			{
+
+				_isAnnouncementEnabled = value;
+				_logger.Information("Set announcement enabled to {IsAnnouncementEnabled} for server {ServerName}", _isAnnouncementEnabled, _serverName);
+				_ = _serverRepository.UpdatePresenterEnabled(_guildId, _isAnnouncementEnabled);
+			}
 		}
 	}
 }

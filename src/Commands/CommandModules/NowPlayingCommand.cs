@@ -69,7 +69,8 @@ namespace Velody
 
                 bool isLooping = server.Queue.Loop;
                 bool isLoopingQueue = server.Queue.LoopQueue;
-                embed.WithFooter($"Loop: {(isLooping ? "Enabled" : "Disabled")} | Loop Queue: {(isLoopingQueue ? "Enabled" : "Disabled")}");
+                bool presenterEnabled = server.Queue.IsAnnouncementEnabled;
+                embed.WithFooter($"Loop: {(isLooping ? "Enabled" : "Disabled")} | Loop Queue: {(isLoopingQueue ? "Enabled" : "Disabled")} | Presenter: {(presenterEnabled ? "Enabled" : "Disabled")}");
 
                 await embed.Send();
             }

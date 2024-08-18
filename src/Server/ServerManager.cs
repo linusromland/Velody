@@ -9,13 +9,14 @@ using Velody.Video;
 
 namespace Velody.Server
 {
-	public class ServerManager(DiscordClient client, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository, Presenter presenter)
+	public class ServerManager(DiscordClient client, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository, ServerRepository serverRepository, Presenter presenter)
 	{
 		private readonly ILogger _logger = Logger.CreateLogger("ServerManager");
 		private readonly DiscordClient _client = client;
 		private readonly VideoHandler _videoHandler = videoHandler;
 		private readonly HistoryRepository _historyRepository = historyRepository;
 		private readonly VideoRepository _videoRepository = videoRepository;
+		private readonly ServerRepository _serverRepository = serverRepository;
 		private readonly Presenter _presenter = presenter;
 		private Dictionary<ulong, Server> _servers = new Dictionary<ulong, Server>();
 
@@ -36,7 +37,7 @@ namespace Velody.Server
 
 				if (guild != null)
 				{
-					Server server = new Server(_client, guild.Name, guildId, _videoHandler, _historyRepository, _videoRepository, _presenter);
+					Server server = new Server(_client, guild.Name, guildId, _videoHandler, _historyRepository, _videoRepository, _serverRepository, _presenter);
 					server.Dispose += (id) =>
 					{
 						_servers.Remove(id);
