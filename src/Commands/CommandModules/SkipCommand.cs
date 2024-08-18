@@ -18,7 +18,7 @@ namespace Velody
 
         private HistoryRepository _historyRepository = historyRepository;
 
-        [SlashCommand("skip", "Skip the current song.")]
+        [SlashCommand("skip", "Skip the current video.")]
         public async Task Play(InteractionContext ctx)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);

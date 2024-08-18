@@ -15,7 +15,7 @@ namespace Velody
         private readonly ILogger _logger = Logger.CreateLogger("NowPlayingCommand");
         private readonly ServerManager _serverManager = serverManager;
 
-        [SlashCommand("nowPlaying", "Display the current song.")]
+        [SlashCommand("nowPlaying", "Display the current video.")]
         public async Task Play(InteractionContext ctx)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);

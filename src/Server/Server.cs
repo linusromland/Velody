@@ -34,7 +34,7 @@ namespace Velody.Server
 
 			VoiceManager = new VoiceManager(_client);
 			Queue = new Queue(_name, guildId.ToString(), videoHandler, historyRepository, videoRepository, serverRepository, presenter, _sessionId);
-			Queue.PlaySong += (videoPath, volume) =>
+			Queue.PlayVideo += (videoPath, volume) =>
 			{
 				_logger.Information("Playing audio from path {VideoPath}", videoPath);
 				VoiceManager.PlayAudio(videoPath, volume);
@@ -67,8 +67,8 @@ namespace Velody.Server
 						_leaveAnnounced = false;
 					}
 
-					_logger.Information("Playing next song in queue");
-					_ = Queue.PlayNextSongAsync();
+					_logger.Information("Playing next video in queue");
+					_ = Queue.PlayNextVideoAsync();
 				}
 
 				return Task.CompletedTask;

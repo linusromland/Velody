@@ -30,7 +30,7 @@ namespace Velody.Server
 		private bool _isAnnouncementEnabled = true;
 		public bool Loop = false;
 		public bool LoopQueue = false;
-		public event Func<string, int, Task>? PlaySong;
+		public event Func<string, int, Task>? PlayVideo;
 		private string _guildId;
 
 		public Queue(string serverName, string guildId, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository, ServerRepository serverRepository, Presenter presenter, string sessionId)
@@ -83,7 +83,7 @@ namespace Velody.Server
 				await DownloadVideoAsync(videoInfo);
 				if (_videoPaths.ContainsKey(videoInfo.VideoId))
 				{
-					_ = PlayNextSongAsync();
+					_ = PlayNextVideoAsync();
 				}
 			}
 		}
@@ -119,7 +119,7 @@ namespace Velody.Server
 		{
 			if (IsAnnouncementInProcess && !isSkip)
 			{
-				_logger.Information("Announcement finished, playing next song");
+				_logger.Information("Announcement finished, playing next video");
 				return;
 			}
 
@@ -150,7 +150,7 @@ namespace Velody.Server
 			_logger.Information("Removed video from queue, {QueueLength} videos left in queue", _queue.Count);
 		}
 
-		public async Task PlayNextSongAsync()
+		public async Task PlayNextVideoAsync()
 		{
 			VideoInfo videoInfo = _queue[0];
 
@@ -182,12 +182,12 @@ namespace Velody.Server
 					int count = await _historyRepository.GetHistoryCount(_sessionId);
 					if (count == 0)
 					{
-						_logger.Information("No history found, announcing first song");
+						_logger.Information("No history found, announcing first video");
 					}
 					else
 					{
 						isAnnounced = new Random().Next(100) < announcePercentage;
-						_logger.Information("Announcing next song: {IsAnnounced}", isAnnounced);
+						_logger.Information("Announcing next video: {IsAnnounced}", isAnnounced);
 
 					}
 
@@ -201,10 +201,10 @@ namespace Velody.Server
 				if (isAnnounced)
 				{
 					_isAnnouncementInProcess = videoInfo.VideoId;
-					_logger.Information("Announcing next song {VideoTitle}", videoInfo.Title);
+					_logger.Information("Announcing next video {VideoTitle}", videoInfo.Title);
 					string announcementPath = await _presenter.DownloadNextAnnouncementAsync(videoInfo, _sessionId, historyId);
 					_logger.Information("Announcement downloaded for video {VideoTitle}", videoInfo.Title);
-					PlaySong?.Invoke(announcementPath, 3);
+					PlayVideo?.Invoke(announcementPath, 3);
 
 					return;
 				}
@@ -212,15 +212,15 @@ namespace Velody.Server
 
 			_isAnnouncementInProcess = string.Empty;
 
-			_logger.Information("Playing next song in queue {VideoTitle}", videoInfo.Title);
-			PlaySong?.Invoke(_videoPaths[videoInfo.VideoId], 1);
+			_logger.Information("Playing next video in queue {VideoTitle}", videoInfo.Title);
+			PlayVideo?.Invoke(_videoPaths[videoInfo.VideoId], 1);
 		}
 
 		public async Task PlayLeaveAnnouncementAsync()
 		{
 			_logger.Information("Announcing leave");
 			string announcementPath = await _presenter.DownloadLeaveAnnouncementAsync(_sessionId);
-			PlaySong?.Invoke(announcementPath, 3);
+			PlayVideo?.Invoke(announcementPath, 3);
 		}
 
 		private async Task DownloadVideoAsync(VideoInfo videoInfo)

@@ -13,19 +13,19 @@
 | Command                    | Description                                                |
 | -------------------------- | ---------------------------------------------------------- |
 | `/play <query>`            | Search for a video and play it.                            |
-| `/playSkip <query>`        | Search for a video and play it, skipping the current song. |
+| `/playSkip <query>`        | Search for a video and play it, skipping the current video. |
 | `/playTop <query>`         | Search for a video and add it to the top of the queue.     |
-| `/skip`                    | Skip the current song.                                     |
+| `/skip`                    | Skip the current video.                                     |
 | `/queue`                   | Display the current queue.                                 |
 | `/shuffle`                 | Shuffle the queue.                                         |
 | `/clearqueue`              | Clear the current queue.                                   |
 | `/loop`                    | Toggle loop mode.                                          |
 | `/loopqueue`               | Toggle loop queue mode.                                    |
-| `/nowPlaying`              | Display the current song.                                  |
-| `/remove <index>`          | Remove a song from the queue.                              |
+| `/nowPlaying`              | Display the current video.                                  |
+| `/remove <index>`          | Remove a video from the queue.                              |
 | `/lastAnnouncementMessage` | Display the last announcement message.                     |
 | `/presenter`               | Toggle the presenter feature.                              |
-| `/history`                 | Display the last played songs.                             |
+| `/history`                 | Display the last played videos.                             |
 
 ## ⚡️ Setup
 
@@ -138,7 +138,7 @@ docker run -d --name velody ghcr.io/linusromland/velody:latest -e BOT_TOKEN=your
 | PresenterEnabled   | Whether the presenter feature should be enabled.                                    | No                           | true                  |
 | TextGenerator      | Which text generator to use. Options: `SimpleTextGenerator`, `OpenAITextGenerator`. | No                           | `SimpleTextGenerator` |
 | TTSProvider        | Which TTS provider to use. Options: `GoogleTTS`.                                    | No                           | `GoogleTTS`           |
-| AnnouncePercentage | How often the bot should announce the song. (0-100)                                 | No                           | 100                   |
+| AnnouncePercentage | How often the bot should announce the video. (0-100)                                 | No                           | 100                   |
 
 If `PresenterEnabled` is set to `false`, `TextGenerator`, `TTSProvider` and `AnnouncePercentage` will be ignored.
 

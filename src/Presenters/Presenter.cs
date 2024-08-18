@@ -47,7 +47,7 @@ namespace Velody.Presenters
             _announceMessageRepository = announceMessageRepository;
         }
 
-        public async Task<string> DownloadNextAnnouncementAsync(VideoInfo nextSong, string sessionId, string historyId)
+        public async Task<string> DownloadNextAnnouncementAsync(VideoInfo nextVideo, string sessionId, string historyId)
         {
             List<PopulatedHistoryModel>? previousVideos = await _historyRepository.GetHistoryWithIgnore(sessionId, historyId);
 
@@ -55,16 +55,16 @@ namespace Velody.Presenters
 
             if (previousVideos == null || previousVideos.Count == 0)
             {
-                text = _textGenerator.GenerateTextForFirstVideo(nextSong);
+                text = _textGenerator.GenerateTextForFirstVideo(nextVideo);
             }
             else
             {
-                text = _textGenerator.GenerateTextForNextVideo(nextSong, previousVideos);
+                text = _textGenerator.GenerateTextForNextVideo(nextVideo, previousVideos);
             }
 
             _logger.Information("Generating TTS for announcement: {Text}", text);
 
-            ObjectId announceMessageId = await _announceMessageRepository.InsertAnnounceMessage(DateTime.UtcNow, nextSong.GuildId, nextSong.ChannelId, sessionId, text, _textGenerator.ServiceName);
+            ObjectId announceMessageId = await _announceMessageRepository.InsertAnnounceMessage(DateTime.UtcNow, nextVideo.GuildId, nextVideo.ChannelId, sessionId, text, _textGenerator.ServiceName);
             await _historyRepository.AmendAnnounceMessageId(historyId, announceMessageId);
 
             string directory = Utils.Directory.GetCachePath($"tts/{_ttsProvider.ServiceName}");

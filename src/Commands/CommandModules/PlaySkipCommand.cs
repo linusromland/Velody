@@ -18,7 +18,7 @@ namespace Velody
         private readonly VideoHandler _videoHandler = videoHandler;
         private readonly HistoryRepository _historyRepository = historyRepository;
 
-        [SlashCommand("playSkip", "Search for a video and play it, skipping the current song.")]
+        [SlashCommand("playSkip", "Search for a video and play it, skipping the current video.")]
         public async Task PlaySkip(InteractionContext ctx, [Option("video", "video to play")] string searchString)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);

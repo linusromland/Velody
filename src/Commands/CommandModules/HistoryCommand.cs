@@ -19,7 +19,7 @@ namespace Velody
 
         private readonly HistoryRepository _historyRepository = historyRepository;
 
-        [SlashCommand("history", "Display the last played songs.")]
+        [SlashCommand("history", "Display the last played videos.")]
         public async Task History(InteractionContext ctx)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);
