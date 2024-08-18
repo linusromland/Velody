@@ -21,6 +21,9 @@ namespace Velody
 
         static async Task Main(string[] args)
         {
+            // Init dotenv
+            DotNetEnv.Env.Load();
+
             _logger.Information("Starting Velody...");
             ServiceProvider serviceProvider = ConfigureServices();
             _logger.Information("Configuration complete");

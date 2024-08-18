@@ -3,4 +3,5 @@ bin/
 .vs/
 logs/
 cache/
-
+.env
+!.env.example
