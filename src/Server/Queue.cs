@@ -222,6 +222,19 @@ namespace Velody.Server
 			_logger.Information("Shuffled queue for server {ServerName}", _serverName);
 		}
 
+		public VideoInfo RemoveVideo(int index)
+		{
+			if (index <= 0 || index >= _queue.Count)
+			{
+				throw new ArgumentOutOfRangeException(nameof(index));
+			}
+
+			VideoInfo video = _queue[index];
+			_queue.RemoveAt(index);
+			_logger.Information("Removed video {VideoTitle} from queue for server {ServerName}", video.Title, _serverName);
+			return video;
+		}
+
 		public VideoInfo? CurrentlyPlaying
 		{
 			get
