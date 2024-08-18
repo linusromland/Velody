@@ -165,7 +165,33 @@ namespace Velody.Server
 			VideoModel? video = await _videoRepository.GetVideo(videoInfo.VideoId, videoInfo.Service);
 			if (video != null && (!IsAnnouncementInProcess))
 			{
-				bool isAnnounced = IsAnnouncementEnabled; // TODO: maybe not present every time?
+				bool isAnnounced = IsAnnouncementEnabled;
+				int announcePercentage = Settings.AnnouncePercentage;
+				if (announcePercentage < 0 || announcePercentage > 100)
+				{
+					_logger.Warning("Invalid announce percentage {AnnouncePercentage}. Using default of 100%.", announcePercentage);
+					announcePercentage = 100;
+				}
+				else
+				{
+					_logger.Information("Announce percentage set to {AnnouncePercentage}%", announcePercentage);
+				}
+
+				if (isAnnounced)
+				{
+					int count = await _historyRepository.GetHistoryCount(_sessionId);
+					if (count == 0)
+					{
+						_logger.Information("No history found, announcing first song");
+					}
+					else
+					{
+						isAnnounced = new Random().Next(100) < announcePercentage;
+						_logger.Information("Announcing next song: {IsAnnounced}", isAnnounced);
+
+					}
+
+				}
 
 				string historyId = await _historyRepository.InsertHistory(video.Id, videoInfo.UserId, videoInfo.GuildId, videoInfo.ChannelId, _sessionId, isAnnounced);
 				AddMongoIdToQueueEntry(videoInfo.VideoId, historyId);

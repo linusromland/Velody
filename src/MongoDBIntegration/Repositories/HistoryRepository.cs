@@ -134,9 +134,9 @@ namespace Velody.MongoDBIntegration.Repositories
 			await _historyCollection.ReplaceOneAsync(h => h.Id == ObjectId.Parse(historyId), history);
 		}
 
-		public async Task<int> GetHistoryCount(string guildId)
+		public async Task<int> GetHistoryCount(string guildOrSessionId)
 		{
-			FilterDefinition<HistoryModel> filter = Builders<HistoryModel>.Filter.Eq(h => h.GuildId, guildId);
+			FilterDefinition<HistoryModel> filter = Builders<HistoryModel>.Filter.Eq(h => h.GuildId, guildOrSessionId) | Builders<HistoryModel>.Filter.Eq(h => h.SessionId, guildOrSessionId);
 			return (int)await _historyCollection.CountDocumentsAsync(filter);
 		}
 

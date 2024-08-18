@@ -23,6 +23,7 @@ namespace Velody.Utils
         public static readonly bool PresenterEnabled = bool.TryParse(Environment.GetEnvironmentVariable("PresenterEnabled"), out var presenterEnabled) ? presenterEnabled : true;
         public static readonly string TTSProvider = Environment.GetEnvironmentVariable("TTSProvider") ?? "GoogleTTS";
         public static readonly string TextGenerator = Environment.GetEnvironmentVariable("TextGenerator") ?? "SimpleTextGenerator";
+        public static readonly int AnnouncePercentage = int.TryParse(Environment.GetEnvironmentVariable("AnnouncePercentage"), out var announcePercentage) ? announcePercentage : 100;
 
     }
 }
