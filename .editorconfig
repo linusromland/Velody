@@ -1,2 +1,4 @@
-[*.{cs,vb}]
+root = true
+
+[*.cs]
 dotnet_analyzer_diagnostic.category-Style.severity = none
