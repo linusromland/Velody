@@ -127,13 +127,61 @@ namespace Velody.MongoDBIntegration.Repositories
 			};
 		}
 
-
 		public async Task AmendAnnounceMessageId(string historyId, ObjectId announceMessageId)
 		{
 			HistoryModel history = await _historyCollection.Find(h => h.Id == ObjectId.Parse(historyId)).FirstOrDefaultAsync();
 			history.AnnounceMessageId = announceMessageId;
 			await _historyCollection.ReplaceOneAsync(h => h.Id == ObjectId.Parse(historyId), history);
 		}
+
+		public async Task<int> GetHistoryCount(string guildId)
+		{
+			FilterDefinition<HistoryModel> filter = Builders<HistoryModel>.Filter.Eq(h => h.GuildId, guildId);
+			return (int)await _historyCollection.CountDocumentsAsync(filter);
+		}
+
+		public async Task<List<PopulatedHistoryModel>?> GetHistoryByServerId(string guildId, int pageSize, int offset)
+		{
+			FilterDefinition<HistoryModel> filter = Builders<HistoryModel>.Filter.Eq(h => h.GuildId, guildId);
+			List<HistoryModel>? historyItems = await _historyCollection.Find(filter).SortByDescending(h => h.PlayedAt).Skip(offset).Limit(pageSize).ToListAsync();
+
+			if (historyItems == null || historyItems.Count == 0)
+			{
+				return null;
+			}
+
+			List<PopulatedHistoryModel> populatedHistoryItems = [];
+
+			for (int i = 0; i < historyItems.Count; i++)
+			{
+				HistoryModel history = historyItems[i];
+				VideoModel? video = await _videoRepository.GetVideo(history.VideoId);
+				if (video == null)
+				{
+					continue;
+				}
+
+
+				populatedHistoryItems.Add(new PopulatedHistoryModel
+				{
+					Id = history.Id,
+					PlayedAt = history.PlayedAt,
+					GuildId = history.GuildId,
+					UserId = history.UserId,
+					VideoId = history.VideoId,
+					ChannelId = history.ChannelId,
+					SessionId = history.SessionId,
+					Announced = history.Announced,
+					AnnounceMessageId = history.AnnounceMessageId,
+					SkippedAt = history.SkippedAt,
+					Video = video,
+					AnnounceMessage = null
+				});
+			}
+
+			return populatedHistoryItems;
+		}
+
 	}
 }
 

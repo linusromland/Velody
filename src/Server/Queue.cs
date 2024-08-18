@@ -167,7 +167,7 @@ namespace Velody.Server
 			{
 				bool isAnnounced = IsAnnouncementEnabled; // TODO: maybe not present every time?
 
-				string historyId = await _historyRepository.InsertHistory(video.Id, videoInfo.GuildId, videoInfo.UserId, videoInfo.ChannelId, _sessionId, isAnnounced);
+				string historyId = await _historyRepository.InsertHistory(video.Id, videoInfo.UserId, videoInfo.GuildId, videoInfo.ChannelId, _sessionId, isAnnounced);
 				AddMongoIdToQueueEntry(videoInfo.VideoId, historyId);
 				_logger.Information("Inserted history for video {VideoId}", video.Id);
 

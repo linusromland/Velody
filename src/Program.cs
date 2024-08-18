@@ -52,7 +52,7 @@ namespace Velody
                     // Enable interactions
                     client.ComponentInteractionCreated += (client, e) =>
                     {
-                        Task.Run(() => InteractionHandler.HandleInteraction(provider.GetRequiredService<ServerManager>(), client, e));
+                        Task.Run(() => InteractionHandler.HandleInteraction(provider.GetRequiredService<ServerManager>(), provider.GetRequiredService<HistoryRepository>(), client, e));
                         return Task.CompletedTask;
                     };
 
@@ -75,6 +75,7 @@ namespace Velody
                 .AddSingleton<LoopQueueCommand>()
                 .AddSingleton<RemoveCommand>()
                 .AddSingleton<PresenterCommand>()
+                .AddSingleton<HistoryCommand>()
 
                 .AddSingleton(provider =>
                 {
@@ -92,7 +93,8 @@ namespace Velody
                         provider.GetRequiredService<LoopCommand>(),
                         provider.GetRequiredService<LoopQueueCommand>(),
                         provider.GetRequiredService<RemoveCommand>(),
-                        provider.GetRequiredService<PresenterCommand>()
+                        provider.GetRequiredService<PresenterCommand>(),
+                        provider.GetRequiredService<HistoryCommand>()
                     };
                 })
                 .AddSingleton(provider =>

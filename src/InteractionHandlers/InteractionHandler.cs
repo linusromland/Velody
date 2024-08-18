@@ -4,6 +4,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.VoiceNext;
 using Newtonsoft.Json.Linq;
+using Velody.MongoDBIntegration.Repositories;
 using Velody.Server;
 
 namespace Velody.InteractionHandlers
@@ -56,7 +57,7 @@ namespace Velody.InteractionHandlers
             return data;
         }
 
-        public static async Task HandleInteraction(ServerManager serverManager, DiscordClient client, ComponentInteractionCreateEventArgs e)
+        public static async Task HandleInteraction(ServerManager serverManager, HistoryRepository historyRepository, DiscordClient client, ComponentInteractionCreateEventArgs e)
         {
             await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
             string dataString = e.Id;
@@ -73,6 +74,9 @@ namespace Velody.InteractionHandlers
             {
                 case QueueInteractionHandler.ActionType:
                     QueueInteractionHandler.HandleInteraction(serverManager, client, e, data);
+                    break;
+                case HistoryInteractionHandler.ActionType:
+                    HistoryInteractionHandler.HandleInteraction(historyRepository, client, e, data);
                     break;
                 default:
                     break;
