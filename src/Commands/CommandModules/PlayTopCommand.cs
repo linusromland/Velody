@@ -16,7 +16,7 @@ namespace Velody
         private readonly ILogger _logger = Logger.CreateLogger("PlaySkipCommand");
         private readonly ServerManager _serverManager = serverManager;
         private readonly VideoHandler _videoHandler = videoHandler;
-        [SlashCommand("playTop", "Plays a video with the given search string or URL. The video will be added to the top of the queue.")]
+        [SlashCommand("playTop", "Search for a video and add it to the top of the queue.")]
         public async Task PlayTop(InteractionContext ctx, [Option("video", "video to play")] string searchString)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);

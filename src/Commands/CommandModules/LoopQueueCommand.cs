@@ -16,7 +16,7 @@ namespace Velody
 
         private readonly ServerManager _serverManager = serverManager;
 
-        [SlashCommand("loopQueue", "Loops the queue.")]
+        [SlashCommand("loopQueue", "Toggle loop queue mode.")]
         public async Task LoopQueue(InteractionContext ctx)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);

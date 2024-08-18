@@ -16,7 +16,7 @@ namespace Velody
 
         private readonly ServerManager _serverManager = serverManager;
 
-        [SlashCommand("loop", "Loops the currently playing video.")]
+        [SlashCommand("loop", "Toggle loop mode.")]
         public async Task Loop(InteractionContext ctx)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);

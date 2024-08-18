@@ -17,7 +17,7 @@ namespace Velody
         private readonly ILogger _logger = Logger.CreateLogger("LastAnnouncementMessageCommand");
         private readonly AnnounceMessageRepository _announceMessageRepository = announceMessageRepository;
 
-        [SlashCommand("lastAnnouncementMessage", "Shows the last announcement message.")]
+        [SlashCommand("lastAnnouncementMessage", "Display the last announcement message.")]
         public async Task LastTTSMessage(InteractionContext ctx)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);

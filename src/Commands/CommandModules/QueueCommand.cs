@@ -19,7 +19,7 @@ namespace Velody
 
         private readonly ServerManager _serverManager = serverManager;
 
-        [SlashCommand("queue", "Shows the queue.")]
+        [SlashCommand("queue", "Display the current queue.")]
         public async Task Queue(InteractionContext ctx)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);

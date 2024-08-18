@@ -16,7 +16,7 @@ namespace Velody
         private readonly ServerManager _serverManager = serverManager;
         private readonly VideoHandler _videoHandler = videoHandler;
 
-        [SlashCommand("play", "Plays a video with the given search string or URL.")]
+        [SlashCommand("play", "Search for a video and play it.")]
         public async Task Play(InteractionContext ctx, [Option("video", "video to play")] string searchString)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);

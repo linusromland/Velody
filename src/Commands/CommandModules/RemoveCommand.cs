@@ -16,7 +16,7 @@ namespace Velody
         private readonly ServerManager _serverManager = serverManager;
         private readonly VideoHandler _videoHandler = videoHandler;
 
-        [SlashCommand("remove", "Removes a video from the queue.")]
+        [SlashCommand("remove", "Remove a song from the queue.")]
         public async Task Play(InteractionContext ctx, [Option("index", "index of video to remove")] string index)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);

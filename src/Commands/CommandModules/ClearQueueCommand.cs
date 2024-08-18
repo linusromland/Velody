@@ -18,7 +18,7 @@ namespace Velody
 
         private HistoryRepository _historyRepository = historyRepository;
 
-        [SlashCommand("clear", "Clears the queue.")]
+        [SlashCommand("clear", "Clear the current queue.")]
         public async Task ClearQueue(InteractionContext ctx)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);

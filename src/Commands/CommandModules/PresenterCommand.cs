@@ -16,7 +16,7 @@ namespace Velody
 
         private readonly ServerManager _serverManager = serverManager;
 
-        [SlashCommand("presenter", "Enables or disables the presenter.")]
+        [SlashCommand("presenter", "Toggle the presenter feature.")]
         public async Task Loop(InteractionContext ctx)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);
