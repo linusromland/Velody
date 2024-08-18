@@ -63,6 +63,8 @@ namespace Velody
                     return;
                 }
 
+                _logger.Information("Adding video {VideoTitle} to the queue in guild {GuildName}", videos[0].Title, ctx.Guild.Name);
+
                 VideoInfo video = videos[0];
                 bool isQueueEmpty = server.Queue.IsQueueEmpty();
                 _ = server.Queue.AddToQueueAsync(videos);

@@ -75,8 +75,9 @@ namespace Velody.Server
                 {
                     return new JoinVoiceResponse { Code = JoinVoiceChannelResponseCode.AlreadyConnected, VoiceChannelName = voiceChannel.Name };
                 }
-
+                _logger.Information("Trying to connect to voice channel {VoiceChannelName}", voiceChannel.Name);
                 _vnc = await vnext.ConnectAsync(voiceChannel);
+                _logger.Information("Connected to voice channel {VoiceChannelName}", voiceChannel.Name);
                 return new JoinVoiceResponse { Code = JoinVoiceChannelResponseCode.Success, VoiceChannelName = voiceChannel.Name };
             }
             catch (Exception e)
