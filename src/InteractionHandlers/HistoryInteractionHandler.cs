@@ -9,22 +9,22 @@ using Velody.Server;
 
 namespace Velody.InteractionHandlers
 {
-	public class HistoryInteractionHandler
-	{
-		public const string ActionType = "HISTORY";
-		public static void HandleInteraction(HistoryRepository historyRepository, DiscordClient client, ComponentInteractionCreateEventArgs e, JObject data)
-		{
-			EmbedBuilder embed = new(e.Message);
+    public class HistoryInteractionHandler
+    {
+        public const string ActionType = "HISTORY";
+        public static void HandleInteraction(HistoryRepository historyRepository, DiscordClient client, ComponentInteractionCreateEventArgs e, JObject data)
+        {
+            EmbedBuilder embed = new(e.Message);
 
-			int? page = data["page"]?.ToObject<int>();
+            int? page = data["page"]?.ToObject<int>();
 
-			if (page == null)
-			{
-				return;
-			}
+            if (page == null)
+            {
+                return;
+            }
 
-			HistoryMessageHelper.HandleHistoryMessage(embed, historyRepository, e.Guild.Id.ToString(), page.Value);
-		}
+            HistoryMessageHelper.HandleHistoryMessage(embed, historyRepository, e.Guild.Id.ToString(), page.Value);
+        }
 
-	}
+    }
 }
