@@ -40,6 +40,7 @@ namespace Velody.Video.VideoModules
 
             if (ytDlp == null)
             {
+                _logger.Error("Failed to start yt-dlp process");
                 throw new Exception("Failed to start yt-dlp process");
             }
 
