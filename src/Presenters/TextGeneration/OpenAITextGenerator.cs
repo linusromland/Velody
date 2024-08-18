@@ -47,14 +47,36 @@ namespace Velody.Presenters.TextGeneration
 
         public string GenerateTextForNextVideo(VideoInfo nextVideo, List<PopulatedHistoryModel> previousVideos)
         {
-            PopulatedHistoryModel lastVideo = previousVideos[^1];
-
+            string prompt = BasePrompt;
+            List<PopulatedHistoryModel> videosSinceLastAnnouncement = previousVideos.TakeWhile(video => !video.Announced).ToList();
             string nickname = GetUser.GetNickname(_discordClient, nextVideo);
 
-            string prompt = $@"
-            {BasePrompt}
-            You have just played a song. The last song was {lastVideo.Video.Title}. The next song is {nextVideo.Title}. This was requested by {nickname}.
-            ";
+            if (videosSinceLastAnnouncement.Count == 0)
+            {
+                PopulatedHistoryModel lastVideo = previousVideos[^1];
+                prompt += $@"
+                    You have just played a song. The last song was {lastVideo.Video.Title}. The next song is {nextVideo.Title}. This was requested by {nickname}.
+                ";
+            }
+            else
+            {
+                prompt += $@"
+                    You have just played {videosSinceLastAnnouncement.Count} songs since the last announcement. Mention these songs if fitting. These were from newest to oldest:
+                ";
+
+                foreach (PopulatedHistoryModel video in videosSinceLastAnnouncement)
+                {
+                    prompt += $@"
+                        {video.Video.Title}
+                    ";
+                }
+
+                prompt += $@"
+                    The next song is {nextVideo.Title}. This was requested by {nickname}.
+                ";
+            }
+
+            Console.WriteLine(prompt);
 
             ChatCompletion completion = _openaiClient.CompleteChat(prompt);
 
