@@ -71,6 +71,8 @@ namespace Velody
                 .AddSingleton<ClearQueueCommand>()
                 .AddSingleton<ShuffleQueueCommand>()
                 .AddSingleton<LastAnnouncementMessageCommand>()
+                .AddSingleton<LoopCommand>()
+                .AddSingleton<LoopQueueCommand>()
                 .AddSingleton(provider =>
                 {
                     return new List<ApplicationCommandModule>
@@ -83,7 +85,9 @@ namespace Velody
                         provider.GetRequiredService<QueueCommand>(),
                         provider.GetRequiredService<ClearQueueCommand>(),
                         provider.GetRequiredService<ShuffleQueueCommand>(),
-                        provider.GetRequiredService<LastAnnouncementMessageCommand>()
+                        provider.GetRequiredService<LastAnnouncementMessageCommand>(),
+                        provider.GetRequiredService<LoopCommand>(),
+                        provider.GetRequiredService<LoopQueueCommand>()
                     };
                 })
                 .AddSingleton(provider =>

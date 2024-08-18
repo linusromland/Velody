@@ -59,6 +59,15 @@ namespace Velody
 			return this;
 		}
 
+		public EmbedBuilder WithFooter(string text)
+		{
+			_builder.Footer = new DiscordEmbedBuilder.EmbedFooter
+			{
+				Text = text
+			};
+			return this;
+		}
+
 		public EmbedBuilder WithActionButton(string label, string actionType, JObject data, bool isDisabled = false)
 		{
 

@@ -67,6 +67,10 @@ namespace Velody
                 string requestedBy = $"Requested by <@{currentlyPlaying.UserId}>";
                 embed.WithDescription($"{progressBar}\n{timeString}\n{requestedBy}");
 
+                bool isLooping = server.Queue.Loop;
+                bool isLoopingQueue = server.Queue.LoopQueue;
+                embed.WithFooter($"Loop: {(isLooping ? "Enabled" : "Disabled")} | Loop Queue: {(isLoopingQueue ? "Enabled" : "Disabled")}");
+
                 await embed.Send();
             }
             catch (Exception e)

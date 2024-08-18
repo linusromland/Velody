@@ -19,7 +19,7 @@ namespace Velody.Server
 		private readonly Presenter _presenter = presenter;
 		private Dictionary<ulong, Server> _servers = new Dictionary<ulong, Server>();
 
-		public Server? GetServer(ulong guildId)
+		public Server? GetServer(ulong guildId, bool createIfNotExists = true)
 		{
 			if (_servers.ContainsKey(guildId))
 			{
@@ -27,6 +27,11 @@ namespace Velody.Server
 			}
 			else
 			{
+				if (!createIfNotExists)
+				{
+					return null;
+				}
+
 				DiscordGuild? guild = _client.GetGuildAsync(guildId).Result;
 
 				if (guild != null)

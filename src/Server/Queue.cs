@@ -27,6 +27,8 @@ namespace Velody.Server
 		private Dictionary<string, string> _videoPaths = new Dictionary<string, string>();
 		private string _isAnnouncementInProcess = string.Empty;
 		public bool isAnnouncementEnabled = true; // TODO: Add setting for this
+		public bool Loop = false;
+		public bool LoopQueue = false;
 		public event Func<string, int, Task>? PlaySong;
 
 		public async Task AddToQueueAsync(VideoInfo videoInfo, bool addFirst = false)
@@ -96,6 +98,18 @@ namespace Velody.Server
 			if (isSkip)
 			{
 				_isAnnouncementInProcess = string.Empty;
+			}
+
+			if (Loop)
+			{
+				_logger.Information("Looping currently playing video");
+				return;
+			}
+
+			if (LoopQueue)
+			{
+				_logger.Information("Looping queue");
+				_queue.Add(_queue[0]);
 			}
 
 			_queue.RemoveAt(0);

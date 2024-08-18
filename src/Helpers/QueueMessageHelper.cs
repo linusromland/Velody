@@ -73,6 +73,10 @@ namespace Velody.Helpers
             }
             embed.WithDescription(description);
 
+            bool isLooping = queue.Loop;
+            bool isLoopingQueue = queue.LoopQueue;
+            embed.WithFooter($"Loop: {(isLooping ? "Enabled" : "Disabled")} | Loop Queue: {(isLoopingQueue ? "Enabled" : "Disabled")}");
+
             await embed.Send();
         }
     }
