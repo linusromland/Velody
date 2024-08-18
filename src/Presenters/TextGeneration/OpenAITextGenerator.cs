@@ -27,7 +27,9 @@ namespace Velody.Presenters.TextGeneration
             _openaiClient = new ChatClient(model: Model, Settings.OpenAIApiKey);
         }
 
-        public string ServiceName => "OpenAITextGenerator";
+        public const string ServiceNameConst = "OpenAITextGenerator";
+
+        public string ServiceName => ServiceNameConst;
 
         public string GenerateTextForFirstVideo(VideoInfo nextVideo)
         {

@@ -17,8 +17,6 @@ namespace Velody.MongoDBIntegration.Repositories
 
 		public async Task InsertCache(ObjectId videoId, string path)
 		{
-			// TODO: Add videoId validation
-
 			CacheModel cache = new CacheModel
 			{
 				DownloadedAt = DateTime.UtcNow,

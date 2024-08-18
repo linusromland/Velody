@@ -13,7 +13,8 @@ namespace Velody.Presenters.TTS
     {
         private readonly ILogger _logger = Logger.CreateLogger("GoogleTTS");
 
-        public string ServiceName => "GoogleTTS";
+        public const string ServiceNameConst = "GoogleTTS";
+        public string ServiceName => ServiceNameConst;
 
         public async Task DownloadTTSAsync(string text, string filePath)
         {

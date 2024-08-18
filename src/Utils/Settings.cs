@@ -21,5 +21,8 @@ namespace Velody.Utils
 
         // General Configuration
         public static readonly bool PresenterEnabled = bool.TryParse(Environment.GetEnvironmentVariable("PresenterEnabled"), out var presenterEnabled) ? presenterEnabled : true;
+        public static readonly string TTSProvider = Environment.GetEnvironmentVariable("TTSProvider") ?? "GoogleTTS";
+        public static readonly string TextGenerator = Environment.GetEnvironmentVariable("TextGenerator") ?? "SimpleTextGenerator";
+
     }
 }

@@ -20,9 +20,28 @@ namespace Velody.Presenters
 
         public Presenter(DiscordClient client, HistoryRepository historyRepository, AnnounceMessageRepository announceMessageRepository)
         {
-            // TODO: Add config here
-            _ttsProvider = new GoogleTTS();
-            _textGenerator = new OpenAITextGenerator(client);
+            string selectedTTSProvider = Settings.TTSProvider;
+            switch (selectedTTSProvider)
+            {
+                case GoogleTTS.ServiceNameConst:
+                    _ttsProvider = new GoogleTTS();
+                    break;
+                default:
+                    throw new Exception("Invalid TTS provider");
+            }
+
+            string selectedTextGenerator = Settings.TextGenerator;
+            switch (selectedTextGenerator)
+            {
+                case SimpleTextGenerator.ServiceNameConst:
+                    _textGenerator = new SimpleTextGenerator(client);
+                    break;
+                case OpenAITextGenerator.ServiceNameConst:
+                    _textGenerator = new OpenAITextGenerator(client);
+                    break;
+                default:
+                    throw new Exception("Invalid text generator");
+            }
 
             _historyRepository = historyRepository;
             _announceMessageRepository = announceMessageRepository;

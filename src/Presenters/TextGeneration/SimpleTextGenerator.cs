@@ -15,7 +15,8 @@ namespace Velody.Presenters.TextGeneration
             _client = client;
         }
 
-        public string ServiceName => "SimpleTextGenerator";
+        public const string ServiceNameConst = "SimpleTextGenerator";
+        public string ServiceName => ServiceNameConst;
 
         public string GenerateTextForFirstVideo(VideoInfo nextVideo)
         {
