@@ -20,18 +20,16 @@ jobs:
       - name: Get latest GitHub release tag
         id: get_latest_release
         run: |
-          echo "Fetching the latest GitHub release tag..."
           latest_release=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .tag_name)
           if [ "$latest_release" == "null" ]; then
             latest_release=""
           fi
-          echo "Latest release tag found: $latest_release"
           echo "latest_release=$latest_release" >> $GITHUB_ENV
 
       - name: Extract version from changelog
         id: get_version
         run: |
-          echo "Extracting version from CHANGELOG.md..."
+          # Extract the latest version from the changelog
           latest_changelog_version=$(grep -oP '^## \K[0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md | head -n 1)
           echo "Latest version from changelog: $latest_changelog_version"
           echo "latest_changelog_version=$latest_changelog_version" >> $GITHUB_ENV
@@ -41,24 +39,11 @@ jobs:
           echo "Latest GitHub release version: $latest_github_version"
 
           if [ "$latest_changelog_version" != "$latest_github_version" ]; then
-            echo "New version detected: $latest_changelog_version"
             echo "new_version=$latest_changelog_version" >> $GITHUB_OUTPUT
             echo "is_new_version=true" >> $GITHUB_OUTPUT
           else
-            echo "No new version detected. No deployment necessary."
             echo "is_new_version=false" >> $GITHUB_OUTPUT
-
-      - name: Extract release notes
-        id: extract_notes
-        if: needs.check-version.outputs.is_new_version == 'true'
-        run: |
-          echo "Extracting release notes for version ${{ needs.check-version.outputs.new_version }}..."
-          release_notes=$(awk "/## ${{ needs.check-version.outputs.new_version }}.*$/{flag=1;next}/## [0-9]+/{flag=0}flag" CHANGELOG.md)
-          echo "Release notes extracted:"
-          echo "$release_notes"
-          echo "release_notes<<EOF" >> $GITHUB_ENV
-          echo "$release_notes" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          fi
 
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -73,7 +58,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ secrets.GITHUB_ACTOR }}
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push Image
@@ -92,12 +77,9 @@ jobs:
         with:
           tag_name: ${{ needs.check-version.outputs.new_version }}
           release_name: ${{ needs.check-version.outputs.new_version }}
-          body: ${{ env.release_notes }}
+          body: |
+            $(awk "/## ${{ needs.check-version.outputs.new_version }}.*$/{flag=1;next}/## [0-9]+/{flag=0}flag" CHANGELOG.md)
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Creating GitHub release for version ${{ needs.check-version.outputs.new_version }}..."
-          echo "Release notes:"
-          echo "${{ env.release_notes }}"
