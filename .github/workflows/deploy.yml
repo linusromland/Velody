@@ -47,7 +47,6 @@ jobs:
 
       - name: Extract release notes
         id: extract_notes
-        if: needs.check-version.outputs.is_new_version == 'true'
         run: |
           echo "Extracting release notes for version ${{ needs.check-version.outputs.new_version }}..."
           release_notes=$(awk "/## ${{ needs.check-version.outputs.new_version }}.*$/{flag=1;next}/## [0-9]+/{flag=0}flag" CHANGELOG.md)
