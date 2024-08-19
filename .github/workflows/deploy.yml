@@ -49,12 +49,10 @@ jobs:
         id: extract_notes
         run: |
           echo "Extracting release notes for version ${{ needs.check-version.outputs.new_version }}..."
-          release_notes=$(awk "/## ${{ needs.check-version.outputs.new_version }}.*$/{flag=1;next}/## [0-9]+/{flag=0}flag" CHANGELOG.md)
+          changelog_release_notes=$(awk "/## ${{ needs.check-version.outputs.new_version }}.*$/{flag=1;next}/## [0-9]+/{flag=0}flag" CHANGELOG.md)
           echo "Release notes extracted:"
-          echo "$release_notes"
-          echo "release_notes<<EOF" >> $GITHUB_ENV
-          echo "$release_notes" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          echo "$changelog_release_notes"
+          echo "release_notes=$changelog_release_notes" >> $GITHUB_OUTPUT
 
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -88,7 +86,7 @@ jobs:
         with:
           tag_name: ${{ needs.check-version.outputs.new_version }}
           release_name: ${{ needs.check-version.outputs.new_version }}
-          body: ${{ env.release_notes }}
+          body: ${{ needs.check-version.outputs.release_notes }}
           draft: false
           prerelease: false
         env:
