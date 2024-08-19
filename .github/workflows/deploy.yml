@@ -3,7 +3,6 @@ name: Deploy to GHCR and GitHub Release
 on:
   push:
     branches:
-      - master
       - feature/dotnet-rewrite
   workflow_dispatch:
 
@@ -23,11 +22,19 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const latestRelease = await github.repos.getLatestRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            });
-            return latestRelease.data.tag_name;
+            try {
+              const latestRelease = await github.repos.getLatestRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo
+              });
+              return latestRelease.data.tag_name;
+            } catch (error) {
+              if (error.status === 404) {
+                return '';
+              } else {
+                throw error;
+              }
+            }
 
       - name: Extract version from changelog
         id: get_version
