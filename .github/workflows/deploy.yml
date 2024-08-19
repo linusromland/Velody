@@ -19,22 +19,12 @@ jobs:
 
       - name: Get latest GitHub release tag
         id: get_latest_release
-        uses: actions/github-script@v6
-        with:
-          script: |
-            try {
-              const latestRelease = await github.repos.getLatestRelease({
-                owner: context.repo.owner,
-                repo: context.repo.repo
-              });
-              return latestRelease.data.tag_name;
-            } catch (error) {
-              if (error.status === 404) {
-                return '';
-              } else {
-                throw error;
-              }
-            }
+        run: |
+          latest_release=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .tag_name)
+          if [ "$latest_release" == "null" ]; then
+            latest_release=""
+          fi
+          echo "latest_release=$latest_release" >> $GITHUB_ENV
 
       - name: Extract version from changelog
         id: get_version
@@ -45,7 +35,7 @@ jobs:
           echo "latest_changelog_version=$latest_changelog_version" >> $GITHUB_ENV
 
           # Compare with the latest GitHub release
-          latest_github_version="${{ steps.get_latest_release.outputs.result }}"
+          latest_github_version="${{ env.latest_release }}"
           echo "Latest GitHub release version: $latest_github_version"
 
           if [ "$latest_changelog_version" != "$latest_github_version" ]; then
