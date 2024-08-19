@@ -97,7 +97,3 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Creating GitHub release for version ${{ needs.check-version.outputs.new_version }}..."
-          echo "Release notes:"
-          echo "${{ env.release_notes }}"
