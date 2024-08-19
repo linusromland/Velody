@@ -39,12 +39,10 @@ jobs:
           echo "Latest GitHub release version: $latest_github_version"
 
           if [ "$latest_changelog_version" != "$latest_github_version" ]; then
-            echo "is_new_version=true" >> $GITHUB_ENV
-            echo "::set-output name=new_version::$latest_changelog_version"
-            echo "::set-output name=is_new_version::true"
+            echo "new_version=$latest_changelog_version" >> $GITHUB_OUTPUT
+            echo "is_new_version=true" >> $GITHUB_OUTPUT
           else
-            echo "is_new_version=false" >> $GITHUB_ENV
-            echo "::set-output name=is_new_version::false"
+            echo "is_new_version=false" >> $GITHUB_OUTPUT
           fi
 
   build-and-deploy:
