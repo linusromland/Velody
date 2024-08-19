@@ -58,13 +58,18 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ secrets.GITHUB_ACTOR }}
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        run: |
-          docker build -t ghcr.io/${{ github.repository }}/velody:${{ needs.check-version.outputs.new_version }} .
-          docker push ghcr.io/${{ github.repository }}/velody:${{ needs.check-version.outputs.new_version }}
+      - name: Build and Push Image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ghcr.io/linusromland/velody:latest
+            ghcr.io/linusromland/velody:${{ needs.check-version.outputs.new_version }}
 
       - name: Create GitHub Release
         id: create_release
