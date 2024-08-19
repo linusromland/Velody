@@ -1,0 +1,83 @@
+name: Deploy to GHCR and GitHub Release
+
+on:
+  push:
+    branches:
+      - feature/dotnet-rewrite
+  workflow_dispatch:
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.get_version.outputs.new_version }}
+      is_new_version: ${{ steps.get_version.outputs.is_new_version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get latest GitHub release tag
+        id: get_latest_release
+        run: |
+          latest_release=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .tag_name)
+          if [ "$latest_release" == "null" ]; then
+            latest_release=""
+          fi
+          echo "latest_release=$latest_release" >> $GITHUB_ENV
+
+      - name: Extract version from changelog
+        id: get_version
+        run: |
+          # Extract the latest version from the changelog
+          latest_changelog_version=$(grep -oP '^## \K[0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md | head -n 1)
+          echo "Latest version from changelog: $latest_changelog_version"
+          echo "latest_changelog_version=$latest_changelog_version" >> $GITHUB_ENV
+
+          # Compare with the latest GitHub release
+          latest_github_version="${{ env.latest_release }}"
+          echo "Latest GitHub release version: $latest_github_version"
+
+          if [ "$latest_changelog_version" != "$latest_github_version" ]; then
+            echo "new_version=$latest_changelog_version" >> $GITHUB_OUTPUT
+            echo "is_new_version=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_new_version=false" >> $GITHUB_OUTPUT
+          fi
+
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    needs: check-version
+    if: needs.check-version.outputs.is_new_version == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ghcr.io/linusromland/velody:latest
+            ghcr.io/linusromland/velody:${{ needs.check-version.outputs.new_version }}
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ needs.check-version.outputs.new_version }}
+          release_name: ${{ needs.check-version.outputs.new_version }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -2,31 +2,30 @@
   <img src="assets/logo.jpeg" width="224px"/><br/>
   Velody
 </h1>
-<p align="center">Velody is a <b>Discord music bot</b> written in <b>Node.JS</b> & <b>Discord.JS</b>.
+<p align="center">Velody is a <b>Discord music bot</b> written in <b>C#</b>.
 
-<p align="center"><a href="https://github.com/linusromland/velody/releases" target="_blank"><img src="https://img.shields.io/badge/version-v2.3.0-blue?style=for-the-badge&logo=none" alt="cli version" /></a>&nbsp
+<p align="center"><a href="https://github.com/linusromland/velody/releases" target="_blank"><img src="https://img.shields.io/badge/version-v3.0.0-blue?style=for-the-badge&logo=none" alt="Velody version" /></a>&nbsp
 <a href="https://github.com/linusromland/Velody/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge&logo=none" alt="license" /></a>
 </p>
 
 ## ⚙️ Commands
 
-| Command               | Description                                                                         |
-| --------------------- | ----------------------------------------------------------------------------------- |
-| `/join`               | Summons the bot to your voice channel.                                              |
-| `/leave`              | Disconnect the bot from the voice channel it is in.                                 |
-| `/loop`               | Loop the currently playing video.                                                   |
-| `/loopqueue`          | Loop the queue.                                                                     |
-| `/nowplaying`         | Shows what video the bot is currently playing.                                      |
-| `/play <video>`       | Plays a video with the given name or URL.                                           |
-| `/playtop <video>`    | Adds a video to the top of the queue.                                               |
-| `/queue`              | View the queue.                                                                     |
-| `/remove <position?>` | Removes from queue at location. If position is not passed, will clear entire queue. |
-| `/clear`              | Clears the queue.                                                                   |
-| `/shuffle`            | Shuffles the queue.                                                                 |
-| `/skip`               | Skips the currently playing video.                                                  |
-| `/voicePresenter`     | Enables or disables the Voice Presenter temporarily.                                |
-| `/gpt3`               | Enables or disables the GPT-3 for the bot.                                          |
-| `/getLastTTSMessage`  | Gets the last TTS message from within the last 5 minutes.                           |
+| Command                    | Description                                                |
+| -------------------------- | ---------------------------------------------------------- |
+| `/play <query>`            | Search for a video and play it.                            |
+| `/playSkip <query>`        | Search for a video and play it, skipping the current video. |
+| `/playTop <query>`         | Search for a video and add it to the top of the queue.     |
+| `/skip`                    | Skip the current video.                                     |
+| `/queue`                   | Display the current queue.                                 |
+| `/shuffle`                 | Shuffle the queue.                                         |
+| `/clearqueue`              | Clear the current queue.                                   |
+| `/loop`                    | Toggle loop mode.                                          |
+| `/loopqueue`               | Toggle loop queue mode.                                    |
+| `/nowPlaying`              | Display the current video.                                  |
+| `/remove <index>`          | Remove a video from the queue.                              |
+| `/lastAnnouncementMessage` | Display the last announcement message.                     |
+| `/presenter`               | Toggle the presenter feature.                              |
+| `/history`                 | Display the last played videos.                             |
 
 ## ⚡️ Setup
 
@@ -34,7 +33,7 @@
 
 In order to run `Velody` natively, you will need to have the following installed:
 
-- [Node.JS](https://nodejs.org/en/) (v16+)
+- [Dotnet 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
 
 If you want to run `Velody` in a Docker container, you will need to have the following installed:
 
@@ -76,13 +75,7 @@ Velody requires the following permissions to function properly:
 git clone https://github.com/linusromland/Velody.git
 ```
 
-2. Install dependencies
-
-```bash
-npm install
-```
-
-3. Environment variables
+2. Environment variables
 
 ```bash
 cp .env.example .env
@@ -90,10 +83,10 @@ cp .env.example .env
 
 Then, fill in the environment variables in the `.env` file. More information about the environment variables can be found [here](#-environment-variables).
 
-4. Run the bot
+3. Run the bot
 
 ```bash
-npm run dev
+dotnet run
 ```
 
 ### Build and run Docker image
@@ -136,21 +129,22 @@ docker run -d --name velody ghcr.io/linusromland/velody:latest -e BOT_TOKEN=your
 
 ## 📦 Environment variables
 
-| Variable             | Description                                                                                                               | Required | Default value |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------- | -------- | ------------- |
-| BOT_TOKEN            | The bot token of your Discord bot.                                                                                        | Yes      | -             |
-| YOUTUBE_API_KEY      | The YouTube API key.                                                                                                      | Yes      | -             |
-| OPENAI_API_KEY       | The OpenAI API key.                                                                                                       | No       | -             |
-| OPENAI_MODEL         | The OpenAI model.                                                                                                         | No       | gpt-3.5-turbo |
-| OPENAI_TTS_MODEL     | The OpenAI TTS model.                                                                                                     | No       | tts-1         |
-| OPENAI_TTS_VOICE     | The OpenAI TTS voice.                                                                                                     | No       | echo          |
-| MONGODB_URI          | The MongoDB URI.                                                                                                          | No       | -             |
-| CACHE_MAX_SIZE_IN_MB | The maximum size of the cache in MB. (Min of 500mb)                                                                       | No       | 1000          |
-| SERVER_GUILD_ID      | The ID of the server to use. Used for development to enable faster reloading of slash commands. Not needed in production. | No       | -             |
+| Variable           | Description                                                                         | Required                     | Default value         |
+| ------------------ | ----------------------------------------------------------------------------------- | ---------------------------- | --------------------- |
+| DiscordBotToken    | The bot token of your Discord bot.                                                  | Yes                          | -                     |
+| DiscordGuildId     | The ID of the Discord guild where the bot will be used.                             | No                           | -                     |
+| GoogleApiKey       | The API key for the Google API.                                                     | Yes                          | -                     |
+| OpenAIApiKey       | The API key for the OpenAI API.                                                     | If using OpenAITextGenerator | -                     |
+| PresenterEnabled   | Whether the presenter feature should be enabled.                                    | No                           | true                  |
+| TextGenerator      | Which text generator to use. Options: `SimpleTextGenerator`, `OpenAITextGenerator`. | No                           | `SimpleTextGenerator` |
+| TTSProvider        | Which TTS provider to use. Options: `GoogleTTS`.                                    | No                           | `GoogleTTS`           |
+| AnnouncePercentage | How often the bot should announce the video. (0-100)                                 | No                           | 100                   |
+
+If `PresenterEnabled` is set to `false`, `TextGenerator`, `TTSProvider` and `AnnouncePercentage` will be ignored.
 
 ## 📝 Contact
 
-If you have any questions, feel free to contact me on Discord: `linusromland#1012`
+If you have any questions, feel free to contact me on Discord: `linusromland`
 
 ## ⭐️ Project assistance
 

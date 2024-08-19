@@ -1,0 +1,21 @@
+{
+  "csharp.suppressDotnetDiagnostic": "IDE0001",
+  "cSpell.words": [
+    "Bson",
+    "clearqueue",
+    "ITTS",
+    "linusromland",
+    "loopqueue",
+    "Maxres",
+    "Newtonsoft",
+    "nowplaying",
+    "openai",
+    "playskip",
+    "playtop",
+    "Ssml",
+    "Texttospeech",
+    "Unkown",
+    "Velody",
+    "vnext"
+  ]
+}

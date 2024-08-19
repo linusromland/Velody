@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0 (2024-08-19)
+
+- Rewrote the bot in C# using DSharpPlus.
+- Made the bot more modular. The entire TTS, Text Generator and Sound Source can now easily be swapped out.
+
 ## 2.7.0 (2024-01-05)
 
 - Added timeout to commands. If more than 5 commands are used within 1 minute, the user will be timed out for 1 minute.
