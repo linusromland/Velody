@@ -3,7 +3,7 @@ name: Deploy to GHCR and GitHub Release
 on:
   push:
     branches:
-      - feature/dotnet-rewrite
+      - master
   workflow_dispatch:
 
 jobs:
