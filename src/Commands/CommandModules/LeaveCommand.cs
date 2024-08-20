@@ -54,13 +54,5 @@ namespace Velody
                 return;
             }
         }
-
-        static string CreateProgressBar(TimeSpan currentPlayTime, TimeSpan totalDuration, int barLength)
-        {
-            double percentagePlayed = currentPlayTime.TotalSeconds / totalDuration.TotalSeconds;
-            int playedLength = (int)(percentagePlayed * barLength);
-
-            return $"{new string('▬', playedLength)}🔘{new string('▬', barLength - playedLength)}";
-        }
     }
 }
