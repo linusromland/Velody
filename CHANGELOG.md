@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.0 (2024-08-20)
+
+- Implemented leave command.
+- Fixed bug where bot needed to be restarted if bot was kicked.
+
 ## 3.0.0 (2024-08-19)
 
 - Rewrote the bot in C# using DSharpPlus.
