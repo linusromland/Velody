@@ -22,6 +22,8 @@ namespace Velody.Server
 
         public event Func<ulong, Task>? Dispose;
 
+        private HistoryRepository _historyRepository;
+
         public Server(DiscordClient client, string name, ulong guildId, VideoHandler videoHandler, HistoryRepository historyRepository, VideoRepository videoRepository, ServerRepository serverRepository, Presenter presenter)
         {
             _client = client;
@@ -79,6 +81,21 @@ namespace Velody.Server
             };
 
             _logger.Information($"Server {_name} initialized with ID {_guildId}");
+
+            _historyRepository = historyRepository;
+        }
+
+        public void DisposeServer()
+        {
+            VideoInfo? currentlyPlaying = Queue.CurrentlyPlaying;
+            TimeSpan currentPlayTime = VoiceManager.GetPlaybackDuration();
+            if (currentlyPlaying != null && currentlyPlaying.HistoryId != null)
+            {
+                _ = _historyRepository.SkippedHistory(currentlyPlaying.HistoryId, currentPlayTime);
+            }
+
+            Queue.ClearQueue();
+            VoiceManager.StopAudio(true, true);
         }
     }
 }
