@@ -20,7 +20,7 @@ namespace Velody.Server
         private Thread? _playbackThread;
         private Stream? _fileStream;
         private CancellationTokenSource? _cancellationTokenSource;
-        public event Func<bool, Task>? PlaybackFinished;
+        public event Func<bool, bool, Task>? PlaybackFinished;
 
         public VoiceManager(DiscordClient client)
         {
@@ -129,7 +129,7 @@ namespace Velody.Server
 
                 _fileStream.Dispose();
 
-                PlaybackFinished?.Invoke(false);
+                PlaybackFinished?.Invoke(false, false);
                 _logger.Information("Finished playing audio from {Path}", path);
             }
             catch (Exception ex)
@@ -146,7 +146,7 @@ namespace Velody.Server
             }
         }
 
-        public void StopAudio(bool shouldInvokeFinished = true)
+        public void StopAudio(bool shouldInvokeFinished = true, bool isForceLeave = false)
         {
             if (_vnc == null)
             {
@@ -166,7 +166,7 @@ namespace Velody.Server
 
             if (shouldInvokeFinished)
             {
-                PlaybackFinished?.Invoke(true);
+                PlaybackFinished?.Invoke(true, isForceLeave);
             }
 
             _logger.Information("Stopped audio playback.");

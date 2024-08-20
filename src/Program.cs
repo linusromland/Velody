@@ -76,6 +76,7 @@ namespace Velody
                 .AddSingleton<RemoveCommand>()
                 .AddSingleton<PresenterCommand>()
                 .AddSingleton<HistoryCommand>()
+                .AddSingleton<LeaveCommand>()
 
                 .AddSingleton(provider =>
                 {
@@ -94,7 +95,8 @@ namespace Velody
                         provider.GetRequiredService<LoopQueueCommand>(),
                         provider.GetRequiredService<RemoveCommand>(),
                         provider.GetRequiredService<PresenterCommand>(),
-                        provider.GetRequiredService<HistoryCommand>()
+                        provider.GetRequiredService<HistoryCommand>(),
+                        provider.GetRequiredService<LeaveCommand>()
                     };
                 })
                 .AddSingleton(provider =>

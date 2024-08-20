@@ -41,12 +41,16 @@ namespace Velody.Server
                 return Task.CompletedTask;
             };
 
-            VoiceManager.PlaybackFinished += (isSkip) =>
+            VoiceManager.PlaybackFinished += (isSkip, forceLeave) =>
             {
-                Queue.HandlePlaybackFinished(isSkip);
-                if (Queue.IsQueueEmpty())
+                if (!forceLeave)
                 {
-                    if (_leaveAnnounced || !Queue.IsAnnouncementEnabled)
+                    Queue.HandlePlaybackFinished(isSkip);
+
+                }
+                if (Queue.IsQueueEmpty() || forceLeave)
+                {
+                    if (_leaveAnnounced || !Queue.IsAnnouncementEnabled || forceLeave)
                     {
                         _logger.Information("Queue is empty, stopping playback");
                         VoiceManager.LeaveVoiceChannel();
