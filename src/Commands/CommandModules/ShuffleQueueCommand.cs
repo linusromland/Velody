@@ -56,7 +56,7 @@ namespace Velody
             }
             catch (Exception e)
             {
-                _logger.Error(e, "An error occurred while executing the skip command.");
+                _logger.Error(e, "An error occurred while executing the shuffleQueue command.");
                 await embed.SendUnkownErrorAsync();
                 return;
             }

@@ -101,7 +101,7 @@ namespace Velody
             }
             catch (Exception e)
             {
-                _logger.Error(e, "An error occurred while executing the play skip command.");
+                _logger.Error(e, "An error occurred while executing the playSkip command.");
                 await embed.SendUnkownErrorAsync();
                 return;
             }

@@ -98,7 +98,7 @@ namespace Velody
             }
             catch (Exception e)
             {
-                _logger.Error(e, "An error occurred while executing the play top command.");
+                _logger.Error(e, "An error occurred while executing the playTop command.");
                 await embed.SendUnkownErrorAsync();
                 return;
             }

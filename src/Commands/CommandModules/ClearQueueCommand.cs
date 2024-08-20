@@ -67,7 +67,7 @@ namespace Velody
             }
             catch (Exception e)
             {
-                _logger.Error(e, "An error occurred while executing the skip command.");
+                _logger.Error(e, "An error occurred while executing the clear queue command.");
                 await embed.SendUnkownErrorAsync();
                 return;
             }
