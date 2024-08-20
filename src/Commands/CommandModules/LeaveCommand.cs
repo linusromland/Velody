@@ -42,15 +42,7 @@ namespace Velody
                     return;
                 }
 
-                VideoInfo? currentlyPlaying = server.Queue.CurrentlyPlaying;
-                TimeSpan currentPlayTime = server.VoiceManager.GetPlaybackDuration();
-                if (currentlyPlaying != null && currentlyPlaying.HistoryId != null)
-                {
-                    await _historyRepository.SkippedHistory(currentlyPlaying.HistoryId, currentPlayTime);
-                }
-
-                server.Queue.ClearQueue();
-                server.VoiceManager.StopAudio(true, true);
+                server.DisposeServer();
 
                 embed.WithTitle("Left the voice channel.");
                 await embed.Send();
