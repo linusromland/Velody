@@ -7,17 +7,18 @@ using Velody.MongoDBIntegration.Repositories;
 using Velody.Server;
 using Velody.Utils;
 using Velody.Video;
+using static Velody.Server.VoiceManager;
 
 namespace Velody
 {
-    public class ShuffleQueueCommand(ServerManager serverManager) : ApplicationCommandModule
+    public class LeaveCommand(ServerManager serverManager, HistoryRepository historyRepository) : ApplicationCommandModule
     {
-        private readonly ILogger _logger = Logger.CreateLogger("ShuffleQueueCommand");
-
+        private readonly ILogger _logger = Logger.CreateLogger("LeaveCommand");
         private readonly ServerManager _serverManager = serverManager;
+        private HistoryRepository _historyRepository = historyRepository;
 
-        [SlashCommand("shuffle", "Shuffle the queue.")]
-        public async Task ShuffleQueue(InteractionContext ctx)
+        [SlashCommand("leave", "Leave the voice channel.")]
+        public async Task Play(InteractionContext ctx)
         {
             EmbedBuilder embed = new EmbedBuilder(ctx);
             try
@@ -41,26 +42,17 @@ namespace Velody
                     return;
                 }
 
-                List<VideoInfo> queue = server.Queue.GetQueue();
-                if (queue.Count <= 1)
-                {
-                    embed.WithTitle("Error");
-                    embed.WithDescription("The queue is empty.");
-                    await embed.Send();
-                    return;
-                }
-                server.Queue.ShuffleQueue();
+                server.DisposeServer();
 
-                embed.WithTitle("Queue shuffled");
+                embed.WithTitle("Left the voice channel.");
                 await embed.Send();
             }
             catch (Exception e)
             {
-                _logger.Error(e, "An error occurred while executing the shuffleQueue command.");
+                _logger.Error(e, "An error occurred while executing the leave command.");
                 await embed.SendUnkownErrorAsync();
                 return;
             }
         }
-
     }
 }

@@ -45,6 +45,7 @@ namespace Velody.Utils
                     {
                         if (cacheRepository != null)
                         {
+                            _logger.Information("Removing cache for file {FileName}", file.Name);
                             _ = cacheRepository.RemoveCache(file.Name);
                         }
                         _logger.Warning("Deleting file {FileName}", file.Name);

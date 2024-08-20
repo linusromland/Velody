@@ -76,7 +76,7 @@ namespace Velody
             }
             catch (Exception e)
             {
-                _logger.Error(e, "An error occurred while executing the play command.");
+                _logger.Error(e, "An error occurred while executing the nowPlaying command.");
                 await embed.SendUnkownErrorAsync();
                 return;
             }

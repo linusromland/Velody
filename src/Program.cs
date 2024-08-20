@@ -56,6 +56,25 @@ namespace Velody
                         return Task.CompletedTask;
                     };
 
+                    client.VoiceStateUpdated += (client, e) =>
+                    {
+                        if (e.User.IsBot && e.User.Id == client.CurrentUser.Id)
+                        {
+                            if (e.After.Channel == null)
+                            {
+                                ServerManager serverManager = provider.GetRequiredService<ServerManager>();
+                                Server.Server? server = serverManager.GetServer(e.Guild.Id, false);
+
+                                if (server != null)
+                                {
+                                    server.DisposeServer();
+                                }
+                            }
+                        }
+
+                        return Task.CompletedTask;
+                    };
+
                     // Enable voice
                     client.UseVoiceNext();
 
@@ -76,6 +95,7 @@ namespace Velody
                 .AddSingleton<RemoveCommand>()
                 .AddSingleton<PresenterCommand>()
                 .AddSingleton<HistoryCommand>()
+                .AddSingleton<LeaveCommand>()
 
                 .AddSingleton(provider =>
                 {
@@ -94,7 +114,8 @@ namespace Velody
                         provider.GetRequiredService<LoopQueueCommand>(),
                         provider.GetRequiredService<RemoveCommand>(),
                         provider.GetRequiredService<PresenterCommand>(),
-                        provider.GetRequiredService<HistoryCommand>()
+                        provider.GetRequiredService<HistoryCommand>(),
+                        provider.GetRequiredService<LeaveCommand>()
                     };
                 })
                 .AddSingleton(provider =>

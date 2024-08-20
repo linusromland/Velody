@@ -48,7 +48,7 @@ namespace Velody
             }
             catch (Exception e)
             {
-                _logger.Error(e, "An error occurred while executing the loop command.");
+                _logger.Error(e, "An error occurred while executing the loop queue command.");
                 await embed.SendUnkownErrorAsync();
                 return;
             }

@@ -45,7 +45,7 @@ namespace Velody
             }
             catch (Exception e)
             {
-                _logger.Error(e, "An error occurred while executing the play command.");
+                _logger.Error(e, "An error occurred while executing the lastAnnouncementMessage command.");
                 await embed.SendUnkownErrorAsync();
                 return;
             }
