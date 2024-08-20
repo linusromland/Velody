@@ -11,11 +11,10 @@ using static Velody.Server.VoiceManager;
 
 namespace Velody
 {
-    public class LeaveCommand(ServerManager serverManager, HistoryRepository historyRepository) : ApplicationCommandModule
+    public class LeaveCommand(ServerManager serverManager) : ApplicationCommandModule
     {
         private readonly ILogger _logger = Logger.CreateLogger("LeaveCommand");
         private readonly ServerManager _serverManager = serverManager;
-        private HistoryRepository _historyRepository = historyRepository;
 
         [SlashCommand("leave", "Leave the voice channel.")]
         public async Task Play(InteractionContext ctx)
