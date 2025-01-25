@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.0 (2025-01-25)
+
+- Upgrade Docker image to be based on Ubuntu 24.04.
+
 ## 3.1.0 (2024-08-20)
 
 - Implemented leave command.
