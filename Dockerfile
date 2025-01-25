@@ -12,7 +12,7 @@ RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-p
     && dpkg -i packages-microsoft-prod.deb \
     && rm packages-microsoft-prod.deb \
     && apt-get update \
-    && apt-get install -y dotnet-sdk-8.0 \
+    && apt-get install -y dotnet-sdk-9.0 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /App
@@ -40,7 +40,7 @@ RUN apt-get update && apt-get install -y \
     && dpkg -i packages-microsoft-prod.deb \
     && rm packages-microsoft-prod.deb \
     && apt-get update \
-    && apt-get install -y dotnet-runtime-8.0 \
+    && apt-get install -y dotnet-runtime-9.0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
