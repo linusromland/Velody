@@ -188,7 +188,6 @@ namespace Velody.Server
                     {
                         isAnnounced = new Random().Next(100) < announcePercentage;
                         _logger.Information("Announcing next video: {IsAnnounced}", isAnnounced);
-
                     }
 
                 }
@@ -225,6 +224,7 @@ namespace Velody.Server
 
         private async Task DownloadVideoAsync(VideoInfo videoInfo)
         {
+            _logger.Information("Downloading video {VideoTitle}", videoInfo.Title);
             string? videoPath = await _videoHandler.DownloadVideoAsync(videoInfo.Service, videoInfo.VideoId);
             if (videoPath == null)
             {
