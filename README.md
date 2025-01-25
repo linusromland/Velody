@@ -34,7 +34,7 @@
 
 In order to run `Velody` natively, you will need to have the following installed:
 
-- [Dotnet 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [Dotnet 9.0](https://dotnet.microsoft.com/download/dotnet/9.0)
 
 If you want to run `Velody` in a Docker container, you will need to have the following installed:
 

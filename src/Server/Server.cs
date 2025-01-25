@@ -48,7 +48,6 @@ namespace Velody.Server
                 if (!forceLeave)
                 {
                     Queue.HandlePlaybackFinished(isSkip);
-
                 }
                 if (Queue.IsQueueEmpty() || forceLeave)
                 {

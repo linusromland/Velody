@@ -78,7 +78,7 @@ namespace Velody.Server
                 _logger.Information("Added video {VideoTitle} to the queue for server {ServerName}", videoInfo.Title, _serverName);
             }
 
-            if (_queue.Count == 1)
+            if (_queue.Count == 1 && !IsAnnouncementInProcess)
             {
                 await DownloadVideoAsync(videoInfo);
                 if (_videoPaths.ContainsKey(videoInfo.VideoId))
@@ -188,7 +188,6 @@ namespace Velody.Server
                     {
                         isAnnounced = new Random().Next(100) < announcePercentage;
                         _logger.Information("Announcing next video: {IsAnnounced}", isAnnounced);
-
                     }
 
                 }
@@ -219,12 +218,14 @@ namespace Velody.Server
         public async Task PlayLeaveAnnouncementAsync()
         {
             _logger.Information("Announcing leave");
+            _isAnnouncementInProcess = "leave";
             string announcementPath = await _presenter.DownloadLeaveAnnouncementAsync(_sessionId);
             PlayVideo?.Invoke(announcementPath, 3);
         }
 
         private async Task DownloadVideoAsync(VideoInfo videoInfo)
         {
+            _logger.Information("Downloading video {VideoTitle}", videoInfo.Title);
             string? videoPath = await _videoHandler.DownloadVideoAsync(videoInfo.Service, videoInfo.VideoId);
             if (videoPath == null)
             {
@@ -322,7 +323,7 @@ namespace Velody.Server
 
         public bool IsAnnouncementInProcess
         {
-            get => _queue.Count > 0 && _isAnnouncementInProcess == _queue[0].VideoId;
+            get => _isAnnouncementInProcess == "leave" || (_queue.Count > 0 && _isAnnouncementInProcess == _queue[0].VideoId);
         }
 
         public bool IsAnnouncementEnabled

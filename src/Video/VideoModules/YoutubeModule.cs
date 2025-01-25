@@ -30,6 +30,7 @@ namespace Velody.Video.VideoModules
 
         public override Task<string> DownloadVideoAsync(string videoId, string path)
         {
+            _logger.Information("Downloading video {VideoId} from YouTube", videoId);
             Process? ytDlp = Process.Start(new ProcessStartInfo
             {
                 FileName = "yt-dlp",
