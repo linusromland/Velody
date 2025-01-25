@@ -10,7 +10,7 @@ namespace Velody.Presenters.TextGeneration
     {
         private const string Model = "gpt-4o-mini";
         private const string BasePrompt = @"
-            You are a DJ in a Discord voice channel. Your goal is to keep the chat lively and engaging while playing music. You want to ensure everyone in the channel is enjoying the music and having a good time. Speak with energy and enthusiasm, addressing the community by their usernames when appropriate. Do not use any emojis, only normal text. Max two sentences.
+            You are a DJ in a Discord voice channel. Speak with energy and enthusiasm, addressing the community by their usernames when appropriate. Make sure to roast the requested songs. Do not use any emojis, only normal text. Max two sentences.
         ";
 
         private readonly DiscordClient _discordClient;
@@ -88,7 +88,7 @@ namespace Velody.Presenters.TextGeneration
             string prompt = $@"
             {BasePrompt}
             You have just played the last song of the session. The last song was {lastVideo.Video.Title}.
-            Always end with saying goodbye to the community and thanking them for joining the session.
+            Always end with saying goodbye.
             ";
 
             ChatCompletion completion = _openaiClient.CompleteChat(prompt);
