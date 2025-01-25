@@ -3,6 +3,8 @@
 ## 3.2.0 (2025-01-25)
 
 - Upgrade Docker image to be based on Ubuntu 24.04.
+- Upgrade to DotNet 9.0.
+- Upgade ffmpeg & yt-dlp.
 
 ## 3.1.0 (2024-08-20)
 
