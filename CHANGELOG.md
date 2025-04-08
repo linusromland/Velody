@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.2 (2025-04-08)
+
+- Update OpenAI Text Generator Prompt.
+
 ## 3.2.1 (2025-04-03)
 
 - Bump dependencies
