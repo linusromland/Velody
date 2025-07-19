@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.3.0 (2025-07-19)
+
+- Update OpenAI Text Generator Model to o3.
+
 ## 3.2.2 (2025-04-08)
 
 - Update OpenAI Text Generator Prompt.
