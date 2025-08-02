@@ -4,9 +4,6 @@
 </h1>
 <p align="center">Velody is a <b>Discord music bot</b> written in <b>C#</b>.
 
-<p align="center"><a href="https://github.com/linusromland/velody/releases" target="_blank"><img src="https://img.shields.io/badge/version-v3.2.0-blue?style=for-the-badge&logo=none" alt="Velody version" /></a>&nbsp
-<a href="https://github.com/linusromland/Velody/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge&logo=none" alt="license" /></a>
-</p>
 
 ## ⚙️ Commands
 
