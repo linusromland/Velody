@@ -42,7 +42,7 @@ namespace Velody.Presenters.TextGeneration
 
             ChatCompletion completion = _openaiClient.CompleteChat(prompt);
 
-            return completion.ToString();
+            return completion.Content[0].Text;
         }
 
         public string GenerateTextForNextVideo(VideoInfo nextVideo, List<PopulatedHistoryModel> previousVideos)
