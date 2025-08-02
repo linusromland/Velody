@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.3.1 (2025-07-19)
+
+- Revert OpenAI Text Generator Model to gpt-4o-mini due to issues with o3.
+- Update dependencies.
+
 ## 3.3.0 (2025-07-19)
 
 - Update OpenAI Text Generator Model to o3.

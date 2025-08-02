@@ -8,25 +8,25 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetEnv" Version="3.1.0" />
-    <PackageReference Include="DSharpPlus" Version="4.4.6" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.4.6" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.4.6" />
-    <PackageReference Include="DSharpPlus.SlashCommands" Version="4.4.6" />
-    <PackageReference Include="DSharpPlus.VoiceNext" Version="4.4.6" />
-    <PackageReference Include="Google.Apis.Texttospeech.v1" Version="1.68.0.3396" />
-    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.67.0.3358" />
-    <PackageReference Include="Lavalink4NET.DSharpPlus" Version="4.0.18" />
-    <PackageReference Include="MongoDB.Bson" Version="2.25.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.25.0" />
-    <PackageReference Include="MongoDB.Driver.Core" Version="2.25.0" />
-    <PackageReference Include="OpenAI" Version="2.0.0-beta.8" />
-    <PackageReference Include="Serilog" Version="3.1.1" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="Serilog.Formatting.Compact" Version="2.0.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
-    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="DotNetEnv" Version="3.1.1" />
+    <PackageReference Include="DSharpPlus" Version="5.0.0" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="5.0.0" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="5.0.0" />
+    <PackageReference Include="DSharpPlus.SlashCommands" Version="5.0.0" />
+    <PackageReference Include="DSharpPlus.VoiceNext" Version="5.0.0" />
+    <PackageReference Include="Google.Apis.Texttospeech.v1" Version="1.70.0.3849" />
+    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.70.0.3847" />
+    <PackageReference Include="Lavalink4NET.DSharpPlus" Version="4.0.27" />
+    <PackageReference Include="MongoDB.Bson" Version="3.4.2" />
+    <PackageReference Include="MongoDB.Driver" Version="3.4.2" />
+    <PackageReference Include="MongoDB.Driver.Core" Version="2.30.0" />
+    <PackageReference Include="OpenAI" Version="2.2.0" />
+    <PackageReference Include="Serilog" Version="4.3.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
+    <PackageReference Include="Serilog.Formatting.Compact" Version="3.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.7" />
   </ItemGroup>
 
 </Project>

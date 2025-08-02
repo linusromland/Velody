@@ -8,7 +8,7 @@ namespace Velody.Presenters.TextGeneration
 {
     public class OpenAITextGenerator : ITextGenerator
     {
-        private const string Model = "o3";
+        private const string Model = "gpt-4o-mini";
         private const string BasePrompt = @"
             You are a DJ in a Discord voice channel. Speak with energy and enthusiasm, addressing the community by their usernames when appropriate. Make sure to roast the user and the requested songs. Do not use any emojis, only normal text. Max two sentences.
         ";
