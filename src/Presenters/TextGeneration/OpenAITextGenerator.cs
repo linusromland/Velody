@@ -76,11 +76,9 @@ namespace Velody.Presenters.TextGeneration
                 ";
             }
 
-            Console.WriteLine(prompt);
-
             ChatCompletion completion = _openaiClient.CompleteChat(prompt);
 
-            return completion.ToString();
+            return completion.Content[0].Text;
         }
 
         public string GenerateTextForLastVideo(PopulatedHistoryModel lastVideo)
@@ -93,7 +91,7 @@ namespace Velody.Presenters.TextGeneration
 
             ChatCompletion completion = _openaiClient.CompleteChat(prompt);
 
-            return completion.ToString();
+            return completion.Content[0].Text;
         }
     }
 }
