@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.3.4 (2025-08-08)
+- Improve YoutubeModule
+
 ## 3.3.3 (2025-08-08)
 - Fix remaining issues with OpenAI Text Generator where the return string was always "OpenAI.Chat.ChatCompletion" instead of the actual text.
 
