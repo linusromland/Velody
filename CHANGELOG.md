@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.3.5 (2025-10-09)
+- Bump dependencies
+
 ## 3.3.4 (2025-08-08)
 - Improve YoutubeModule
 

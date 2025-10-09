@@ -9,11 +9,11 @@
 
   <ItemGroup>
     <PackageReference Include="DotNetEnv" Version="3.1.1" />
-    <PackageReference Include="DSharpPlus" Version="5.0.0" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="5.0.0" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="5.0.0" />
-    <PackageReference Include="DSharpPlus.SlashCommands" Version="5.0.0" />
-    <PackageReference Include="DSharpPlus.VoiceNext" Version="5.0.0" />
+    <PackageReference Include="DSharpPlus" Version="4.5.1" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.5.1" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.5.1" />
+    <PackageReference Include="DSharpPlus.SlashCommands" Version="4.5.1" />
+    <PackageReference Include="DSharpPlus.VoiceNext" Version="4.5.1" />
     <PackageReference Include="Google.Apis.Texttospeech.v1" Version="1.70.0.3849" />
     <PackageReference Include="Google.Apis.YouTube.v3" Version="1.70.0.3847" />
     <PackageReference Include="Lavalink4NET.DSharpPlus" Version="4.0.27" />
