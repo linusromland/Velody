@@ -28,14 +28,3 @@ jobs:
           push: true
           tags: |
             ghcr.io/linusromland/velody:dev-${{ github.sha }}
-
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        with:
-          tag_name: dev-${{ github.sha }}
-          release_name: Dev build ${{ github.sha }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
