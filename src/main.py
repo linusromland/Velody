@@ -55,11 +55,18 @@ async def play(ctx, *, url: str):
         'extract_flat': 'in_playlist',
     }
 
+    # Sanitize URL to remove playlist parameters
+    from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+    parsed = urlparse(url)
+    qs = parse_qs(parsed.query)
+    # Remove playlist-related params
+    for param in ['list', 'start_radio', 'index', 'playlist', 'playnext', 'feature', 'si']:
+        qs.pop(param, None)
+    new_query = urlencode(qs, doseq=True)
+    sanitized_url = urlunparse(parsed._replace(query=new_query))
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=False)
-        if 'entries' in info:
-            # If it's a playlist, get the first video
-            info = info['entries'][0]
+        info = ydl.extract_info(sanitized_url, download=False)
         audio_url = info['url']
 
     ffmpeg_options = {
