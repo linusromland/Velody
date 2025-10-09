@@ -1,27 +1,30 @@
 FROM ubuntu:24.04 AS build-env
 
-# Install dependencies for building
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    wget curl apt-transport-https ca-certificates gnupg \
-    && rm -rf /var/lib/apt/lists/*
+    wget \
+    curl \
+    apt-transport-https \
+    ca-certificates \
+    gnupg \
+    software-properties-common
 
-# Add Microsoft package repo for Ubuntu 24.04
-RUN wget https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
-    && dpkg -i packages-microsoft-prod.deb \
-    && rm packages-microsoft-prod.deb \
-    && apt-get update \
-    && apt-get install -y dotnet-sdk-9.0 \
-    && rm -rf /var/lib/apt/lists/*
+# Add .NET repository and install SDK
+RUN add-apt-repository ppa:dotnet/backports -y && \
+    apt-get update && \
+    apt-get install -y dotnet-sdk-9.0 && \
+    rm -rf /var/lib/apt/lists/*
 
+# Build the application
 WORKDIR /App
-COPY ./ ./
+COPY . .
 RUN dotnet restore
 RUN dotnet publish -c Release -o out
 
-# Runtime stage
+
 FROM ubuntu:24.04
 
-# Install runtime dependencies in one go
+# Install runtime dependencies
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     opus-tools \
@@ -30,22 +33,29 @@ RUN apt-get update && apt-get install -y \
     libsodium23 \
     libsodium-dev \
     yt-dlp \
-    wget curl apt-transport-https ca-certificates gnupg \
-    && wget https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
-    && dpkg -i packages-microsoft-prod.deb \
-    && rm packages-microsoft-prod.deb \
-    && apt-get update \
-    && apt-get install -y dotnet-runtime-9.0 \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    wget \
+    curl \
+    apt-transport-https \
+    ca-certificates \
+    gnupg \
+    software-properties-common
 
+# Add .NET repository and install runtime
+RUN add-apt-repository ppa:dotnet/backports -y && \
+    apt-get update && \
+    apt-get install -y dotnet-runtime-9.0 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Setup working directory and copy published output
 WORKDIR /App
 COPY --from=build-env /App/out .
 
+# Define volumes
 VOLUME ["/cache"]
 VOLUME ["/logs"]
 
-# Environment variables (optional defaults)
+# Build arguments
 ARG DiscordBotToken
 ARG DiscordGuildId
 ARG GoogleApiKey

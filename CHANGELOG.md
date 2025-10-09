@@ -1,7 +1,8 @@
 # Changelog
 
 ## 3.3.5 (2025-10-09)
-- Revert DSharpPlus package versions to 4.5.1
+- Revert DSharpPlus package versions to 4.5.1.
+- Fix issues with Dockerfile.
 
 ## 3.3.4 (2025-08-08)
 - Improve YoutubeModule
