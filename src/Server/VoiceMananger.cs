@@ -10,45 +10,32 @@ using Velody.Utils;
 
 namespace Velody.Server
 {
-    public class VoiceManager
+    public class VoiceManager : IAsyncDisposable
     {
         private readonly ILogger _logger = Logger.CreateLogger("VoiceManager");
         private readonly DiscordClient _client;
         private VoiceNextConnection? _vnc;
         private DateTime _playbackStartTime;
-        private bool _isPlaying;
-        private Thread? _playbackThread;
-        private Stream? _fileStream;
-        private CancellationTokenSource? _cancellationTokenSource;
+        private CancellationTokenSource? _playbackCts;
+        private Task? _playbackTask;
+
         public event Func<bool, bool, Task>? PlaybackFinished;
+        public bool IsPlaying { get; private set; }
 
         public VoiceManager(DiscordClient client)
         {
             _client = client;
-
             if (_client.GetVoiceNext() == null)
             {
-                throw new InvalidOperationException("Voice is not enabled for this client.");
+                throw new InvalidOperationException("VoiceNext is not enabled for this client.");
             }
         }
 
         public static DiscordChannel? GetVoiceChannel(DiscordVoiceState? voiceState)
         {
-            try
-            {
-                DiscordChannel? voiceChannel = voiceState?.Channel;
-
-                if (voiceChannel == null || voiceChannel.Type != ChannelType.Voice)
-                {
-                    return null;
-                }
-
-                return voiceChannel;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            return voiceState?.Channel != null && voiceState.Channel.Type == ChannelType.Voice
+                ? voiceState.Channel
+                : null;
         }
 
         public enum JoinVoiceChannelResponseCode
@@ -68,16 +55,18 @@ namespace Velody.Server
         {
             try
             {
-                VoiceNextExtension vnext = _client.GetVoiceNext();
+                var vnext = _client.GetVoiceNext();
                 _vnc = vnext.GetConnection(voiceChannel.Guild);
 
                 if (_vnc != null)
                 {
-                    return new JoinVoiceResponse { Code = JoinVoiceChannelResponseCode.AlreadyConnected, VoiceChannelName = voiceChannel.Name };
+                    return new JoinVoiceResponse { Code = JoinVoiceChannelResponseCode.AlreadyConnected, VoiceChannelName = _vnc.TargetChannel.Name };
                 }
+
                 _logger.Information("Trying to connect to voice channel {VoiceChannelName}", voiceChannel.Name);
-                _vnc = await vnext.ConnectAsync(voiceChannel);
+                _vnc = await vnext.ConnectAsync(voiceChannel).ConfigureAwait(false);
                 _logger.Information("Connected to voice channel {VoiceChannelName}", voiceChannel.Name);
+
                 return new JoinVoiceResponse { Code = JoinVoiceChannelResponseCode.Success, VoiceChannelName = voiceChannel.Name };
             }
             catch (Exception e)
@@ -87,86 +76,74 @@ namespace Velody.Server
             }
         }
 
-        public void PlayAudio(string path, int volume)
+        public Task PlayAudioAsync(string path, int volume)
         {
             if (_vnc == null)
-            {
                 throw new InvalidOperationException("Not connected to a voice channel.");
-            }
 
-            _cancellationTokenSource = new CancellationTokenSource();
-            _playbackThread = new Thread(() => PlayAudioInternal(path, _cancellationTokenSource.Token, volume));
-            _playbackThread.Start();
+            if (IsPlaying)
+                return Task.CompletedTask;
+
+            _playbackCts = new CancellationTokenSource();
+            _playbackTask = Task.Run(async () =>
+            {
+                Stream? fileStream = null;
+                try
+                {
+                    await _vnc.SendSpeakingAsync(true).ConfigureAwait(false);
+                    IsPlaying = true;
+                    _playbackStartTime = DateTime.UtcNow;
+
+                    fileStream = FFmpeg.GetFileStream(path, volume);
+                    if (fileStream == null)
+                    {
+                        throw new InvalidOperationException("FFmpeg failed to create a stream.");
+                    }
+
+                    _logger.Information("Playing audio from {Path}", path);
+                    var transmitSink = _vnc.GetTransmitSink();
+                    await fileStream.CopyToAsync(transmitSink, _playbackCts.Token).ConfigureAwait(false);
+                    await transmitSink.FlushAsync(_playbackCts.Token).ConfigureAwait(false);
+                    await _vnc.WaitForPlaybackFinishAsync().ConfigureAwait(false);
+
+                    if (PlaybackFinished != null && !_playbackCts.IsCancellationRequested)
+                    {
+                        await PlaybackFinished.Invoke(false, false).ConfigureAwait(false);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    _logger.Information("Audio playback was cancelled.");
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "An error occurred during audio playback.");
+                }
+                finally
+                {
+                    fileStream?.Dispose();
+                    IsPlaying = false;
+                    if (_vnc?.IsConnected == true)
+                    {
+                        await _vnc.SendSpeakingAsync(false).ConfigureAwait(false);
+                    }
+                }
+            });
+            return _playbackTask;
         }
 
-        private async void PlayAudioInternal(string path, CancellationToken cancellationToken, int volume)
+        public async Task StopAudioAsync(bool isForceLeave = false)
         {
-            if (_vnc == null)
+            if (!IsPlaying || _playbackCts == null || _playbackTask == null)
+                return;
+
+            _playbackCts.Cancel();
+            await _playbackTask;
+            _playbackTask = null;
+
+            if (PlaybackFinished != null)
             {
-                throw new InvalidOperationException("Not connected to a voice channel.");
-            }
-
-            try
-            {
-                await _vnc.SendSpeakingAsync(true);
-
-                _fileStream = FFmpeg.GetFileStream(path, volume);
-                if (_fileStream == null)
-                {
-                    throw new InvalidOperationException("Failed to get file stream.");
-                }
-
-                _playbackStartTime = DateTime.UtcNow;
-                _isPlaying = true;
-
-                _logger.Information("Playing audio from {Path}", path);
-
-                VoiceTransmitSink transmit = _vnc.GetTransmitSink();
-
-                await _fileStream.CopyToAsync(transmit, null, cancellationToken);
-                await transmit.FlushAsync(cancellationToken);
-                await _vnc.WaitForPlaybackFinishAsync();
-
-                _fileStream.Dispose();
-
-                PlaybackFinished?.Invoke(false, false);
-                _logger.Information("Finished playing audio from {Path}", path);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "An error occurred during audio playback.");
-            }
-            finally
-            {
-                if (_vnc != null)
-                {
-                    await _vnc.SendSpeakingAsync(false);
-                }
-                _isPlaying = false;
-            }
-        }
-
-        public void StopAudio(bool shouldInvokeFinished = true, bool isForceLeave = false)
-        {
-            if (_vnc == null)
-            {
-                throw new InvalidOperationException("Not connected to a voice channel.");
-            }
-
-            _cancellationTokenSource?.Cancel();
-
-            if (_playbackThread != null && _playbackThread.IsAlive)
-            {
-                _playbackThread.Join();
-            }
-
-            _fileStream?.Dispose();
-            _fileStream = null;
-            _isPlaying = false;
-
-            if (shouldInvokeFinished)
-            {
-                PlaybackFinished?.Invoke(true, isForceLeave);
+                await PlaybackFinished.Invoke(true, isForceLeave);
             }
 
             _logger.Information("Stopped audio playback.");
@@ -174,31 +151,36 @@ namespace Velody.Server
 
         public TimeSpan GetPlaybackDuration()
         {
-            if (!_isPlaying)
-            {
-                return TimeSpan.Zero;
-            }
-
-            return DateTime.UtcNow - _playbackStartTime;
+            return IsPlaying ? DateTime.UtcNow - _playbackStartTime : TimeSpan.Zero;
         }
 
-        public void LeaveVoiceChannel()
+        public async Task LeaveVoiceChannelAsync()
         {
             if (_vnc == null)
-            {
-                throw new InvalidOperationException("Not connected to a voice channel.");
-            }
+                return;
 
-            StopAudio(false);
+            if (IsPlaying)
+            {
+                await StopAudioAsync(isForceLeave: true);
+            }
 
             _vnc.Disconnect();
             _vnc = null;
-            _isPlaying = false;
         }
 
         public bool IsConnectedToVoice()
         {
-            return _vnc != null;
+            return _vnc != null && _vnc.IsConnected;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_vnc != null)
+            {
+                await LeaveVoiceChannelAsync();
+            }
+            _playbackCts?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

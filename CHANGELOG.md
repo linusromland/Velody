@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.3.6 (2025-10-09)
+- Refactor VoiceManager to implement IAsyncDisposable and improve audio playback handling.
+
 ## 3.3.5 (2025-10-09)
 - Revert DSharpPlus package versions to 4.5.1.
 - Fix issues with Dockerfile.
