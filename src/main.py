@@ -2,11 +2,15 @@ import configparser
 import discord
 from discord.ext import commands
 import yt_dlp
+from os import getenv
 
 # Read token from config.ini
 config = configparser.ConfigParser()
 config.read("config.ini")
-TOKEN = config["discord"]["token"]
+if "discord" in config and "token" in config["discord"]:
+    TOKEN = config["discord"]["token"]
+else:
+    TOKEN = getenv("DISCORD_TOKEN")
 
 
 intents = discord.Intents.default()
