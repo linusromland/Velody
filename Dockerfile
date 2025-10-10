@@ -1,67 +1,21 @@
-FROM ubuntu:24.04 AS build-env
+FROM python:3.13-slim
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    wget \
-    curl \
-    apt-transport-https \
-    ca-certificates \
-    gnupg \
-    software-properties-common
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Add .NET repository and install SDK
-RUN add-apt-repository ppa:dotnet/backports -y && \
-    apt-get update && \
-    apt-get install -y dotnet-sdk-9.0 && \
-    rm -rf /var/lib/apt/lists/*
-
-# Build the application
-WORKDIR /App
-COPY . .
-RUN dotnet restore
-RUN dotnet publish -c Release -o out
-
-
-FROM ubuntu:24.04
-
-# Install runtime dependencies
+# Install FFmpeg with codecs + certificates + basic utils
 RUN apt-get update && apt-get install -y \
     ffmpeg \
-    opus-tools \
-    libopus0 \
-    libopus-dev \
-    libsodium23 \
-    libsodium-dev \
-    yt-dlp \
-    wget \
+    libavcodec-extra \
     curl \
-    apt-transport-https \
     ca-certificates \
-    gnupg \
-    software-properties-common
+    && rm -rf /var/lib/apt/lists/*
 
-# Add .NET repository and install runtime
-RUN add-apt-repository ppa:dotnet/backports -y && \
-    apt-get update && \
-    apt-get install -y dotnet-runtime-9.0 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 
-# Setup working directory and copy published output
-WORKDIR /App
-COPY --from=build-env /App/out .
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Define volumes
-VOLUME ["/cache"]
-VOLUME ["/logs"]
+COPY src/main.py .
 
-# Build arguments
-ARG DiscordBotToken
-ARG DiscordGuildId
-ARG GoogleApiKey
-ARG OpenAIApiKey
-ARG PresenterEnabled
-ARG TextGenerator
-ARG AnnouncePercentage
-
-ENTRYPOINT ["dotnet", "Velody.dll"]
+CMD ["python", "main.py"]

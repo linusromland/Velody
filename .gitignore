@@ -1,8 +1,2 @@
-obj/
-bin/
-.vs/
-logs/
-cache/
-.env
-!.env.example
-out/
+config.ini
+audio/
