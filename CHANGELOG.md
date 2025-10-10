@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.0 (2025-10-10)
+- Rewrote the bot in Python.
+
 ## 3.3.6 (2025-10-09)
 - Refactor VoiceManager to implement IAsyncDisposable and improve audio playback handling.
 
