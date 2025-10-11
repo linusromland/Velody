@@ -1,0 +1,33 @@
+[MASTER]
+init-hook='import sys; sys.path.append("src")'
+
+[MESSAGES CONTROL]
+disable=
+    # Discord.py specific
+    C0103, # invalid-name (for Discord.py naming conventions)
+    R0903, # too-few-public-methods (dataclasses)
+    W0613, # unused-argument (Discord.py callbacks)
+    # General development
+    C0114, # missing-module-docstring
+    R0801, # duplicate-code
+    W0718 ,# Broad exception caught (we want to log all exceptions)
+    C0116 # missing-function-docstring
+    
+[FORMAT]
+max-line-length=150
+
+[DESIGN]
+max-args=7
+max-attributes=10
+max-locals=15
+max-returns=6
+max-branches=12
+max-statements=50
+
+[BASIC]
+good-names=i,j,k,ex,Run,_,vc,ctx,e
+
+[SIMILARITIES]
+min-similarity-lines=4
+ignore-comments=yes
+ignore-docstrings=yes

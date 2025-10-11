@@ -1,2 +1,7 @@
 [discord]
 token = your_token
+
+
+[bot]
+dev_guild_id = your_dev_guild_id
+clear_dev_commands = false
