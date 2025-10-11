@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.1.0 (2025-10-11)
+- Lock dependencies.
+
 ## 4.0.0 (2025-10-10)
 - Rewrote the bot in Python.
 
