@@ -1,6 +1,7 @@
 # Changelog
 
 ## 4.1.0 (2025-10-11)
+- Added activity when playing a song.
 - Development Enhancements:
   - Updated GitHub Actions workflows for better CI/CD.
   - Added .flake8 and .pylintrc for code style and linting configurations.
