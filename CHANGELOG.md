@@ -1,6 +1,7 @@
 # Changelog
 
 ## 4.1.0 (2025-10-11)
+- Change to slash commands.
 - Added now playing command.
 - Added activity when playing a song.
 - Development Enhancements:
