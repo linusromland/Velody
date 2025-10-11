@@ -288,27 +288,21 @@ class MusicCog(commands.Cog):
             return
 
         next_song = queue.pop(0)
-        await self.play_song(interaction, next_song, followup=True)
+        await self.play_song(interaction, next_song)
 
-    async def play_song(self, interaction: discord.Interaction, song: Song, followup: bool = False) -> None:
+    async def play_song(self, interaction: discord.Interaction, song: Song) -> None:
         """
-        Play a song in the user's voice channel.
+        Play a song in the user's voice channel (no embeds or responses).
 
         Args:
             interaction: The command interaction.
             song: The `Song` to play.
-            followup: Whether to send the response as a follow-up message.
         """
         vc = interaction.guild.voice_client or await self.voice.ensure_voice(interaction)
         if not vc:
             return
 
         await self.set_activity(song.title)
-        embed = EmbedFactory.now_playing(song)
-        if followup:
-            await interaction.followup.send(embed=embed)
-        else:
-            await interaction.response.send_message(embed=embed)
 
         ffmpeg_options = {"options": "-vn"}
         try:
@@ -322,7 +316,6 @@ class MusicCog(commands.Cog):
             vc.play(source, after=after_play)
         except Exception as err:
             logger.exception("Playback error: %s", err)
-            await interaction.followup.send(embed=EmbedFactory.error("Playback failed. Skipping..."))
             await self.play_next(interaction)
 
     # ------------------ Slash Commands ------------------
@@ -348,7 +341,8 @@ class MusicCog(commands.Cog):
             queue.append(song)
             await interaction.followup.send(embed=EmbedFactory.added_to_queue(song, len(queue)))
         else:
-            await self.play_song(interaction, song, followup=True)
+            await self.play_song(interaction, song)
+            await interaction.followup.send(embed=EmbedFactory.now_playing(song))
 
     @app_commands.command(name="skip", description="Skip the current song.")
     async def skip(self, interaction: discord.Interaction) -> None:
@@ -427,7 +421,8 @@ class VelodyBot(commands.Bot):
         super().__init__(command_prefix="!", intents=intents)
         self.dev_guild_id: Optional[int] = config.getint("bot", "dev_guild_id", fallback=None)
         self.clear_dev_commands: bool = config.getboolean(
-            "bot", "clear_dev_commands", fallback=False)
+            "bot", "clear_dev_commands", fallback=False
+        )
 
     async def setup_hook(self) -> None:
         """Load the music cog and synchronize slash commands."""
