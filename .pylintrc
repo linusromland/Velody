@@ -8,11 +8,13 @@ disable=
     R0903, # too-few-public-methods (dataclasses)
     W0613, # unused-argument (Discord.py callbacks)
     # General development
-    C0114, # missing-module-docstring (we have it)
+    C0114, # missing-module-docstring
     R0801, # duplicate-code
+    W0718 ,# Broad exception caught (we want to log all exceptions)
+    C0116 # missing-function-docstring
     
 [FORMAT]
-max-line-length=100
+max-line-length=150
 
 [DESIGN]
 max-args=7
