@@ -1,27 +1,25 @@
-"""
-Velody - A Discord Music Bot
-
-This module implements a Discord music bot that can play audio from YouTube
-and other sources using yt-dlp and discord.py.
-"""
-
 import asyncio
 import configparser
 import logging
 from dataclasses import dataclass
-from typing import List, Optional, Dict, Any
 from os import getenv
+from typing import Dict, List, Optional, Any
 from urllib.parse import urlparse, parse_qs
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 import yt_dlp
 
+# ------------------ Logging ------------------
 
-# ------------------ Setup ------------------
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
+logger = logging.getLogger("Velody")
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+# ------------------ Configuration ------------------
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -31,24 +29,27 @@ if not TOKEN:
     raise RuntimeError("Discord token not found in config.ini or environment variable.")
 
 intents = discord.Intents.default()
-intents.message_content = True
+intents.message_content = False  # not needed for slash commands
 
+# ------------------ Data Classes ------------------
 
-# ------------------ Data ------------------
 
 @dataclass
 class Song:
     """Represents a song with its metadata and URLs."""
+
     url: str
     title: str
     source_url: str
     webpage_url: str
+    thumbnail: Optional[str] = None
 
 
 # ------------------ Embed Factory ------------------
 
+
 class EmbedFactory:
-    """Factory class for creating Discord embeds with consistent styling."""
+    """Factory class for consistent embed styling."""
 
     @staticmethod
     def base(title: str, desc: str, color: int = 0x5865F2, url: Optional[str] = None) -> discord.Embed:
@@ -68,16 +69,21 @@ class EmbedFactory:
             description=f"**[{song.title}]({song.webpage_url})**",
             color=0x57F287,
         )
+        if song.thumbnail:
+            embed.set_thumbnail(url=song.thumbnail)
         embed.set_footer(text="Enjoy the music!")
         return embed
 
     @staticmethod
     def added_to_queue(song: Song, position: int) -> discord.Embed:
-        return discord.Embed(
+        embed = discord.Embed(
             title="➕ Added to Queue",
             description=f"**[{song.title}]({song.webpage_url})**\nPosition: `{position}`",
             color=0xFEE75C,
         )
+        if song.thumbnail:
+            embed.set_thumbnail(url=song.thumbnail)
+        return embed
 
     @staticmethod
     def queue(queue: List[Song]) -> discord.Embed:
@@ -87,10 +93,13 @@ class EmbedFactory:
         embed = EmbedFactory.base("📜 Music Queue", "\n".join(lines))
         if len(queue) > 10:
             embed.set_footer(text=f"+ {len(queue) - 10} more songs")
+        if queue[0].thumbnail:
+            embed.set_thumbnail(url=queue[0].thumbnail)
         return embed
 
 
 # ------------------ YouTube Downloader Service ------------------
+
 
 class YTDLService:
     """Service for extracting audio information from YouTube and other sources."""
@@ -104,7 +113,6 @@ class YTDLService:
         }
 
     def canonicalize_url(self, url: str) -> str:
-        """Convert various YouTube URL formats to a canonical format."""
         parsed = urlparse(url)
         if parsed.netloc.endswith("youtube.com") and parsed.path == "/watch":
             video_id = parse_qs(parsed.query).get("v", [None])[0]
@@ -117,7 +125,6 @@ class YTDLService:
         return url
 
     async def extract_info(self, query: str) -> Song:
-        """Extract song information from a URL or search query."""
         url = self.canonicalize_url(query)
 
         def _extract() -> Dict[str, Any]:
@@ -127,92 +134,94 @@ class YTDLService:
         info = await asyncio.to_thread(_extract)
         entry = info["entries"][0] if "entries" in info and info["entries"] else info
 
-        source_url = entry.get("url")
-        title = entry.get("title", "Unknown Title")
-        webpage_url = entry.get("webpage_url", url)
-
-        if not source_url:
-            raise ValueError("No audio source found")
-
-        return Song(url=url, title=title, source_url=source_url, webpage_url=webpage_url)
+        return Song(
+            url=url,
+            title=entry.get("title", "Unknown Title"),
+            source_url=entry.get("url"),
+            webpage_url=entry.get("webpage_url", url),
+            thumbnail=entry.get("thumbnail"),
+        )
 
 
 # ------------------ Voice Manager ------------------
 
+
 class VoiceManager:
-    """Manages voice channel connections and interactions."""
+    """Handles voice channel connections."""
+
+    async def ensure_voice(self, interaction: discord.Interaction) -> Optional[discord.VoiceClient]:
+        if interaction.guild is None:
+            await interaction.response.send_message(embed=EmbedFactory.error("This command must be used in a server."))
+            return None
+
+        vc = interaction.guild.voice_client
+        if vc and vc.is_connected():
+            return vc
+
+        if not interaction.user.voice or not interaction.user.voice.channel:
+            await interaction.response.send_message(embed=EmbedFactory.error("You must be in a voice channel."))
+            return None
+
+        channel = interaction.user.voice.channel
+        vc = await channel.connect(self_deaf=True)
+        return vc
+
+    async def disconnect(self, interaction: discord.Interaction) -> None:
+        if interaction.guild and interaction.guild.voice_client:
+            await interaction.guild.voice_client.disconnect()
+
+
+# ------------------ Music Cog ------------------
+
+
+class MusicCog(commands.Cog):
+    """Handles music playback and queue management."""
 
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-
-    async def ensure_voice(self, ctx: commands.Context) -> Optional[discord.VoiceClient]:
-        """Ensure the bot is connected to a voice channel."""
-        if ctx.voice_client and ctx.voice_client.is_connected():
-            return ctx.voice_client
-
-        if not ctx.author.voice or not ctx.author.voice.channel:
-            await ctx.send(embed=EmbedFactory.error("You must be in a voice channel to use this command."))
-            return None
-
-        channel = ctx.author.voice.channel
-        vc = await channel.connect(self_deaf=True)
-        await ctx.send(embed=EmbedFactory.base("🔊 Joined Voice Channel", f"Joined **{channel.name}**"))
-        return vc
-
-    async def disconnect(self, ctx: commands.Context) -> None:
-        """Disconnect from the voice channel."""
-        if ctx.voice_client:
-            await ctx.voice_client.disconnect()
-            await ctx.send(embed=EmbedFactory.base("👋 Disconnected", "Left the voice channel."))
-
-
-# ------------------ Music Bot ------------------
-
-class MusicBot(commands.Bot):
-    """Main music bot class that handles music playback and queue management."""
-
-    def __init__(self) -> None:
-        super().__init__(command_prefix="!", intents=intents)
         self.queues: Dict[int, List[Song]] = {}
         self.ytdl = YTDLService()
-        self.voice = VoiceManager(self)
-        self.default_activity = discord.Game(name="🎵 !play <song or URL>")
+        self.voice = VoiceManager()
 
     def get_queue(self, guild_id: int) -> List[Song]:
-        """Get (and initialize) the queue for a specific guild."""
         if guild_id not in self.queues:
             self.queues[guild_id] = []
         return self.queues[guild_id]
 
-    async def set_playing_activity(self, song_title: Optional[str] = None) -> None:
-        """Update the bot's activity based on whether it's playing a song."""
+    async def set_activity(self, song_title: Optional[str] = None) -> None:
         if song_title:
-            activity = discord.Activity(type=discord.ActivityType.listening, name=song_title)
+            await self.bot.change_presence(
+                status=discord.Status.online,
+                activity=discord.Activity(type=discord.ActivityType.listening, name=song_title),
+            )
         else:
-            activity = self.default_activity
-        await self.change_presence(status=discord.Status.online, activity=activity)
+            await self.bot.change_presence(
+                status=discord.Status.online,
+                activity=discord.Game(name="/play <song or URL>"),
+            )
 
-    async def play_next(self, ctx: commands.Context) -> None:
-        """Play the next song in the current guild's queue."""
-        guild_id = ctx.guild.id
-        queue = self.get_queue(guild_id)
+    async def play_next(self, interaction: discord.Interaction) -> None:
+        queue = self.get_queue(interaction.guild.id)
         if not queue:
-            await self.set_playing_activity(None)
-            await ctx.send(embed=EmbedFactory.base("✅ Queue Finished", "No more songs. Leaving channel."))
-            await self.voice.disconnect(ctx)
+            await self.set_activity(None)
+            await self.voice.disconnect(interaction)
             return
 
         next_song = queue.pop(0)
-        await self.play_song(ctx, next_song)
+        await self.play_song(interaction, next_song, followup=True)
 
-    async def play_song(self, ctx: commands.Context, song: Song) -> None:
-        """Play a specific song."""
-        vc = ctx.voice_client or await self.voice.ensure_voice(ctx)
+    async def play_song(self, interaction: discord.Interaction, song: Song, followup: bool = False) -> None:
+        vc = interaction.guild.voice_client or await self.voice.ensure_voice(interaction)
         if not vc:
             return
 
-        await self.set_playing_activity(song.title)
-        await ctx.send(embed=EmbedFactory.now_playing(song))
+        await self.set_activity(song.title)
+
+        embed = EmbedFactory.now_playing(song)
+        if followup:
+            await interaction.followup.send(embed=embed)
+        else:
+            await interaction.response.send_message(embed=embed)
 
         ffmpeg_options = {"options": "-vn"}
         try:
@@ -221,136 +230,136 @@ class MusicBot(commands.Bot):
             def after_play(error: Optional[Exception]) -> None:
                 if error:
                     logger.error("Error after playing: %s", error)
-                asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.loop)
+                asyncio.run_coroutine_threadsafe(self.play_next(interaction), self.bot.loop)
 
             vc.play(source, after=after_play)
-        except yt_dlp.utils.DownloadError as err:
-            logger.error("yt_dlp playback error: %s", err)
-            await ctx.send(embed=EmbedFactory.error("Error extracting the audio stream."))
-            await self.play_next(ctx)
         except Exception as err:
-            logger.exception("Unexpected error while playing song: %s", err)
-            await ctx.send(embed=EmbedFactory.error("Unexpected error while playing this song."))
-            await self.play_next(ctx)
+            logger.exception("Playback error: %s", err)
+            await interaction.followup.send(embed=EmbedFactory.error("Playback failed. Skipping..."))
+            await self.play_next(interaction)
+
+    # ------------------ Commands ------------------
+
+    @app_commands.command(name="play", description="Play a song from a URL or search query.")
+    async def play(self, interaction: discord.Interaction, query: str) -> None:
+        vc = interaction.guild.voice_client or await self.voice.ensure_voice(interaction)
+        if not vc:
+            return
+
+        await interaction.response.defer(thinking=True)
+
+        try:
+            song = await self.ytdl.extract_info(query)
+        except Exception as err:
+            logger.exception("Error extracting info: %s", err)
+            await interaction.followup.send(embed=EmbedFactory.error("Failed to extract song info."))
+            return
+
+        queue = self.get_queue(interaction.guild.id)
+        if vc.is_playing() or vc.is_paused():
+            queue.append(song)
+            await interaction.followup.send(embed=EmbedFactory.added_to_queue(song, len(queue)))
+        else:
+            await self.play_song(interaction, song, followup=True)
+
+    @app_commands.command(name="skip", description="Skip the current song.")
+    async def skip(self, interaction: discord.Interaction) -> None:
+        vc = interaction.guild.voice_client
+        if not vc or not vc.is_connected():
+            await interaction.response.send_message(embed=EmbedFactory.error("Not connected to a voice channel."))
+            return
+        if vc.is_playing():
+            vc.stop()
+            await interaction.response.send_message(embed=EmbedFactory.base("⏭️ Skipped", "Skipped the current track."))
+        else:
+            await interaction.response.send_message(embed=EmbedFactory.error("Nothing is playing."))
+
+    @app_commands.command(name="pause", description="Pause the current song.")
+    async def pause(self, interaction: discord.Interaction) -> None:
+        vc = interaction.guild.voice_client
+        if not vc or not vc.is_connected():
+            await interaction.response.send_message(embed=EmbedFactory.error("Not connected to a voice channel."))
+            return
+        if vc.is_playing():
+            vc.pause()
+            await interaction.response.send_message(embed=EmbedFactory.base("⏸️ Paused", "Playback paused."))
+        else:
+            await interaction.response.send_message(embed=EmbedFactory.error("Nothing is playing."))
+
+    @app_commands.command(name="resume", description="Resume playback.")
+    async def resume(self, interaction: discord.Interaction) -> None:
+        vc = interaction.guild.voice_client
+        if not vc or not vc.is_connected():
+            await interaction.response.send_message(embed=EmbedFactory.error("Not connected to a voice channel."))
+            return
+        if vc.is_paused():
+            vc.resume()
+            await interaction.response.send_message(embed=EmbedFactory.base("▶️ Resumed", "Playback resumed."))
+        else:
+            await interaction.response.send_message(embed=EmbedFactory.error("Nothing is paused."))
+
+    @app_commands.command(name="queue", description="Show the current queue.")
+    async def show_queue(self, interaction: discord.Interaction) -> None:
+        queue = self.get_queue(interaction.guild.id)
+        await interaction.response.send_message(embed=EmbedFactory.queue(queue))
+
+    @app_commands.command(name="leave", description="Disconnect and clear the queue.")
+    async def leave(self, interaction: discord.Interaction) -> None:
+        if interaction.guild:
+            self.get_queue(interaction.guild.id).clear()
+        await self.voice.disconnect(interaction)
+        await self.set_activity(None)
+        await interaction.response.send_message(embed=EmbedFactory.base("👋 Disconnected", "Left the voice channel."))
+
+    @app_commands.command(name="about", description="About the bot.")
+    async def about(self, interaction: discord.Interaction) -> None:
+        embed = EmbedFactory.base(
+            "🎧 Velody",
+            "Modern Discord music bot powered by yt-dlp and discord.py 2.x.",
+        )
+        embed.set_footer(text="Check it out on GitHub!")
+        embed.url = "https://github.com/linusromland/velody"
+        await interaction.response.send_message(embed=embed)
 
 
-music_bot = MusicBot()
+# ------------------ Bot Setup ------------------
 
 
-# ------------------ Events ------------------
+class VelodyBot(commands.Bot):
+    def __init__(self) -> None:
+        super().__init__(command_prefix="!", intents=intents)
+        self.dev_guild_id: Optional[int] = config.getint("bot", "dev_guild_id", fallback=None)
+        self.clear_dev_commands: bool = config.getboolean(
+            "bot", "clear_dev_commands", fallback=False)
 
-@music_bot.event
-async def on_ready() -> None:
-    """Event handler for when the bot is ready and connected."""
-    logger.info("✅ Logged in as %s", music_bot.user)
-    await music_bot.set_playing_activity(None)
+    async def setup_hook(self) -> None:
+        await self.add_cog(MusicCog(self))
 
+        if self.dev_guild_id:
+            guild = discord.Object(id=self.dev_guild_id)
+            logger.info("🧪 Development mode: syncing commands to guild %s", self.dev_guild_id)
 
-# ------------------ Commands ------------------
+            if self.clear_dev_commands:
+                logger.info("🧹 Clearing previous dev guild commands...")
+                # FIXED LINE BELOW (removed 'await')
+                self.tree.clear_commands(guild=guild)
 
-@music_bot.command(name="join")
-async def join_cmd(ctx: commands.Context) -> None:
-    """Join the user's voice channel."""
-    await music_bot.voice.ensure_voice(ctx)
+            await self.tree.sync(guild=guild)
+            logger.info("✅ Slash commands synced instantly to dev guild.")
+        else:
+            await self.tree.sync()
+            logger.info("🌍 Slash commands globally synced (may take up to an hour).")
 
-
-@music_bot.command(name="play")
-async def play_cmd(ctx: commands.Context, *, query: str) -> None:
-    """Play a song from a URL or search query."""
-    vc = ctx.voice_client or await music_bot.voice.ensure_voice(ctx)
-    if not vc:
-        return
-
-    try:
-        song = await music_bot.ytdl.extract_info(query)
-    except yt_dlp.utils.DownloadError as err:
-        logger.error("Error extracting media info: %s", err)
-        await ctx.send(embed=EmbedFactory.error("Couldn't extract info from the provided URL or search term."))
-        return
-    except ValueError as err:
-        await ctx.send(embed=EmbedFactory.error(str(err)))
-        return
-    except Exception as err:
-        logger.exception("Unexpected error during media extraction: %s", err)
-        await ctx.send(embed=EmbedFactory.error("An unexpected error occurred while processing your request."))
-        return
-
-    queue = music_bot.get_queue(ctx.guild.id)
-    if vc.is_playing() or vc.is_paused():
-        queue.append(song)
-        await ctx.send(embed=EmbedFactory.added_to_queue(song, len(queue)))
-    else:
-        await music_bot.play_song(ctx, song)
-
-
-@music_bot.command(name="skip")
-async def skip_cmd(ctx: commands.Context) -> None:
-    """Skip the currently playing song."""
-    vc = ctx.voice_client
-    if not vc or not vc.is_connected():
-        await ctx.send(embed=EmbedFactory.error("I'm not connected to a voice channel."))
-        return
-    if vc.is_playing():
-        vc.stop()
-        await ctx.send(embed=EmbedFactory.base("⏭️ Skipped", "Skipped the current track."))
-    else:
-        await ctx.send(embed=EmbedFactory.error("Nothing is playing right now."))
-
-
-@music_bot.command(name="pause")
-async def pause_cmd(ctx: commands.Context) -> None:
-    """Pause the currently playing song."""
-    vc = ctx.voice_client
-    if not vc or not vc.is_connected():
-        await ctx.send(embed=EmbedFactory.error("Not connected to a voice channel."))
-        return
-    if vc.is_playing():
-        vc.pause()
-        await ctx.send(embed=EmbedFactory.base("⏸️ Paused", "Playback paused."))
-    else:
-        await ctx.send(embed=EmbedFactory.error("Nothing playing to pause."))
-
-
-@music_bot.command(name="resume")
-async def resume_cmd(ctx: commands.Context) -> None:
-    """Resume the paused song."""
-    vc = ctx.voice_client
-    if not vc or not vc.is_connected():
-        await ctx.send(embed=EmbedFactory.error("Not connected to a voice channel."))
-        return
-    if vc.is_paused():
-        vc.resume()
-        await ctx.send(embed=EmbedFactory.base("▶️ Resumed", "Playback resumed."))
-    else:
-        await ctx.send(embed=EmbedFactory.error("Nothing is paused."))
-
-
-@music_bot.command(name="queue")
-async def queue_cmd(ctx: commands.Context) -> None:
-    """Display the current music queue."""
-    queue = music_bot.get_queue(ctx.guild.id)
-    await ctx.send(embed=EmbedFactory.queue(queue))
-
-
-@music_bot.command(name="nowplaying")
-async def nowplaying_cmd(ctx: commands.Context) -> None:
-    """Show information about the currently playing song."""
-    vc = ctx.voice_client
-    if vc and vc.is_playing():
-        await ctx.send(embed=EmbedFactory.base("🎵 Now Playing", "Currently streaming audio."))
-    else:
-        await ctx.send(embed=EmbedFactory.error("Nothing is currently playing."))
-
-
-@music_bot.command(name="leave")
-async def leave_cmd(ctx: commands.Context) -> None:
-    """Leave the voice channel and clear the queue."""
-    music_bot.get_queue(ctx.guild.id).clear()
-    await music_bot.set_playing_activity(None)
-    await music_bot.voice.disconnect(ctx)
+    async def on_ready(self) -> None:
+        logger.info(f"✅ Logged in as {self.user} (ID: {self.user.id})")
+        await self.change_presence(
+            status=discord.Status.online,
+            activity=discord.Game(name="/play <song or URL>"),
+        )
 
 
 # ------------------ Run ------------------
 
 if __name__ == "__main__":
-    music_bot.run(TOKEN)
+    bot = VelodyBot()
+    bot.run(TOKEN)
