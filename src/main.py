@@ -8,6 +8,7 @@ and managing music queues in Discord voice channels.
 import asyncio
 import configparser
 import logging
+import time
 from dataclasses import dataclass
 from os import getenv
 from typing import Any, Dict, List, Optional
@@ -51,6 +52,7 @@ class Song:
     source_url: str
     webpage_url: str
     thumbnail: Optional[str] = None
+    duration: Optional[int] = None  # seconds
 
 
 # ------------------ Embed Factory ------------------
@@ -84,13 +86,12 @@ class EmbedFactory:
         return discord.Embed(title="❌ Error", description=msg, color=0xED4245)
 
     @staticmethod
-    def now_playing(song: Song) -> discord.Embed:
-        """Return an embed representing the currently playing song."""
-        embed = discord.Embed(
-            title="🎶 Now Playing",
-            description=f"**[{song.title}]({song.webpage_url})**",
-            color=0x57F287,
-        )
+    def now_playing(song: Song, progress_text: Optional[str] = None) -> discord.Embed:
+        """Return an embed representing the currently playing song, with optional progress."""
+        desc = f"**[{song.title}]({song.webpage_url})**"
+        if progress_text:
+            desc += f"\n\n`{progress_text}`"
+        embed = discord.Embed(title="🎶 Now Playing", description=desc, color=0x57F287)
         if song.thumbnail:
             embed.set_thumbnail(url=song.thumbnail)
         embed.set_footer(text="Enjoy the music!")
@@ -183,6 +184,7 @@ class YTDLService:
             source_url=entry.get("url"),
             webpage_url=entry.get("webpage_url", url),
             thumbnail=entry.get("thumbnail"),
+            duration=entry.get("duration"),
         )
 
 
@@ -243,26 +245,13 @@ class MusicCog(commands.Cog):
         self.voice = VoiceManager()
 
     def get_queue(self, guild_id: int) -> List[Song]:
-        """
-        Retrieve the song queue for a specific guild.
-
-        Args:
-            guild_id: The guild ID.
-
-        Returns:
-            The song queue list.
-        """
+        """Retrieve the song queue for a specific guild."""
         if guild_id not in self.queues:
             self.queues[guild_id] = []
         return self.queues[guild_id]
 
     async def set_activity(self, song_title: Optional[str] = None) -> None:
-        """
-        Update the bot's Discord status.
-
-        Args:
-            song_title: Optional song title to display as 'Listening to ...'.
-        """
+        """Update the bot's Discord status."""
         if song_title:
             await self.bot.change_presence(
                 status=discord.Status.online,
@@ -275,12 +264,7 @@ class MusicCog(commands.Cog):
             )
 
     async def play_next(self, interaction: discord.Interaction) -> None:
-        """
-        Play the next song in the queue, or disconnect if queue is empty.
-
-        Args:
-            interaction: The interaction context.
-        """
+        """Play the next song in the queue, or disconnect if queue is empty."""
         queue = self.get_queue(interaction.guild.id)
         if not queue:
             await self.set_activity(None)
@@ -291,13 +275,7 @@ class MusicCog(commands.Cog):
         await self.play_song(interaction, next_song)
 
     async def play_song(self, interaction: discord.Interaction, song: Song) -> None:
-        """
-        Play a song in the user's voice channel (no embeds or responses).
-
-        Args:
-            interaction: The command interaction.
-            song: The `Song` to play.
-        """
+        """Play a song in the user's voice channel (no embeds or responses)."""
         vc = interaction.guild.voice_client or await self.voice.ensure_voice(interaction)
         if not vc:
             return
@@ -314,6 +292,8 @@ class MusicCog(commands.Cog):
                 asyncio.run_coroutine_threadsafe(self.play_next(interaction), self.bot.loop)
 
             vc.play(source, after=after_play)
+            vc.current_song = song  # Store reference
+            vc.start_time = time.time()  # Track playback start time
         except Exception as err:
             logger.exception("Playback error: %s", err)
             await self.play_next(interaction)
@@ -388,6 +368,38 @@ class MusicCog(commands.Cog):
         """Display the current queue."""
         queue = self.get_queue(interaction.guild.id)
         await interaction.response.send_message(embed=EmbedFactory.queue(queue))
+
+    @app_commands.command(name="nowplaying", description="Show the currently playing song.")
+    async def now_playing(self, interaction: discord.Interaction) -> None:
+        """Display the song that is currently playing with progress."""
+        vc = interaction.guild.voice_client
+        if not vc or not vc.is_connected():
+            await interaction.response.send_message(embed=EmbedFactory.error("Not connected to a voice channel."))
+            return
+
+        if not vc.is_playing() and not vc.is_paused():
+            await interaction.response.send_message(embed=EmbedFactory.error("Nothing is currently playing."))
+            return
+
+        if not hasattr(vc, "current_song") or not vc.current_song:
+            await interaction.response.send_message(embed=EmbedFactory.error("No track information available."))
+            return
+
+        song = vc.current_song
+        elapsed = int(time.time() - getattr(vc, "start_time", time.time()))
+        total = song.duration or 0
+
+        def fmt_time(sec: int) -> str:
+            m, s = divmod(sec, 60)
+            return f"{m}:{s:02d}"
+
+        if total > 0:
+            progress = min(elapsed / total, 1)
+            progress_text = f"{fmt_time(elapsed)} / {fmt_time(total)} ({int(progress * 100)}%)"
+        else:
+            progress_text = f"{fmt_time(elapsed)} elapsed"
+
+        await interaction.response.send_message(embed=EmbedFactory.now_playing(song, progress_text))
 
     @app_commands.command(name="leave", description="Disconnect and clear the queue.")
     async def leave(self, interaction: discord.Interaction) -> None:
