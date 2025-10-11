@@ -235,9 +235,9 @@ class VoiceManager:
 class MusicCog(commands.Cog):
     """Discord Cog handling music playback and queue management."""
 
-    def __init__(self, bot: commands.Bot) -> None:
+    def __init__(self, discord_bot: commands.Bot) -> None:
         """Initialize the music cog."""
-        self.bot = bot
+        self.bot = discord_bot
         self.queues: Dict[int, List[Song]] = {}
         self.ytdl = YTDLService()
         self.voice = VoiceManager()
