@@ -1,8 +1,11 @@
 """
 Velody — A modern Discord music bot using discord.py 2.x and yt-dlp.
 
-This bot provides slash commands for playing, pausing, resuming,
-and managing music queues in Discord voice channels.
+Optimized version:
+- Non-blocking yt-dlp extraction using asyncio.to_thread()
+- Avoids redundant metadata lookups
+- Adds caching for repeated URLs
+- Sends immediate feedback on /play for better UX
 """
 
 import asyncio
@@ -45,7 +48,7 @@ intents.message_content = False  # Not needed for slash commands
 
 @dataclass
 class Song:
-    """Represents a song with metadata and URLs."""
+    """Represents a song with metadata and stream URLs."""
 
     url: str
     title: str
@@ -64,12 +67,12 @@ class EmbedFactory:
     @staticmethod
     def base(title: str, desc: str, color: int = 0x5865F2, url: Optional[str] = None) -> discord.Embed:
         """
-        Create a base embed with an optional URL.
+        Create a base embed with optional title URL.
 
         Args:
             title: The embed title.
             desc: The embed description.
-            color: The embed color (default: Discord blurple).
+            color: Embed color (default: Discord blurple).
             url: Optional URL to attach to the title.
 
         Returns:
@@ -82,12 +85,12 @@ class EmbedFactory:
 
     @staticmethod
     def error(msg: str) -> discord.Embed:
-        """Return a red error embed with the provided message."""
+        """Return a red error embed."""
         return discord.Embed(title="❌ Error", description=msg, color=0xED4245)
 
     @staticmethod
     def now_playing(song: Song, progress_text: Optional[str] = None) -> discord.Embed:
-        """Return an embed representing the currently playing song, with optional progress."""
+        """Return an embed representing the currently playing song, with optional progress text."""
         desc = f"**[{song.title}]({song.webpage_url})**"
         if progress_text:
             desc += f"\n\n`{progress_text}`"
@@ -127,26 +130,27 @@ class EmbedFactory:
 
 
 class YTDLService:
-    """Service class for extracting audio information from YouTube and other sources."""
+    """Service for extracting song metadata and audio stream URLs using yt-dlp."""
 
     def __init__(self) -> None:
-        """Initialize the YTDLService with default yt-dlp options."""
+        """Initialize yt-dlp options and cache."""
         self.ydl_opts: Dict[str, Any] = {
             "format": "bestaudio/best",
             "quiet": True,
             "default_search": "auto",
             "extract_flat": False,
         }
+        self.cache: Dict[str, Song] = {}
 
     def canonicalize_url(self, url: str) -> str:
         """
-        Normalize YouTube URLs for consistent handling.
+        Normalize YouTube URLs for consistent caching and lookup.
 
         Args:
             url: The original YouTube or shortened URL.
 
         Returns:
-            A canonicalized YouTube watch URL.
+            Canonicalized YouTube watch URL.
         """
         parsed = urlparse(url)
         if parsed.netloc.endswith("youtube.com") and parsed.path == "/watch":
@@ -161,15 +165,22 @@ class YTDLService:
 
     async def extract_info(self, query: str) -> Song:
         """
-        Extract song information asynchronously using yt-dlp.
+        Asynchronously extract song metadata and stream URL.
 
         Args:
             query: A YouTube URL or search term.
 
         Returns:
-            A `Song` instance containing metadata and stream URLs.
+            A `Song` instance containing metadata.
         """
         url = self.canonicalize_url(query)
+
+        # Cached lookup
+        if url in self.cache:
+            logger.debug(f"Cache hit for {url}")
+            return self.cache[url]
+
+        logger.info(f"Fetching info for {url}")
 
         def _extract() -> Dict[str, Any]:
             with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
@@ -178,7 +189,7 @@ class YTDLService:
         info = await asyncio.to_thread(_extract)
         entry = info["entries"][0] if "entries" in info and info["entries"] else info
 
-        return Song(
+        song = Song(
             url=url,
             title=entry.get("title", "Unknown Title"),
             source_url=entry.get("url"),
@@ -187,12 +198,16 @@ class YTDLService:
             duration=entry.get("duration"),
         )
 
+        # Store in cache
+        self.cache[url] = song
+        return song
+
 
 # ------------------ Voice Manager ------------------
 
 
 class VoiceManager:
-    """Handles voice channel connection and disconnection logic."""
+    """Handles connecting and disconnecting the bot from voice channels."""
 
     async def ensure_voice(self, interaction: discord.Interaction) -> Optional[discord.VoiceClient]:
         """
@@ -221,17 +236,13 @@ class VoiceManager:
         return vc
 
     async def disconnect(self, interaction: discord.Interaction) -> None:
-        """
-        Disconnect the bot from a voice channel if connected.
-
-        Args:
-            interaction: The command interaction context.
-        """
+        """Disconnect the bot from a voice channel if connected."""
         if interaction.guild and interaction.guild.voice_client:
             await interaction.guild.voice_client.disconnect()
 
 
 # ------------------ Music Cog ------------------
+
 
 YDL_OPTS = {
     "format": "bestaudio/best",
@@ -242,14 +253,13 @@ YDL_OPTS = {
 }
 
 FFMPEG_OPTS = {
-    "before_options": (
-        "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"
-    ),
+    "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
     "options": "-vn",
 }
 
+
 class MusicCog(commands.Cog):
-    """Discord Cog handling music playback and queue management."""
+    """Discord Cog for managing music playback and queues."""
 
     def __init__(self, discord_bot: commands.Bot) -> None:
         """Initialize the music cog."""
@@ -259,13 +269,13 @@ class MusicCog(commands.Cog):
         self.voice = VoiceManager()
 
     def get_queue(self, guild_id: int) -> List[Song]:
-        """Retrieve the song queue for a specific guild."""
+        """Retrieve or create the song queue for a specific guild."""
         if guild_id not in self.queues:
             self.queues[guild_id] = []
         return self.queues[guild_id]
 
     async def set_activity(self, song_title: Optional[str] = None) -> None:
-        """Update the bot's Discord status."""
+        """Update the bot’s Discord presence."""
         if song_title:
             await self.bot.change_presence(
                 status=discord.Status.online,
@@ -278,7 +288,7 @@ class MusicCog(commands.Cog):
             )
 
     async def play_next(self, interaction: discord.Interaction) -> None:
-        """Play the next song in the queue, or disconnect if queue is empty."""
+        """Play the next song in the queue, or disconnect if empty."""
         queue = self.get_queue(interaction.guild.id)
         if not queue:
             await self.set_activity(None)
@@ -288,22 +298,18 @@ class MusicCog(commands.Cog):
         next_song = queue.pop(0)
         await self.play_song(interaction, next_song)
 
-    async def play_song(self, interaction, song):
-        """Play a song in the voice channel."""
+    async def play_song(self, interaction: discord.Interaction, song: Song) -> None:
+        """Play a song in the connected voice channel."""
         vc = interaction.guild.voice_client or await self.voice.ensure_voice(interaction)
         if not vc:
             return
 
         await self.set_activity(song.title)
-
-        with yt_dlp.YoutubeDL(YDL_OPTS) as ydl:
-            info = ydl.extract_info(song.webpage_url, download=False)
-            url = info["url"]
-            if "http_headers" in info:
-                headers = "\r\n".join(f"{k}: {v}" for k, v in info["http_headers"].items())
-                FFMPEG_OPTS["before_options"] += f' -headers "{headers}"'
+        url = song.source_url
 
         source = FFmpegPCMAudio(url, **FFMPEG_OPTS)
+        vc.current_song = song
+        vc.start_time = time.time()
 
         def after_play(err):
             if err:
@@ -321,22 +327,24 @@ class MusicCog(commands.Cog):
         if not vc:
             return
 
-        await interaction.response.defer(thinking=True)
+        # Send instant feedback to user
+        await interaction.response.send_message("⏳ Searching for your song...")
+        msg = await interaction.original_response()
 
         try:
             song = await self.ytdl.extract_info(query)
         except Exception as err:
             logger.exception("Error extracting info: %s", err)
-            await interaction.followup.send(embed=EmbedFactory.error("Failed to extract song info."))
+            await msg.edit(content=None, embed=EmbedFactory.error("Failed to extract song info."))
             return
 
         queue = self.get_queue(interaction.guild.id)
         if vc.is_playing() or vc.is_paused():
             queue.append(song)
-            await interaction.followup.send(embed=EmbedFactory.added_to_queue(song, len(queue)))
+            await msg.edit(content=None, embed=EmbedFactory.added_to_queue(song, len(queue)))
         else:
             await self.play_song(interaction, song)
-            await interaction.followup.send(embed=EmbedFactory.now_playing(song))
+            await msg.edit(content=None, embed=EmbedFactory.now_playing(song))
 
     @app_commands.command(name="skip", description="Skip the current song.")
     async def skip(self, interaction: discord.Interaction) -> None:
@@ -379,13 +387,13 @@ class MusicCog(commands.Cog):
 
     @app_commands.command(name="queue", description="Show the current queue.")
     async def show_queue(self, interaction: discord.Interaction) -> None:
-        """Display the current queue."""
+        """Display the current song queue."""
         queue = self.get_queue(interaction.guild.id)
         await interaction.response.send_message(embed=EmbedFactory.queue(queue))
 
     @app_commands.command(name="nowplaying", description="Show the currently playing song.")
     async def now_playing(self, interaction: discord.Interaction) -> None:
-        """Display the song that is currently playing with progress."""
+        """Display the currently playing song with playback progress."""
         vc = interaction.guild.voice_client
         if not vc or not vc.is_connected():
             await interaction.response.send_message(embed=EmbedFactory.error("Not connected to a voice channel."))
@@ -417,7 +425,7 @@ class MusicCog(commands.Cog):
 
     @app_commands.command(name="leave", description="Disconnect and clear the queue.")
     async def leave(self, interaction: discord.Interaction) -> None:
-        """Disconnect from voice and clear the song queue."""
+        """Disconnect from the voice channel and clear the queue."""
         if interaction.guild:
             self.get_queue(interaction.guild.id).clear()
         await self.voice.disconnect(interaction)
@@ -426,7 +434,7 @@ class MusicCog(commands.Cog):
 
     @app_commands.command(name="about", description="About the bot.")
     async def about(self, interaction: discord.Interaction) -> None:
-        """Display information about the bot."""
+        """Display bot information and GitHub link."""
         embed = EmbedFactory.base(
             "🎧 Velody",
             "Modern Discord music bot powered by yt-dlp and discord.py 2.x.",
@@ -443,7 +451,7 @@ class VelodyBot(commands.Bot):
     """Main bot class for initializing and managing the Velody music bot."""
 
     def __init__(self) -> None:
-        """Initialize the bot with intents and config options."""
+        """Initialize the bot with intents and config."""
         super().__init__(command_prefix="!", intents=intents)
         self.dev_guild_id: Optional[int] = config.getint("bot", "dev_guild_id", fallback=None)
         self.clear_dev_commands: bool = config.getboolean(
@@ -451,7 +459,7 @@ class VelodyBot(commands.Bot):
         )
 
     async def setup_hook(self) -> None:
-        """Load the music cog and synchronize slash commands."""
+        """Load cogs and sync slash commands."""
         await self.add_cog(MusicCog(self))
 
         if self.dev_guild_id:
@@ -469,7 +477,7 @@ class VelodyBot(commands.Bot):
             logger.info("🌍 Slash commands globally synced (may take up to an hour).")
 
     async def on_ready(self) -> None:
-        """Event handler for when the bot successfully logs in."""
+        """Triggered when the bot logs in successfully."""
         logger.info("✅ Logged in as %s (ID: %s)", self.user, self.user.id)
         await self.change_presence(
             status=discord.Status.online,

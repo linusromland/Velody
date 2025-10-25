@@ -2,6 +2,7 @@
 
 ## 4.1.2 (2025-10-25)
 - Fix bug with playing songs.
+- Implement simple caching for youtube videos.
 
 ## 4.1.1 (2025-10-22)
 - Unlock library versions.
