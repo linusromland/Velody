@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse, parse_qs
 
 import discord
-from discord import app_commands
+from discord import FFmpegPCMAudio, app_commands
 from discord.ext import commands
 import yt_dlp
 
@@ -233,6 +233,20 @@ class VoiceManager:
 
 # ------------------ Music Cog ------------------
 
+YDL_OPTS = {
+    "format": "bestaudio/best",
+    "quiet": True,
+    "default_search": "auto",
+    "nocheckcertificate": True,
+    "geo_bypass": True,
+}
+
+FFMPEG_OPTS = {
+    "before_options": (
+        "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"
+    ),
+    "options": "-vn",
+}
 
 class MusicCog(commands.Cog):
     """Discord Cog handling music playback and queue management."""
@@ -274,29 +288,30 @@ class MusicCog(commands.Cog):
         next_song = queue.pop(0)
         await self.play_song(interaction, next_song)
 
-    async def play_song(self, interaction: discord.Interaction, song: Song) -> None:
-        """Play a song in the user's voice channel (no embeds or responses)."""
+    async def play_song(self, interaction, song):
+        """Play a song in the voice channel."""
         vc = interaction.guild.voice_client or await self.voice.ensure_voice(interaction)
         if not vc:
             return
 
         await self.set_activity(song.title)
 
-        ffmpeg_options = {"options": "-vn"}
-        try:
-            source = await discord.FFmpegOpusAudio.from_probe(song.source_url, **ffmpeg_options)
+        with yt_dlp.YoutubeDL(YDL_OPTS) as ydl:
+            info = ydl.extract_info(song.webpage_url, download=False)
+            url = info["url"]
+            # add headers yt-dlp used (important for 403s)
+            if "http_headers" in info:
+                headers = "\r\n".join(f"{k}: {v}" for k, v in info["http_headers"].items())
+                FFMPEG_OPTS["before_options"] += f' -headers "{headers}"'
 
-            def after_play(error: Optional[Exception]) -> None:
-                if error:
-                    logger.error("Error after playing: %s", error)
-                asyncio.run_coroutine_threadsafe(self.play_next(interaction), self.bot.loop)
+        source = FFmpegPCMAudio(url, **FFMPEG_OPTS)
 
-            vc.play(source, after=after_play)
-            vc.current_song = song  # Store reference
-            vc.start_time = time.time()  # Track playback start time
-        except Exception as err:
-            logger.exception("Playback error: %s", err)
-            await self.play_next(interaction)
+        def after_play(err):
+            if err:
+                logger.error("Playback error: %s", err)
+            asyncio.run_coroutine_threadsafe(self.play_next(interaction), self.bot.loop)
+
+        vc.play(source, after=after_play)
 
     # ------------------ Slash Commands ------------------
 
