@@ -299,7 +299,6 @@ class MusicCog(commands.Cog):
         with yt_dlp.YoutubeDL(YDL_OPTS) as ydl:
             info = ydl.extract_info(song.webpage_url, download=False)
             url = info["url"]
-            # add headers yt-dlp used (important for 403s)
             if "http_headers" in info:
                 headers = "\r\n".join(f"{k}: {v}" for k, v in info["http_headers"].items())
                 FFMPEG_OPTS["before_options"] += f' -headers "{headers}"'
