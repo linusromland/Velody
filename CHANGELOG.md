@@ -1,5 +1,8 @@
 # Changelogads
 
+## 4.1.3 (2026-01-27)
+- Bump yt-dlp
+
 ## 4.1.2 (2025-10-25)
 - Fix bug with playing songs.
 - Implement simple caching for youtube videos.
