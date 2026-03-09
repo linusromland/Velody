@@ -1,5 +1,8 @@
 # Changelogads
 
+## 4.1.4 (2026-03-09)
+- Bump yt-dlp
+
 ## 4.1.3 (2026-01-27)
 - Bump yt-dlp
 
