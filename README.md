@@ -2,134 +2,96 @@
   <img src="assets/logo.jpeg" width="224px"/><br/>
   Velody
 </h1>
-<p align="center">Velody is a <b>Discord music bot</b> written in <b>Python</b>.
+<p align="center">Velody is a <b>Discord music bot</b> written in <b>TypeScript</b> with <b>discord.js</b>, <b>MongoDB</b>, and a modular media provider pipeline.</p>
 
+## Features
 
-## ⚙️ Commands
+- Slash commands: `/play`, `/skip`, `/queue`, `/now-playing`, `/leave`
+- Multi-guild playback isolation: each Discord server has its own independent queue and voice session
+- YouTube metadata/search via YouTube Data API
+- Audio extraction via yt-dlp with fallback attempts
+- MongoDB-backed extraction cache and playback history
+- Strict TypeScript, linting, tests, and CI workflows
 
-| Command                    | Description                                                 |
-| -------------------------- | ----------------------------------------------------------- |
-| `!play <query>`            | Search for a video/song and play it.                       |
-| `!skip`                    | Skip the current track.                                     |
-| `!pause`                   | Pause the current track.                                    |
-| `!resume`                  | Resume the paused track.                                    |
-| `!queue`                   | Display the current queue.                                  |
-| `!nowplaying`              | Display the current track.                                  |
-| `!join`                    | Join the voice channel.                                     |
-| `!leave`                   | Leave the voice channel and clear the queue.               |
+## Stack
 
-## ⚡️ Setup
+- Node.js 22 LTS
+- TypeScript 5
+- discord.js v14
+- @discordjs/voice
+- MongoDB
 
-### Prerequisites
+## Requirements
 
-In order to run `Velody` natively, you will need to have the following installed:
+- Node.js 22+
+- MongoDB instance
+- ffmpeg installed in PATH (or configured via env)
+- yt-dlp installed in PATH (or configured via env)
+- Discord bot token and application client id
+- YouTube Data API key
 
-- [Python 3.8+](https://www.python.org/downloads/)
-- [FFmpeg](https://ffmpeg.org/download.html) (for audio processing)
+## Local Development
 
-If you want to run `Velody` in a Docker container, you will need to have the following installed:
+1. Install dependencies:
 
-- [Docker](https://www.docker.com/)
+  npm install
 
-### Bot Permissions
+2. Copy environment template and fill values:
 
-Velody requires the following permissions to function properly:
+  cp .env.example .env
 
-1. Discord permissions:
+3. Start in watch mode:
 
-- Make sure the bot has the necessary permissions to read and send messages in text channels.
+  npm run dev
 
-2. Voice Channel Interaction:
+4. Build and run production bundle:
 
-- Grant the bot permissions to join voice channels.
-- Ensure the bot has sufficient permissions to speak in voice channels.
+  npm run build
+  npm start
 
-### Running natively
+## Environment Variables
 
-1. Clone the repository
+- `DISCORD_TOKEN`: bot token
+- `DISCORD_CLIENT_ID`: application client id
+- `MONGODB_URI`: mongodb connection string
+- `MONGODB_DB_NAME`: mongodb database name
+- `YOUTUBE_API_KEY`: youtube data api key
+- `YTDLP_PATH`: path to yt-dlp binary (default `yt-dlp`)
+- `FFMPEG_PATH`: path to ffmpeg binary (default `ffmpeg`)
+- `YTDLP_COOKIES_FILE`: optional cookies file path for restricted content
+- `YTDLP_PROXY`: optional proxy for extraction fallback
+- `CACHE_DIR`: reserved for local media cache extension
+- `PREFETCH_COUNT`: reserved prefetch worker size
+- `MAX_QUEUE_SIZE`: maximum queue length per guild
 
-```bash
-git clone https://github.com/linusromland/Velody.git
-cd Velody
-```
+## Architecture Overview
 
-2. Install dependencies
+- `src/commands`: slash command definitions and interaction handling
+- `src/services`: application services that orchestrate providers and playback
+- `src/core/playback`: per-guild playback sessions, queueing, and voice control
+- `src/providers`: source-specific modules (YouTube search and yt-dlp extraction)
+- `src/infrastructure/mongo`: persistence repositories and indexes
 
-```bash
-pip install -r requirements.txt
-```
+The playback core is designed so source adapters can be swapped or extended later.
 
-3. Configuration
+## Docker
 
-```bash
-cp config.ini.example config.ini
-```
+Build image:
 
-Then, fill in the configuration values in the `config.ini` file. Alternatively, you can set the `DISCORD_TOKEN` environment variable.
+docker build -t velody:local .
 
-4. Run the bot
+Run image:
 
-```bash
-python src/main.py
-```
+docker run --env-file .env velody:local
 
-### Build and run Docker image
+## Notes on yt-dlp Reliability
 
-1. Clone the repository
+YouTube extraction can break due to upstream changes. Velody already supports fallback extraction attempts and optional cookies/proxy configuration. For production stability:
 
-```bash
-git clone https://github.com/linusromland/Velody.git
-cd Velody
-```
+- keep yt-dlp up to date
+- configure `YTDLP_COOKIES_FILE` for age/region restricted videos
+- configure `YTDLP_PROXY` if your deployment region needs alternate routing
 
-2. Build the Docker image
+## License
 
-```bash
-docker build -t velody .
-```
-
-3. Run the Docker container with the required environment variables.
-
-See [here](#-environment-variables) for more information about the environment variables.
-
-```bash
-docker run -d --name velody -e DISCORD_TOKEN=your_token_here velody
-```
-
-### Run Docker image from GitHub Container Registry
-
-1. Pull the Docker image
-
-```bash
-docker pull ghcr.io/linusromland/velody:latest
-```
-
-2. Run the Docker container with the required environment variables.
-
-See [here](#-environment-variables) for more information about the environment variables.
-
-```bash
-docker run -d --name velody -e DISCORD_TOKEN=your_token_here ghcr.io/linusromland/velody:latest
-```
-
-## 📦 Environment variables
-
-| Variable      | Description                        | Required | Default value |
-| ------------- | ---------------------------------- | -------- | ------------- |
-| DISCORD_TOKEN | The bot token of your Discord bot. | Yes      | -             |
-
-The bot token can also be provided via the `config.ini` file in the `[discord]` section as `token = your_token_here`.
-
-## 📝 Contact
-
-If you have any questions, feel free to contact me on Discord: `linusromland`
-
-## ⭐️ Project assistance
-
-If you want to say **thank you** or/and support active development of `Velody`:
-
-- Add a [GitHub Star](https://github.com/linusromland/velody) to the project.
-
-## ⚠️ License
-
-`Velody` is free and open-source software licensed under the [MIT License](https://github.com/linusromland/Velody/blob/master/LICENSE).
+Velody is free and open-source software licensed under the [MIT License](LICENSE).
