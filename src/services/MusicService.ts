@@ -10,6 +10,7 @@ const logger = createLogger("MusicService");
 export interface EmbedResponse {
     title: string;
     description: string;
+    color?: number;
     thumbnailUrl?: string | undefined;
     footer?: string | undefined;
 }
@@ -87,9 +88,23 @@ export class MusicService {
                 });
 
                 const firstTrack = queueItems[0]?.track;
+                const previewLines = queueItems
+                    .slice(0, 5)
+                    .map((item, index) => `${index + 1}. ${item.track.title}`);
+
+                if (queueItems.length > 5) {
+                    previewLines.push(`...and ${queueItems.length - 5} more`);
+                }
+
                 return {
-                    title: "Playlist Queued",
-                    description: `Queued **${queueItems.length}** tracks.\nFirst up: **${firstTrack?.title ?? "unknown"}**`,
+                    title: "Playlist Added",
+                    description: [
+                        `Added **${queueItems.length}** tracks to the queue.`,
+                        "",
+                        "**Up Next**",
+                        ...previewLines
+                    ].join("\n"),
+                    color: 0x1db954,
                     thumbnailUrl: firstTrack?.thumbnailUrl ?? undefined,
                     footer: `Requested by ${interaction.user.tag}`
                 };
@@ -130,8 +145,13 @@ export class MusicService {
         });
 
         return {
-            title: "Track Queued",
-            description: `Added **${track.title}** to the queue.`,
+            title: "Track Added",
+            description: [
+                `**${track.title}**`,
+                "",
+                "Added to the queue."
+            ].join("\n"),
+            color: 0x1db954,
             thumbnailUrl: track.thumbnailUrl ?? undefined,
             footer: `Requested by ${interaction.user.tag}`
         };
@@ -156,7 +176,8 @@ export class MusicService {
             logger.info("Skip command had no active track", { guildId });
             return {
                 title: "Skip",
-                description: "Nothing is currently playing."
+                description: "Nothing is playing right now.",
+                color: 0xf1c40f
             };
         }
 
@@ -168,8 +189,9 @@ export class MusicService {
         });
 
         return {
-            title: "Track Skipped",
+            title: "Skipped",
             description: `Skipped **${skipped.track.title}**.`,
+            color: 0xf1c40f,
             thumbnailUrl: skipped.track.thumbnailUrl ?? undefined,
             footer: `Requested by ${interaction.user.tag}`
         };
@@ -193,6 +215,7 @@ export class MusicService {
         return {
             title: "Disconnected",
             description: "Left the voice channel and cleared the queue.",
+            color: 0xe67e22,
             footer: `Requested by ${interaction.user.tag}`
         };
     }
@@ -216,15 +239,18 @@ export class MusicService {
         if (!state.nowPlaying && state.queue.length === 0) {
             return {
                 title: "Queue",
-                description: "Queue is empty."
+                description: "No tracks queued yet.",
+                color: 0x5865f2
             };
         }
 
         const nowLine = state.nowPlaying
-            ? `Now playing: ${state.nowPlaying.track.title}`
-            : "Now playing: nothing";
+            ? `• ${state.nowPlaying.track.title}`
+            : "• Nothing right now";
 
-        const queuedLines = state.queue.slice(0, 10).map((item, index) => `${index + 1}. ${item.track.title}`);
+        const queuedLines = state.queue
+            .slice(0, 10)
+            .map((item, index) => `${index + 1}. ${item.track.title}`);
 
         if (state.queue.length > 10) {
             queuedLines.push(`...and ${state.queue.length - 10} more`);
@@ -232,7 +258,14 @@ export class MusicService {
 
         return {
             title: "Queue",
-            description: [nowLine, ...queuedLines].join("\n"),
+            description: [
+                "**Now Playing**",
+                nowLine,
+                "",
+                "**Up Next**",
+                ...(queuedLines.length > 0 ? queuedLines : ["No upcoming tracks"])
+            ].join("\n"),
+            color: 0x5865f2,
             thumbnailUrl: state.nowPlaying?.track.thumbnailUrl ?? undefined,
             footer: `Total queued: ${state.queue.length}`
         };
@@ -255,13 +288,19 @@ export class MusicService {
         if (!state.nowPlaying) {
             return {
                 title: "Now Playing",
-                description: "Nothing is currently playing."
+                description: "Nothing is playing right now.",
+                color: 0x5865f2
             };
         }
 
         return {
             title: "Now Playing",
-            description: `**${state.nowPlaying.track.title}**`,
+            description: [
+                `**${state.nowPlaying.track.title}**`,
+                "",
+                "Use /queue to see what is coming up."
+            ].join("\n"),
+            color: 0x5865f2,
             thumbnailUrl: state.nowPlaying.track.thumbnailUrl ?? undefined,
             footer: `Requested by ${state.nowPlaying.requestedBy}`
         };

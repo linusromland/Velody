@@ -8,10 +8,9 @@ const logger = createLogger("handleInteraction");
 
 const buildEmbed = (payload: EmbedResponse): EmbedBuilder => {
     const embed = new EmbedBuilder()
-        .setColor(0x2f3136)
+        .setColor(payload.color ?? 0x2f3136)
         .setTitle(payload.title)
-        .setDescription(payload.description)
-        .setTimestamp();
+        .setDescription(payload.description);
 
     if (payload.thumbnailUrl) {
         embed.setThumbnail(payload.thumbnailUrl);
