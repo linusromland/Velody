@@ -1,3 +1,0 @@
-yt-dlp
-discord.py
-PyNaCl
