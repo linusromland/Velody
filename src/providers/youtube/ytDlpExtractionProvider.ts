@@ -19,7 +19,28 @@ interface ExtractionAttempt {
     extraArgs: string[];
 }
 
+interface YtClientProfile {
+    name: string;
+    args: string[];
+}
+
 export class YtDlpExtractionProvider implements AudioExtractionProvider {
+    private static readonly YT_CLIENT_PROFILES: YtClientProfile[] = [
+        { name: "default-client", args: [] },
+        {
+            name: "android-client",
+            args: ["--extractor-args", "youtube:player_client=android"]
+        },
+        {
+            name: "ios-client",
+            args: ["--extractor-args", "youtube:player_client=ios"]
+        },
+        {
+            name: "tv-client",
+            args: ["--extractor-args", "youtube:player_client=tv"]
+        }
+    ];
+
     public constructor(private readonly options: YtDlpExtractionOptions) {
         logger.info("Initialized yt-dlp provider", {
             ytDlpPath: this.options.ytDlpPath,
@@ -33,19 +54,7 @@ export class YtDlpExtractionProvider implements AudioExtractionProvider {
             trackId: track.id,
             title: track.title
         });
-        const attempts: ExtractionAttempt[] = [
-            { name: "default", extraArgs: [] },
-            {
-                name: "cookies",
-                extraArgs: this.options.cookiesFile
-                    ? ["--cookies", this.options.cookiesFile]
-                    : []
-            },
-            {
-                name: "proxy",
-                extraArgs: this.options.proxy ? ["--proxy", this.options.proxy] : []
-            }
-        ].filter((attempt) => attempt.extraArgs.length > 0 || attempt.name === "default");
+        const attempts = this.buildAttempts();
 
         let lastError: Error | null = null;
 
@@ -88,6 +97,7 @@ export class YtDlpExtractionProvider implements AudioExtractionProvider {
     private async extractWithAttempt(url: string, extraArgs: string[]): Promise<string> {
         const args = [
             "--no-playlist",
+            "--no-update",
             "--extractor-retries",
             "3",
             "--format",
@@ -115,9 +125,51 @@ export class YtDlpExtractionProvider implements AudioExtractionProvider {
         });
         await mkdir(cacheDir, { recursive: true });
 
+        const attempts = this.buildAttempts();
+        let lastError: Error | null = null;
+
+        for (const attempt of attempts) {
+            try {
+                logger.debug("Running cache download attempt", {
+                    trackId: track.id,
+                    attempt: attempt.name
+                });
+                const filePath = await this.downloadWithAttempt(track.url, cacheDir, attempt.extraArgs);
+                logger.info("Downloaded track to cache", {
+                    trackId: track.id,
+                    filePath,
+                    attempt: attempt.name
+                });
+                return filePath;
+            } catch (error) {
+                logger.warn("Cache download attempt failed", {
+                    trackId: track.id,
+                    attempt: attempt.name,
+                    error
+                });
+                lastError =
+                    error instanceof Error
+                        ? error
+                        : new Error(`Unknown yt-dlp error on ${attempt.name} attempt`);
+            }
+        }
+
+        logger.error("All cache download attempts failed", {
+            trackId: track.id,
+            error: lastError
+        });
+        throw lastError ?? new Error("yt-dlp cache download failed");
+    }
+
+    private async downloadWithAttempt(
+        url: string,
+        cacheDir: string,
+        extraArgs: string[]
+    ): Promise<string> {
         const outputTemplate = path.join(cacheDir, "%(id)s.%(ext)s");
         const args = [
             "--no-playlist",
+            "--no-update",
             "--extractor-retries",
             "3",
             "--format",
@@ -131,8 +183,8 @@ export class YtDlpExtractionProvider implements AudioExtractionProvider {
             "after_move:filepath",
             "-o",
             outputTemplate,
-            ...this.getOptionalArgs(),
-            track.url
+            ...extraArgs,
+            url
         ];
 
         const output = await this.exec(this.options.ytDlpPath, args);
@@ -143,33 +195,58 @@ export class YtDlpExtractionProvider implements AudioExtractionProvider {
 
         const filePath = lines[lines.length - 1];
         if (!filePath) {
-            logger.error("yt-dlp did not return file path after download", {
-                trackId: track.id,
-                cacheDir
-            });
             throw new Error("yt-dlp did not return a cached file path");
         }
-
-        logger.info("Downloaded track to cache", {
-            trackId: track.id,
-            filePath
-        });
 
         return filePath;
     }
 
-    private getOptionalArgs(): string[] {
-        const args: string[] = [];
+    private buildAttempts(): ExtractionAttempt[] {
+        const authVariants = this.getAuthVariants();
+        const attempts: ExtractionAttempt[] = [];
+
+        for (const authVariant of authVariants) {
+            for (const profile of YtDlpExtractionProvider.YT_CLIENT_PROFILES) {
+                attempts.push({
+                    name: `${authVariant.name}+${profile.name}`,
+                    extraArgs: [...authVariant.extraArgs, ...profile.args]
+                });
+            }
+        }
+
+        return attempts;
+    }
+
+    private getAuthVariants(): ExtractionAttempt[] {
+        const variants: ExtractionAttempt[] = [{ name: "base", extraArgs: [] }];
 
         if (this.options.cookiesFile) {
-            args.push("--cookies", this.options.cookiesFile);
+            variants.push({
+                name: "cookies",
+                extraArgs: ["--cookies", this.options.cookiesFile]
+            });
         }
 
         if (this.options.proxy) {
-            args.push("--proxy", this.options.proxy);
+            variants.push({
+                name: "proxy",
+                extraArgs: ["--proxy", this.options.proxy]
+            });
         }
 
-        return args;
+        if (this.options.cookiesFile && this.options.proxy) {
+            variants.push({
+                name: "cookies-proxy",
+                extraArgs: [
+                    "--cookies",
+                    this.options.cookiesFile,
+                    "--proxy",
+                    this.options.proxy
+                ]
+            });
+        }
+
+        return variants;
     }
 
     private async exec(command: string, args: string[]): Promise<string> {

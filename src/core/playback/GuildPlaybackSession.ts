@@ -5,13 +5,15 @@ import {
     entersState,
     joinVoiceChannel,
     NoSubscriberBehavior,
+    StreamType,
     VoiceConnectionStatus,
     type VoiceConnection
 } from "@discordjs/voice";
+import { spawn, type ChildProcessByStdio } from "node:child_process";
 import { access } from "node:fs/promises";
+import type { Readable } from "node:stream";
 import { setTimeout as delay } from "node:timers/promises";
 import type { GuildMember } from "discord.js";
-import prism from "prism-media";
 
 import { AsyncMutex } from "../asyncMutex";
 import type { PlaybackState, QueueItem } from "../types";
@@ -38,6 +40,7 @@ export class GuildPlaybackSession {
 
     private voiceChannelId: string | null = null;
     private connection: VoiceConnection | null = null;
+    private activeTranscoder: ChildProcessByStdio<null, Readable, Readable> | null = null;
 
     public constructor(
         private readonly guildId: string,
@@ -58,6 +61,7 @@ export class GuildPlaybackSession {
 
         this.player.on(AudioPlayerStatus.Idle, () => {
             logger.debug("Audio player became idle", { guildId: this.guildId });
+            this.stopActiveTranscoder("player-idle");
             void this.playNext();
         });
 
@@ -66,6 +70,7 @@ export class GuildPlaybackSession {
                 guildId: this.guildId,
                 error
             });
+            this.stopActiveTranscoder("player-error");
             void this.playNext();
         });
     }
@@ -137,6 +142,7 @@ export class GuildPlaybackSession {
             this.queue.length = 0;
             this.nowPlaying = null;
             this.player.stop(true);
+            this.stopActiveTranscoder("session-leave");
 
             if (this.connection) {
                 this.connection.destroy();
@@ -266,7 +272,6 @@ export class GuildPlaybackSession {
 
         await this.historyRepository.recordPlay(this.guildId, next);
 
-        const cached = await this.cacheRepository.findValid(next.track.id, new Date());
         const downloaded = await this.downloadedMediaRepository.findValid(next.track.id, new Date());
 
         let inputTarget: string | null = null;
@@ -290,13 +295,9 @@ export class GuildPlaybackSession {
         }
 
         if (!inputTarget) {
-            if (cached) {
-                inputTarget = cached.streamUrl;
-                logger.info("Using extraction URL cache", {
-                    guildId: this.guildId,
-                    trackId: next.track.id
-                });
-            } else {
+            const cached = await this.cacheRepository.findValid(next.track.id, new Date());
+
+            try {
                 const extracted = await this.extractionProvider.extract(next.track);
                 await this.cacheRepository.upsert({
                     trackId: next.track.id,
@@ -305,38 +306,107 @@ export class GuildPlaybackSession {
                     createdAt: new Date()
                 });
                 inputTarget = extracted.streamUrl;
-                logger.info("Extracted fresh stream URL", {
+                logger.info("Extracted stream URL", {
                     guildId: this.guildId,
                     trackId: next.track.id,
                     expiresAt: extracted.expiresAt.toISOString()
                 });
+            } catch (error) {
+                if (!cached) {
+                    throw error;
+                }
+
+                inputTarget = cached.streamUrl;
+                logger.warn("Fresh extraction failed, falling back to extraction URL cache", {
+                    guildId: this.guildId,
+                    trackId: next.track.id,
+                    error
+                });
             }
         }
 
-        const ffmpeg = new prism.FFmpeg({
-            args: [
-                "-reconnect",
-                "1",
-                "-reconnect_streamed",
-                "1",
-                "-reconnect_delay_max",
-                "5",
-                "-i",
-                inputTarget,
-                "-analyzeduration",
-                "0",
-                "-loglevel",
-                "0",
-                "-f",
-                "s16le",
-                "-ar",
-                "48000",
-                "-ac",
-                "2"
-            ]
+        this.stopActiveTranscoder("before-next-track");
+        const isRemoteInput = /^https?:\/\//i.test(inputTarget);
+        const ffmpegArgs = [
+            ...(isRemoteInput
+                ? [
+                    "-reconnect",
+                    "1",
+                    "-reconnect_streamed",
+                    "1",
+                    "-reconnect_delay_max",
+                    "5"
+                ]
+                : []),
+            "-i",
+            inputTarget,
+            "-analyzeduration",
+            "0",
+            "-loglevel",
+            "warning",
+            "-f",
+            "s16le",
+            "-ar",
+            "48000",
+            "-ac",
+            "2",
+            "pipe:1"
+        ];
+
+        const transcoder = spawn(this.ffmpegPath, ffmpegArgs, {
+            stdio: ["ignore", "pipe", "pipe"]
+        });
+        this.activeTranscoder = transcoder;
+
+        let stderrTail = "";
+        transcoder.stderr.on("data", (chunk: Buffer) => {
+            stderrTail = `${stderrTail}${chunk.toString("utf8")}`;
+            if (stderrTail.length > 6000) {
+                stderrTail = stderrTail.slice(-6000);
+            }
         });
 
-        const resource = createAudioResource(ffmpeg, {
+        transcoder.on("error", (error) => {
+            logger.error("FFmpeg process failed to start", {
+                guildId: this.guildId,
+                trackId: next.track.id,
+                ffmpegPath: this.ffmpegPath,
+                error
+            });
+            if (this.nowPlaying?.track.id === next.track.id) {
+                this.player.stop(true);
+            }
+        });
+
+        transcoder.on("close", (code, signal) => {
+            if (this.activeTranscoder === transcoder) {
+                this.activeTranscoder = null;
+            }
+
+            if (signal === "SIGKILL") {
+                logger.debug("FFmpeg process stopped", {
+                    guildId: this.guildId,
+                    trackId: next.track.id,
+                    signal
+                });
+                return;
+            }
+
+            if (code !== 0) {
+                logger.error("FFmpeg process exited with failure", {
+                    guildId: this.guildId,
+                    trackId: next.track.id,
+                    exitCode: code,
+                    stderr: stderrTail.trim()
+                });
+                if (this.nowPlaying?.track.id === next.track.id) {
+                    this.player.stop(true);
+                }
+            }
+        });
+
+        const resource = createAudioResource(transcoder.stdout, {
+            inputType: StreamType.Raw,
             inlineVolume: false,
             metadata: next
         });
@@ -348,6 +418,22 @@ export class GuildPlaybackSession {
             trackTitle: next.track.title
         });
         this.prefetchUpcoming();
+    }
+
+    private stopActiveTranscoder(reason: string): void {
+        const transcoder = this.activeTranscoder;
+        if (!transcoder) {
+            return;
+        }
+
+        this.activeTranscoder = null;
+        if (!transcoder.killed) {
+            logger.debug("Stopping FFmpeg process", {
+                guildId: this.guildId,
+                reason
+            });
+            transcoder.kill("SIGKILL");
+        }
     }
 
     private prefetchUpcoming(): void {
