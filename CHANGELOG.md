@@ -1,5 +1,8 @@
 # Changelogads
 
+## 5.0.0 (2026-06-19)
+- Rewrote Velody back to TypeScript.
+
 ## 4.1.5 (2026-04-17)
 - Bump yt-dlp
 
