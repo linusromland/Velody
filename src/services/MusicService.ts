@@ -33,6 +33,14 @@ const formatDuration = (durationSeconds: number | null): string => {
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 };
 
+const truncateText = (text: string, maxLength: number): string => {
+    if (text.length <= maxLength) {
+        return text;
+    }
+
+    return `${text.slice(0, Math.max(0, maxLength - 3))}...`;
+};
+
 const isLikelyUrl = (input: string): boolean => {
     try {
         const parsed = new URL(input);
@@ -115,9 +123,9 @@ export class MusicService {
                 }
 
                 return {
-                    title: "Playlist Queued",
+                    title: "Playlist Added",
                     description: [
-                        `Queued **${queueItems.length} songs**.`,
+                        `Added **${queueItems.length} songs** to the queue.`,
                         "",
                         "**First up**",
                         firstTrack ? `**${firstTrack.title}**` : "Unknown track",
@@ -155,7 +163,7 @@ export class MusicService {
             requestedBy: interaction.user.tag,
             requestedAt: new Date()
         };
-        const firstSong = !this.playbackManager.getState(guildId).isPlaying
+        const firstSong = !this.playbackManager.getState(guildId).isPlaying;
 
         await this.playbackManager.enqueue(guildId, member, queueItem);
         logger.info("Track enqueued", {
@@ -193,12 +201,18 @@ export class MusicService {
             userId: interaction.user.id
         });
 
+        const stateBeforeSkip = this.playbackManager.getState(guildId);
+        const nextTrack = stateBeforeSkip.queue[0]?.track ?? null;
         const skipped = await this.playbackManager.skip(guildId);
         if (!skipped) {
             logger.info("Skip command had no active track", { guildId });
             return {
-                title: "Skip",
-                description: "Nothing is playing right now.",
+                title: "Nothing To Skip",
+                description: [
+                    "No track is currently playing.",
+                    "",
+                    "Use /play to start listening."
+                ].join("\n"),
                 color: 0xf1c40f
             };
         }
@@ -212,10 +226,16 @@ export class MusicService {
 
         return {
             title: "Skipped",
-            description: `Skipped **${skipped.track.title}**.`,
+            description: [
+                `Skipped: **${skipped.track.title}**`,
+                `Duration: **${formatDuration(skipped.track.durationSeconds)}**`,
+                "",
+                nextTrack
+                    ? `Next up: **${nextTrack.title}**`
+                    : "Next up: Nothing in queue"
+            ].join("\n"),
             color: 0xf1c40f,
-            thumbnailUrl: skipped.track.thumbnailUrl ?? undefined,
-            footer: `Requested by ${interaction.user.tag}`
+            thumbnailUrl: nextTrack?.thumbnailUrl ?? skipped.track.thumbnailUrl ?? undefined
         };
     }
 
@@ -236,9 +256,8 @@ export class MusicService {
         logger.info("Leave command completed", { guildId, userId: interaction.user.id });
         return {
             title: "Disconnected",
-            description: "Left the voice channel and cleared the queue.",
-            color: 0xe67e22,
-            footer: `Requested by ${interaction.user.tag}`
+            description: "Disconnected from voice and cleared the queue.",
+            color: 0xe67e22
         };
     }
 
@@ -261,35 +280,46 @@ export class MusicService {
         if (!state.nowPlaying && state.queue.length === 0) {
             return {
                 title: "Queue",
-                description: "No tracks queued yet.",
+                description: [
+                    "Queue is empty.",
+                    "",
+                    "Use /play to add your next song."
+                ].join("\n"),
                 color: 0x5865f2
             };
         }
 
-        const nowLine = state.nowPlaying
-            ? `• ${state.nowPlaying.track.title}`
-            : "• Nothing right now";
+        const nowPlayingTrack = state.nowPlaying?.track ?? null;
+        const queuedPreview = state.queue.slice(0, 8);
+        const queuedLines = queuedPreview.map((item, index) => {
+            const title = truncateText(item.track.title, 58);
+            const duration = formatDuration(item.track.durationSeconds);
+            return `${index + 1}. ${title}  (${duration})`;
+        });
 
-        const queuedLines = state.queue
-            .slice(0, 10)
-            .map((item, index) => `${index + 1}. ${item.track.title}`);
-
-        if (state.queue.length > 10) {
-            queuedLines.push(`...and ${state.queue.length - 10} more`);
+        if (state.queue.length > queuedPreview.length) {
+            queuedLines.push(`...and ${state.queue.length - queuedPreview.length} more`);
         }
 
         return {
             title: "Queue",
             description: [
                 "**Now Playing**",
-                nowLine,
+                nowPlayingTrack
+                    ? `• **${truncateText(nowPlayingTrack.title, 64)}**`
+                    : "• Nothing right now",
+                nowPlayingTrack
+                    ? `• Duration: **${formatDuration(nowPlayingTrack.durationSeconds)}**`
+                    : null,
                 "",
-                "**Up Next**",
+                "",
+                "",
+                `**Up Next (${state.queue.length})**`,
                 ...(queuedLines.length > 0 ? queuedLines : ["No upcoming tracks"])
-            ].join("\n"),
+            ].filter((line): line is string => Boolean(line)).join("\n"),
             color: 0x5865f2,
             thumbnailUrl: state.nowPlaying?.track.thumbnailUrl ?? undefined,
-            footer: `Total queued: ${state.queue.length}`
+            footer: `Queue size: ${state.queue.length}`
         };
     }
 
@@ -310,7 +340,11 @@ export class MusicService {
         if (!state.nowPlaying) {
             return {
                 title: "Now Playing",
-                description: "Nothing is playing right now.",
+                description: [
+                    "Nothing is playing right now.",
+                    "",
+                    "Use /play to start the queue."
+                ].join("\n"),
                 color: 0x5865f2
             };
         }
@@ -320,11 +354,13 @@ export class MusicService {
             description: [
                 `**${state.nowPlaying.track.title}**`,
                 "",
-                "Use /queue to see what is coming up."
+                `Duration: **${formatDuration(state.nowPlaying.track.durationSeconds)}**`,
+                state.queue[0]
+                    ? `Next up: **${state.queue[0].track.title}**`
+                    : "Next up: Nothing in queue"
             ].join("\n"),
             color: 0x5865f2,
-            thumbnailUrl: state.nowPlaying.track.thumbnailUrl ?? undefined,
-            footer: `Requested by ${state.nowPlaying.requestedBy}`
+            thumbnailUrl: state.nowPlaying.track.thumbnailUrl ?? undefined
         };
     }
 }
