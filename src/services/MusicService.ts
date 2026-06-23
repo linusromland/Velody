@@ -10,10 +10,28 @@ const logger = createLogger("MusicService");
 export interface EmbedResponse {
     title: string;
     description: string;
+    url?: string | undefined;
     color?: number;
     thumbnailUrl?: string | undefined;
+    imageUrl?: string | undefined;
     footer?: string | undefined;
 }
+
+const formatDuration = (durationSeconds: number | null): string => {
+    if (durationSeconds === null) {
+        return "Unknown length";
+    }
+
+    const hours = Math.floor(durationSeconds / 3600);
+    const minutes = Math.floor((durationSeconds % 3600) / 60);
+    const seconds = durationSeconds % 60;
+
+    if (hours > 0) {
+        return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    }
+
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+};
 
 const isLikelyUrl = (input: string): boolean => {
     try {
@@ -97,16 +115,18 @@ export class MusicService {
                 }
 
                 return {
-                    title: "Playlist Added",
+                    title: "Playlist Queued",
                     description: [
-                        `Added **${queueItems.length}** tracks to the queue.`,
+                        `Queued **${queueItems.length} songs**.`,
                         "",
-                        "**Up Next**",
+                        "**First up**",
+                        firstTrack ? `**${firstTrack.title}**` : "Unknown track",
+                        "",
+                        "**Queue preview**",
                         ...previewLines
                     ].join("\n"),
                     color: 0x1db954,
-                    thumbnailUrl: firstTrack?.thumbnailUrl ?? undefined,
-                    footer: `Requested by ${interaction.user.tag}`
+                    imageUrl: firstTrack?.thumbnailUrl ?? undefined
                 };
             }
         }
@@ -135,6 +155,7 @@ export class MusicService {
             requestedBy: interaction.user.tag,
             requestedAt: new Date()
         };
+        const firstSong = !this.playbackManager.getState(guildId).isPlaying
 
         await this.playbackManager.enqueue(guildId, member, queueItem);
         logger.info("Track enqueued", {
@@ -144,16 +165,17 @@ export class MusicService {
             userId: interaction.user.id
         });
 
+
         return {
-            title: "Track Added",
+            title: `🎶 **${track.title}**`,
+            url: track.url,
             description: [
-                `**${track.title}**`,
-                "",
-                "Added to the queue."
+                firstSong ? `Playing now!` : "Track Queued.",
+                '',
+                `Duration: ** ${formatDuration(track.durationSeconds)}**`
             ].join("\n"),
             color: 0x1db954,
-            thumbnailUrl: track.thumbnailUrl ?? undefined,
-            footer: `Requested by ${interaction.user.tag}`
+            thumbnailUrl: track.thumbnailUrl ?? undefined
         };
     }
 

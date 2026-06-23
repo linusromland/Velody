@@ -1,5 +1,8 @@
 # Changelogads
 
+# 5.1.0 (2026-06-23)
+- Improve design of play command response.
+
 ## 5.0.0 (2026-06-19)
 - Rewrote Velody back to TypeScript.
 
